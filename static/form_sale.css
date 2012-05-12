@@ -1,0 +1,134 @@
+.shift_descr {
+margin-left:5%;
+margin-right:0%;
+}
+
+.shift_descr_head {
+font-weight: bold;
+font-size: 1.2em;
+}
+
+#donation {
+color:red;
+}
+
+.form_group_title {
+color: blue;
+font-size: 1.2em;
+font-weight: bold;
+}
+
+.checkbox_active {
+font-size: 1.2em;
+}
+
+.checkbox_inactive {
+font-size: 1.2em;
+color: #cccccc;
+}
+
+form {
+position:relative;
+height: 38em;
+/*border:2px solid gray;*/
+}
+
+select {
+margin-left: 10px;
+}
+
+.form_group {
+/*border:1px solid gray;*/
+}
+
+#form_group_sale_number {
+margin-left:auto;
+margin-right:auto;
+width: 45%;
+padding: 8px;
+margin-bottom: 2em;
+color: green;
+font-size: 1.2em;
+font-weight: bold;
+border:2px solid green;
+}
+
+#form_group_shift_fr {
+position: absolute;
+top: 16%;
+left: 33%;
+width: 33%;
+}
+
+#form_group_shift_sa_1 {
+position: absolute;
+top: 30%;
+left: 0;
+width: 33%;
+}
+
+#form_group_shift_sa_2 {
+position: absolute;
+top: 30%;
+left: 33%;
+width: 33%;
+}
+
+#form_group_shift_sa_3 {
+position: absolute;
+top: 30%;
+right: 0%;
+width: 33%;
+}
+
+#form_group_donation {
+position: absolute;
+top: 60%; 
+left: 5%;
+width: 40%;
+}
+
+#form_group_no_contribution {
+position: absolute;
+top: 65%; 
+right: 0%;
+color: black;
+}
+
+#form_group_message {
+position: absolute;
+bottom: 0%; 
+left: 5%;
+width: 75%;
+height: 15%;
+font-size: 1.2em;
+}
+
+textarea {
+position: absolute;
+bottom: 0%;
+margin-left: 10px;
+margin-bottom: 0px;
+color: black;
+font-size: 0.83333em; /* 1/1.2*/
+}
+
+#form_group_submit {
+position: absolute;
+bottom: 0%; 
+right: 0%;
+
+}
+
+#error_response {
+margin-right: auto;
+margin_left: auto;
+margin-bottom: 1em;
+}
+
+#error_alarm {
+margin-bottom: 1em;
+font-size: 1.4em;
+color: red;
+text-decoration: blink;
+}

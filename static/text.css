@@ -1,0 +1,34 @@
+p {
+font-size: 1.2em;
+}
+
+.confirm_data {
+font-size: 1.2em;
+margin-bottom: 1em;
+}
+
+.mark {
+font-weight: bold;
+color: #CF3822;
+}
+
+a.intext {
+font-weight: bold;
+}
+
+#no_numbers_alarm {
+font-weight: bold;
+font-size: 2em;
+text-decoration: blink;
+color: #CF3822;
+#border:2px solid #CF3822;
+padding: 8px;
+}
+
+.error {
+color: red;
+}
+
+#sale_number {
+font-weight: bold;
+}

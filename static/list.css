@@ -1,0 +1,33 @@
+table {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	color:#000000;
+	border-width: 1px;
+	border-color: #a0a0a0;
+	border-collapse: collapse;
+}
+table th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #a0a0a0;
+	background-color: #f4c995;
+}
+table td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #a0a0a0;
+}
+table tr.odd{
+	background-color: #fcf1e4;
+}
+table tr.even{
+	background-color:#ffffff;
+}
+
+.true{
+    font-weight: bold;
+    font-size: 1.2em;
+    text-align:center;
+}

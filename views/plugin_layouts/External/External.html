@@ -1,0 +1,105 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!--
+
+Design by Free CSS Templates
+http://www.freecsstemplates.org
+Released for free under a Creative Commons Attribution 2.5 License
+
+Title      : External
+Version    : 1.0
+Released   : 200800204
+Description: Three-column blog design with the third column allocated for ads. Features Web 2.0 design ideal for 1024x768 resolutions.
+
+-->
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <title>
+   Second Hand Ottersweier
+  </title>
+  <link href="/static/plugin_layouts/layouts/External/default.css" rel="stylesheet" type="text/css" />
+  <link href="/static/plugin_layouts/layouts/External/images/shot.ico"  rel="shortcut icon" />
+ </head>
+ <body>
+
+
+  <!-- start header -->
+    <div id="wrapper">
+   <div id="header">
+    <div id="logo">
+     <h1>
+      Second Hand Ottersweier
+     </h1>
+    </div>
+   </div>
+   <!-- end header -->
+
+
+
+   <!-- start menu -->
+    {{
+    menu = [[T('Info'), True, '/']]
+    
+    
+    if config.enableregis:
+        menu.extend([
+        			[T('Vendor registration'), False, '/vendor/form']
+        			])
+        pass    
+            
+            
+        menu.extend([[T('Privacy'), 'False', '/main/privacy'],
+            		 [T('Contact'), False, '/contact/form']
+           			  ])
+                 
+    if session.staffmember:   
+        menu.extend([[T('Vendor list'), 'False', '/staff/list_vendors'],
+                     [T('Numbers'),     'False', '/staff/numbers'],
+                     [T('Contributions'), 'False', '/staff/contributions']
+                     ])
+        
+        if session.admin:
+            menu.extend([[T('Vendor control'), 'False', '/staff/vendor_control'],
+                         [T('Add vendor'), 'False', '/staff/vendor_control/add']
+                        ])
+            pass
+        pass
+        
+    elif config.showadminitems:
+        menu.extend([
+                     [T('Staff'), 'False', '/staff/login']
+                    ])
+        pass
+                 
+    
+    response.write(DIV(MENU(menu), _id='menu'))
+    }}
+    
+	<!-- end menu -->
+	
+
+   <!-- start page -->
+   <div id="page">  
+    <!-- start content -->
+    <div id="content">
+     
+     {{include}}
+     
+    </div>
+    <!-- end content -->
+
+    
+   </div>
+   <!-- end page -->
+   <!-- start footer -->
+   <div id="footer">
+    <p> 
+         {{= A(T('Legal Details'), _href=URL('main','legal'))}}
+         
+        Design by <a href="http://www.freecsstemplates.org/"> Free CSS Templates</a>
+
+    </p>
+   </div>
+  </div>
+  <!-- end footer -->
+ </body>
+</html>

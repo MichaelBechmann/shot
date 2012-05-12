@@ -1,0 +1,10 @@
+*.pyc
+.*
+!.gitignore
+/cache
+/cron
+/databases
+/errors
+/private
+/sessions
+/uploads

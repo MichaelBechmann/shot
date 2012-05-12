@@ -1,0 +1,32 @@
+{{extend 'layout.html'}}
+
+{{
+
+
+response.write(H3('Please log in as staff member.'))
+
+
+response.write(form)
+
+if form.errors.msg:
+    response.write(form.errors.msg)
+    pass
+
+
+if config.debug:
+
+    response.write(H1('Debug output'))
+
+    response.write(H2('response.flash'))
+    response.write(BEAUTIFY(response.flash))    
+
+    response.write(H2('session'))
+    response.write(BEAUTIFY(session))   
+    
+    response.write(H2('request.vars'))
+    response.write(BEAUTIFY(request.vars))    
+    
+    response.write(H2('form.errors'))
+    response.write(BEAUTIFY(form.errors)) 
+    pass
+}}

@@ -1,0 +1,21 @@
+{{extend 'layout.html'}}
+
+{{include 'vendor/check_de.html'}}
+
+{{
+
+response.write(form)
+
+
+if config.debug:
+
+    response.write(H2('Debug output'))
+
+    response.write(H2('response.flash'))
+    response.write(BEAUTIFY(response.flash))    
+    
+    response.write(H2('session.id'))
+    response.write(BEAUTIFY(session.id))
+    
+    pass
+}}

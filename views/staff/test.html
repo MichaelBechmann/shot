@@ -1,0 +1,25 @@
+{{extend 'layout.html'}}
+
+{{
+
+
+response.write(H3('Test - Test - Test'))
+
+response.write(request.url)
+
+
+if config.debug:
+
+    response.write(H1('Debug output'))
+
+    response.write(H2('response.flash'))
+    response.write(BEAUTIFY(response.flash))    
+
+    response.write(H2('session'))
+    response.write(BEAUTIFY(session))   
+    
+    response.write(H2('request.vars'))
+    response.write(BEAUTIFY(request.vars))    
+    
+    pass
+}}

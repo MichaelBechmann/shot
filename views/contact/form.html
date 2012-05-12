@@ -1,0 +1,32 @@
+{{extend 'layout.html'}}
+
+{{include 'contact/form/form_de.html'}}
+
+{{
+    
+response.write(form)
+
+if config.debug:
+
+    response.write(H1('Debug output'))
+
+    response.write(H2('id'))
+    response.write(id)
+
+    response.write(H2('assigned'))
+    response.write(assigned)
+    
+    response.write(H2('response.flash'))
+    response.write(BEAUTIFY(response.flash))    
+
+    response.write(H2('form.vars'))
+    response.write(BEAUTIFY(form.vars))
+    
+    response.write(H2('form.accepted'))
+    response.write(BEAUTIFY(form.accepted)) 
+    
+    response.write(H2('form.errors'))
+    response.write(BEAUTIFY(form.errors))           
+    
+    pass
+}}

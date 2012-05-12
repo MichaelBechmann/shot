@@ -1,0 +1,43 @@
+{{extend 'layout.html'}}
+<link href="/static/form_sale.css" rel="stylesheet" type="text/css" />
+
+{{
+
+if form.errors.msg != None:
+    response.write(CENTER(T('Attention! The form contains errors! See below!'), _id = 'error_alarm'))
+    pass
+}}
+
+{{include 'sale/form/form_de.html'}}
+
+{{
+if form.errors.msg != None:
+    response.write(DIV(form.errors.msg, _class = 'error', _id = 'error_response'))
+    pass
+    
+response.write(form)
+
+if config.debug:
+
+	response.write(H1('Debug output'))
+
+	response.write(H2('id'))
+	response.write(id)
+
+	response.write(H2('assigned'))
+	response.write(assigned)
+	
+	response.write(H2('response.flash'))
+	response.write(BEAUTIFY(response.flash))	
+
+	response.write(H2('form.vars'))
+	response.write(BEAUTIFY(form.vars))
+	
+	response.write(H2('form.accepted'))
+	response.write(BEAUTIFY(form.accepted))	
+	
+	response.write(H2('form.errors'))
+	response.write(BEAUTIFY(form.errors))			
+	
+	pass
+}}

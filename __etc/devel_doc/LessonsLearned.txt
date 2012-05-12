@@ -1,0 +1,42 @@
+Robustheit des Ablaufs:
+    - jeweils nächste Seite erzwingen, auch wenn Nutzer während der Verarbeitung auf einen anderen Link klickt, insbesondere bei den finalen 'los !' Knöpfen
+    - erweiterte und eindeutigere Fehlerbehandlung
+    - bessere Erklärungen!
+    - Keine-Cookies-Erkennung
+    - Stelle sicher, daß www.*, http://* und * funktioniert
+    
+   
+Modularer code:
+    - wiederverwendbare login-Funktion, über controller hinweg
+    - Klassen in modules, mit vollem Zugriff auf web2py-Umgebung
+    - allg. Laden der Übersetzungstabellen
+    - allg. debug-output
+    
+    
+Sauberes xhtml:
+   	- 
+   
+   
+Performance:
+    - code effizienter gestalten
+    - einen großen oder viele spezifische css files
+    - besseres, modulareres view-Konzept
+    
+    
+Inhalt:
+    - wasserdichtes Impressum, Datenschutzerklärung
+    - Bilder
+    - unterstützte Projekte
+    - bessere Unicode-Unterstützung
+    
+ 
+Sicherheit:
+    - Verschlüsselte Paßwörter, Zertifikate?
+    - check gluon/contrib/login_methods
+    
+    
+Umgebung:
+    - besseres deployment, backup
+    - Versionskontrolle
+    - Modultests
+    - spell check Deutsch
