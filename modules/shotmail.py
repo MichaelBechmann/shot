@@ -133,8 +133,6 @@ class ShotMail(EMail):
         self.receiver = vendor['email']
         self.subs['PLACEHOLDER_FULLNAME'] = vendor['forename'] + ' ' + vendor['name']
 
-
- 
 class  RegistrationMail(ShotMail):
     """
     This class defines the email with the vendor registration link.
@@ -145,24 +143,61 @@ class  RegistrationMail(ShotMail):
         self.subs['PLACEHOLDER_REGISTRATION_URL'] = config.regmail.linkbase + str(vendor['id']) + vendor['code']
         self.set_html(config.regmail.template)       
 
+class  InvitationMail(ShotMail):
+    """
+    This class defines the invitation email with the personal link to the registration form.
+    """
+    def __init__(self, vendor):
+        ShotMail.__init__(self, 'shot_staff', vendor)            
+        self.subject = config.invmail.subject
+        self.subs['PLACEHOLDER_FORM_URL'] = config.invmail.linkbase + str(vendor['id']) + vendor['code']
+        self.set_html(config.invmail.template)
         
+        self.send_backup    = True
+        self.subject_backup = 'backup invitation: ' + vendor['name'] + ', ' + vendor['forename']
+
+class  WaitlistMail(ShotMail):
+    """
+    This class defines the mail informing that a vendor is on the waitlist.
+    """
+    def __init__(self, vendor):
+        ShotMail.__init__(self, 'shot_staff', vendor)            
+        self.subject = 'Sie sind auf der Warteliste!'
+        self.set_html(siteconfig.shotpath + 'static/mail_templates/waitlist_de.html')
+        
+        self.send_backup    = True
+        self.subject_backup = 'backup waitlist: ' + vendor['name'] + ', ' + vendor['forename']
+
+class  UnzhurstMail(ShotMail):
+    """
+    special one time mail
+    """
+    def __init__(self, vendor):
+        ShotMail.__init__(self, 'shot_staff', vendor)            
+        self.subject = 'Information'
+        self.set_html(siteconfig.shotpath + 'static/mail_templates/unzhurst_de.html')
+        
+        self.send_backup    = True
+        self.subject_backup = 'backup unzhurst: ' + vendor['name'] + ', ' + vendor['forename']
+              
 class NumberMail(ShotMail):
     '''
     This class defines the email with the vendor's sale number.
     '''
-    def __init__(self, vendor, contributions):
+    def __init__(self, vendor, number, contributions):
+        '''
+        vendor is a database record containing name and email
+        number and contributions are strings!
+        '''
         ShotMail.__init__(self, 'shot_staff', vendor)
-        number       = str(vendor['number'])
-        name         = vendor['forename'] + ' ' + vendor['name']
-        
         self.subject = config.numbermail.subject       
-        self.subs['PLACEHOLDER_SALE_NUMBER']    = number
+        self.subs['PLACEHOLDER_SALE_NUMBER']    = number              
         self.subs['PLACEHOLDER_CONTRIBUTIONS']  = contributions
         self.set_html(config.numbermail.template)
         self.attachpdf(config.numbermail.attachment, config.numbermail.attachmentname)    
         
         self.send_backup    = True
-        self.subject_backup = 'backup: ' + ' ' + number + ' ' + name
+        self.subject_backup = 'backup sale number: ' + ' ' + number + ' ' + vendor.name + ', ' + vendor.forename
         
         
         
@@ -179,25 +214,3 @@ class ContactMail(EMail):
         self.subs['PLACEHOLDER_NAME']   = name
         self.subs['PLACEHOLDER_EMAIL']  = email     
         self.set_html(config.contactmail.template) 
-
-    
-    
-    
-    
-##############################################  
-#cm = ContactMail('tech', 'Das ist meine Nachricht')
-#cm.send()
-#print 'done.'
-
-# test mail
-#v = {'id': 33, 'code': 'qwertz', 'forename': 'Walther', 'name': 'Ulbricht', 'email': 'michael_bechmann@yahoo.de'}
-#rm = RegistrationMail(v)
-#rm.send()  
-#print 'done.' 
-
-
-#v = {'id': 33, 'code': 'qwertz', 'forename': 'Walther', 'name': 'Ulbricht', 'email': 'felixbechmann@yahoo.de', 'number': 777}
-#c = 'Dies sind Ihre Beiträge ...'
-#nm = NumberMail(v, c)
-#nm.send()  
-#print 'done.' 

@@ -1,0 +1,14 @@
+{{extend 'layout.html'}}
+
+{{
+if msg != None:
+    H3(msg)
+    pass
+
+}}
+
+
+{{include 'vendor/info_de.html'}}
+
+
+{{response.write(form)}}

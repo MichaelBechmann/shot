@@ -1,0 +1,38 @@
+{{extend 'layout.html'}}
+<link href="/static/list.css" rel="stylesheet" type="text/css" />
+
+{{
+
+
+response.write(H3('Configure the event!'))
+
+response.write(A('add event', _href=URL('config', 'config_event/addevent'), _class = 'intext'))
+response.write(crudevent_response)
+response.write(BR())
+
+response.write(A('add shift', _href=URL('config', 'config_event/addshift'), _class = 'intext'))
+response.write(crudshift_response)
+response.write(BR())
+
+response.write(A('add donation', _href=URL('config', 'config_event/adddonation'), _class = 'intext'))
+response.write(cruddonation_response)
+response.write(BR())
+
+
+response.write(button)
+
+if config.debug:
+
+    response.write(H1('Debug output'))
+
+    response.write(H2('response.flash'))
+    response.write(BEAUTIFY(response.flash))    
+
+    response.write(H2('session'))
+    response.write(BEAUTIFY(session))   
+    
+    response.write(H2('request.vars'))
+    response.write(BEAUTIFY(request.vars))    
+    
+    pass
+}}

@@ -3,29 +3,30 @@
       
         
 {{
+response.write(H3('help'))
+response.write(SQLTABLE(rows_help, orderby='dummy', headers='fieldname:capitalize'))
+response.write(BR())
 
-response.write(buttons)
+response.write(H3('bring'))
+response.write(SQLTABLE(rows_bring, orderby='dummy', headers='fieldname:capitalize'))
+response.write(BR())
 
-response.write(list, escape=False)
+response.write(H3('messages'))
+
+columns = ('message.id', 
+           'message.event', 
+           'message.vendor',
+           'message.text'         
+
+           )
+response.write(SQLTABLE(rows_message, columns = columns, orderby='dummy', headers='fieldname:capitalize'))
+
 
 if config.debug:
 
-    response.write(H1('Debug output'))
+response.write(H2('Special debug output'))
 
-    response.write(H2('response.flash'))
-    response.write(BEAUTIFY(response.flash))    
 
-    response.write(H2('session'))
-    response.write(BEAUTIFY(session))   
-    
-    response.write(H2('request.vars'))
-    response.write(BEAUTIFY(request.vars))    
-    
-    response.write(H2('config.contribution_data'))
-    response.write(config.contribution_data)
-    
-    response.write(H2('heading'))
-    response.write(headers)
     
     pass
 }}

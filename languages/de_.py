@@ -28,23 +28,6 @@
 'Add vendor':           'Add vendor',
 'Legal Details':        'Impressum',
 
-# elements from config.contribution
-'Shift friday, 2:30 pm - 5:00 pm':      'Schicht Freitag, 14:30 - 17:00',
-'Shift saturday, 11:00 am - 1:30 pm':   'Schicht Samstag, 11:00 - 13:30',
-'Shift saturday, 8:30 am - 11:00 am':   'Schicht Samstag, 8:30 - 11:00',
-'Shift saturday, 12:30 am - 3:00 pm':   'Schicht Samstag, 12:30 - 15:00',
-'Donations':                            'Spenden',
-'sorting':      'Sortieren',
-'arranging':    'Ordnen',
-'back sorting': 'Rücksortieren',
-'cake sale':    'Kuchentheke',
-'waffle sale':  'Waffeltheke',
-'cash desk':    'Kasse',
-'kitchen':      'Küche',
-'I bring a cake.':                          'Ich bringe einen Kuchen mit.',
-'I bring waffle dough.':                    'Ich bringe einen Waffelteig mit.',
-'I make a small donation of 2 to 5 Euro.':  'Ich gebe eine kleine Spende von 2 bis 5 Euro.',
-'I cannot help nor bring anything!':        'Ich kann leider weder helfen noch etwas spenden!',
 
 # form elements
 'My desired sale number:':  'Meine gewünschte Kommissionsnummer:',
@@ -53,6 +36,11 @@
 'go!':      'los !',
 'submit':   'weiter',
 'proceed to the sale numbers': 'weiter zu den Kommissionsnummern',
+'I will help here:': 'Hier werde ich helfen:',
+'For the cafe I will bring the following:': 'Für das Café bringe ich folgendes mit:',
+'I bring this:': 'Ich bringe dies:',
+'Others bring this:': 'Das bringen andere:',
+'I cannot help nor bring anything!':        'Leider kann ich weder helfen noch etwas spenden!',
 
 # messages from validators
 'Please enter your name.':                  'Bitte geben Sie Ihren Namen an.',                              
@@ -85,6 +73,9 @@
 'Your sale number is:': 'Ihre Kommissionsnummer ist:',
 'Your contribution:':   'Ihr Beitrag:',
 'You left a message:':  'Ihre Nachricht:',
+'You help here:':       'Hier helfen Sie:',
+'You bring this:':      'Das bringen Sie mit:',
+'The processing of your data takes some time. Please be patient ...': 'Es dauert etwas, Ihre Daten zu verarbeiten. Bitte haben Sie Geduld ...',
 
 # staff/ admin
 'cake':     'Kuchen',

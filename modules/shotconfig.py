@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+#from gluon.custom_import import track_changes
+#track_changes(True)
 """
 This module comprises all configuration constants for the application shot
 """
@@ -27,6 +29,7 @@ class ConfigurationConstants:
     class ConfigMail:
         pass
     regmail     = ConfigMail()
+    invmail     = ConfigMail()  
     numbermail  = ConfigMail()
     contactmail = ConfigMail()
     
@@ -34,6 +37,22 @@ class ConfigurationConstants:
         pass    
     numbers = ConfigNumbers()
     
+    class ConfigFormName:
+        pass
+    formname = ConfigFormName()
+    
+    class ConfigCssId:
+        pass
+    cssid = ConfigCssId()
+    
+    class ConfigCssClass:
+        pass
+    cssclass = ConfigCssClass()
+
+    class ConfigMsgClass:
+        pass
+    msg = ConfigMsgClass()
+   
     pass
 
 config = ConfigurationConstants()
@@ -41,6 +60,8 @@ config = ConfigurationConstants()
 config.debug            = siteconfig.debug
 config.enableregis      = siteconfig.enableregis
 config.showadminitems   = siteconfig.showadminitems
+
+config.shoturl          = siteconfig.shoturl
 
 config.staffpassword = siteconfig.passwd_staff
 config.adminpassword = siteconfig.passwd_admin
@@ -50,6 +71,10 @@ config.backup_to     = 'michael_bechmann@yahoo.de'
 config.regmail.template       = siteconfig.shotpath + 'static/mail_templates/registration_de.html'
 config.regmail.subject        = 'Registrierung als Verkäufer'
 config.regmail.linkbase       = siteconfig.shoturl + 'vendor/check/'
+
+config.invmail.template       = siteconfig.shotpath + 'static/mail_templates/invitation_de.html'
+config.invmail.subject        = 'Einladung zum Markt'
+config.invmail.linkbase       = siteconfig.shoturl + 'vendor/form/'
 
 config.numbermail.template        = siteconfig.shotpath + 'static/mail_templates/sale_number_de.html'
 config.numbermail.subject         = 'Ihre Kommissionsnummer'
@@ -64,13 +89,88 @@ config.contactmail.to       = {'general':   'secondhand.ottersweier@web.de',
                                'tech':      'michael_bechmann@yahoo.de'
                                }
 
+# database id of the current event
+config.currentevent = 2
+
 
 # available sale number ranges
-config.numbers.available       = [[200, 250], [300,350], [400,450]]
+#config.numbers.available       = [[200, 250], [300,350], [400,450]]
 
-config.numbers.available_kg    = [[500, 599]]
+#config.numbers.available_kg    = [[500, 599]]
 
 config.no_kindergarten_id   = ' - '
+
+
+# strings used as identifying names of form input elements
+config.formname.no_contrib      = 'fnnoco'
+config.formname.shift           = 'fnshif'
+config.formname.donation        = 'fndona'
+config.formname.note            = 'fnnote'
+config.formname.vendor_message  = 'fnvmsg'
+config.formname.sale_number     = 'fnsnum'
+
+# strings used as ids and classes of html elements
+# These must fit the CSS selectors in style sheets and jQuery functions!
+config.cssid.salenumber         = 'isnum'
+config.cssid.nocontrib          = 'inoctrb'
+config.cssid.contribtblshifts   = 'itblshifts'
+config.cssid.contribtbldons     = 'itbldons'
+config.cssid.tblsubmit          = 'itblsubm'
+
+config.cssid.message            = 'imsg'
+config.cssid.salesubmit         = 'isubm'
+config.cssid.waitmsgtrig        = 'iwaitmsgtrig'
+config.cssid.waitmsg            = 'iwaitmsg'
+
+# actual/target display for shifts and donations
+config.cssclass.actnumberlow    = 'cactnl'
+config.cssclass.actnumbermed    = 'cactnm'
+config.cssclass.actnumberhigh   = 'cactnh'
+config.cssclass.contribpassive  = 'cctrbpasv'
+config.cssclass.contribactive   = 'cctrbactv'
+config.cssclass.contribheading  = 'cctrbhead'
+config.cssclass.contribnote     = 'ccrtbnote'
+config.cssclass.shiftgrouphead  = 'csftgrphead'
+config.cssclass.shiftgrouptbl   = 'csftgrptbl'
+config.cssclass.shifttblrow     = 'csfttblrow'
+config.cssclass.configwarn      = 'ccnfwarn'
+
+config.cssclass.tggl            = 'ctggl'
+config.cssclass.tggltrig        = 'ctggltrig'
+
+config.msg.wait                 = 'The processing of your data takes some time. Please be patient ...'
+
+
+
+config.colsets = {}      
+config.colsets['sale'] = { 'sets':{'details' : ['sale.id', 'sale.event', 'vendor.name', 'vendor.forename', 'sale.number', 'sale.number_unikey', 'sale.number_assigned'], 
+                                   'default'  : ['sale.event', 'vendor.name', 'vendor.forename', 'sale.number'],
+                                   'sign list': ['sale.number','vendor.name', 'vendor.forename', 'vendor.place', 'vendor.street', 'vendor.house_number', 'vendor.telephone']
+                                   },
+                           'default': 'default'
+                         }
+config.colsets['bring'] = { 'sets':{'details': ['bring.id', 'donation.event', 'vendor.name', 'vendor.forename', 'vendor.place', 'donation.item', 'bring.note'], 
+                                   'default'  : ['vendor.name', 'vendor.forename', 'donation.item', 'bring.note']
+                                   },
+                           'default': 'default'
+                         }
+config.colsets['help'] = { 'sets':{'details' : ['help.id', 'shift.event', 'vendor.name', 'vendor.forename', 'vendor.place', 'shift.activity', 'shift.day', 'shift.time'], 
+                                   'default'  : ['vendor.name', 'vendor.forename', 'shift.activity', 'shift.day', 'shift.time'],
+                                   },
+                           'default': 'default'
+                         }
+
+config.colsets['message'] = { 'sets':{'details': ['message.id', 'message.event', 'vendor.name', 'vendor.forename', 'vendor.place', 'message.text'], 
+                                       'default': ['vendor.name', 'vendor.forename', 'message.text']
+                                   },
+                           'default': 'default'
+                         }
+config.colsets['vendor'] = { 'sets':{'details':  ['vendor.id', 'vendor.name', 'vendor.forename', 'vendor.place', 'vendor.zip_code', 'vendor.street', 'vendor.house_number', 'vendor.email', 'vendor.telephone'],
+                                     'default' : ['vendor.name', 'vendor.forename', 'vendor.kindergarten', 'vendor.place', 'vendor.email', 'vendor.telephone'],
+                                     'technical':['vendor.id', 'vendor.name', 'vendor.forename', 'vendor.kindergarten', 'vendor.code', 'vendor.verified', 'vendor.log']
+                                   },
+                           'default': 'default'
+                         }
 
 # A list is used here instead of a dictionary because the order is important, e.g., in the database list views.
 # usage of the dict members

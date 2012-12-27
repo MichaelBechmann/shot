@@ -5,15 +5,14 @@
 
 response.write(H3('Here is all information on the sale numbers.'))
 
-response.write(TABLE(TR('assigned total: ',           count_assigned_total),
-                     TR('assigned general: ',         count_assigned_general),
-                     TR('assigned kindergarten: ',    count_assigned_kg),
-                     TR('general free: ',             count_free_general),
-                     TR('kindergarten free: ',        count_free_kg),
+response.write(TABLE(TR('assigned total: ',           len(assigned)),
+                     TR('general free: ',             len(free)),
+                     TR('kindergarten free: ',        len(free_kg)),
                         )
                )
                
-response.write(TABLE(TR('These are the free general numbers: ',      str(free_general)),
+response.write(TABLE(TR('These are the already assigned numbers: ',  str(assigned)),
+                     TR('These are the free general numbers: ',      str(free)),
                      TR('These are the free kindergarten numbers: ', str(free_kg))
                      )
                )

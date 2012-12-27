@@ -1,6 +1,7 @@
 *.pyc
 .*
 !.gitignore
+/__etc
 /cache
 /cron
 /databases

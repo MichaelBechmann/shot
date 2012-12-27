@@ -6,7 +6,7 @@
 # Fill in the site configuration and rename it to 'siteconfig.py'
 
 # site-dependant paths
-shotpath  = '/var/web/web2py/applicatins/shot/'
+shotpath  = '/var/web/web2py/applications/shot/'
 shoturl   = 'http://secondhand-ottersweier.de/'
 
 

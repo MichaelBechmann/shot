@@ -9,12 +9,6 @@ response.write(form)
 if config.debug:
 
     response.write(H1('Debug output'))
-
-    response.write(H2('id'))
-    response.write(id)
-
-    response.write(H2('assigned'))
-    response.write(assigned)
     
     response.write(H2('response.flash'))
     response.write(BEAUTIFY(response.flash))    

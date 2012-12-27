@@ -17,7 +17,7 @@ Description: Three-column blog design with the third column allocated for ads. F
    Second Hand Ottersweier
   </title>
   <link href="/static/plugin_layouts/layouts/External/default.css" rel="stylesheet" type="text/css" />
-  <link href="/static/plugin_layouts/layouts/External/images/shot.ico"  rel="shortcut icon" />
+  <link href="/static/plugin_layouts/layouts/External/images/shot.ico"  rel="shortcut icon" /> 
  </head>
  <body>
 
@@ -52,14 +52,18 @@ Description: Three-column blog design with the third column allocated for ads. F
            			  ])
                  
     if session.staffmember:   
-        menu.extend([[T('Vendor list'), 'False', '/staff/list_vendors'],
+        menu.extend([
+                     [T('Vendors'),     'False', '/staff/vendorlist'],
+                     [T('Sale'), 'False', '/staff/salelist'],       
                      [T('Numbers'),     'False', '/staff/numbers'],
-                     [T('Contributions'), 'False', '/staff/contributions']
+                     [T('Help'), 'False', '/staff/helplist'],
+                     [T('Bring'), 'False', '/staff/bringlist'],
+                     [T('Messages'), 'False', '/staff/messagelist']
                      ])
         
         if session.admin:
-            menu.extend([[T('Vendor control'), 'False', '/staff/vendor_control'],
-                         [T('Add vendor'), 'False', '/staff/vendor_control/add']
+            menu.extend([
+                         [T('Config event'), 'False', '/config/config_event']                
                         ])
             pass
         pass
@@ -93,10 +97,9 @@ Description: Three-column blog design with the third column allocated for ads. F
    <!-- start footer -->
    <div id="footer">
     <p> 
-         {{= A(T('Legal Details'), _href=URL('main','legal'))}}
-         
-        Design by <a href="http://www.freecsstemplates.org/"> Free CSS Templates</a>
-
+        {{= A(T('Legal Details'), _href=URL('main','legal'))}}
+        Powered by <a href="http://www.web2py.com/"> web2py</a>
+        Design by  <a href="http://www.freecsstemplates.org/"> Free CSS Templates</a>
     </p>
    </div>
   </div>

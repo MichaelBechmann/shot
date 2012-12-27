@@ -1,4 +1,4 @@
-p {
+p, #iwaitmsg  {
 font-size: 1.2em;
 }
 
@@ -21,7 +21,6 @@ font-weight: bold;
 font-size: 2em;
 text-decoration: blink;
 color: #CF3822;
-#border:2px solid #CF3822;
 padding: 8px;
 }
 
@@ -31,4 +30,10 @@ color: red;
 
 #sale_number {
 font-weight: bold;
+}
+
+#iwaitmsg {
+    display: none;
+    margin-top: 6px;
+    text-align:center;
 }

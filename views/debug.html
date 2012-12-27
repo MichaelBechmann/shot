@@ -1,0 +1,23 @@
+{{
+if config.debug:
+
+    import sys
+    response.write('python version: ' + sys.version)
+
+    response.write(H1('Debug output general'))
+    
+    response.write('config.debug:', config.debug)
+
+    response.write(H2('response.flash'))
+    response.write(BEAUTIFY(response.flash))            
+    
+    response.write(H2('session'))
+    response.write(BEAUTIFY(session)) 
+
+    
+    response.write(H2('request'))
+    response.write(BEAUTIFY(request)) 
+     
+    
+    pass
+}}

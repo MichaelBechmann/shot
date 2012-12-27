@@ -1,4 +1,6 @@
 {{extend 'layout.html'}}
+<script src="/static/js/jquery.js" type="text/javascript"></script>
+<script src="/static/js/confirm.js" type="text/javascript"></script>
 
 {{
 response.write(H3(T('Please check and confirm your data.')))
@@ -6,6 +8,7 @@ response.write(H3(T('Please check and confirm your data.')))
 response.write(DIV(data, _class = 'confirm_data'))
 
 response.write(form)
+
 
 if config.debug:
 

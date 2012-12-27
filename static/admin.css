@@ -1,0 +1,10 @@
+table {
+	font-family: verdana,arial,sans-serif;
+	font-size:12px;
+	border-style: double;
+	border-width: 3px;
+    border-color: #ff4040;
+}
+th, td {
+	padding-left: 5px;
+}

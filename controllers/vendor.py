@@ -2,17 +2,20 @@
 This file contains everything related to the vendor registration.
 '''
 # Static analyzer import helpers: (STATIC_IMPORT_MARK)
-if 0: 
-    from gluon.languages import translator as T
+if 0:
     from gluon import *
-    import gluon
+    from gluon.languages import translator as T
     global request
     global response
     global session
     global shotdb    
+    global config
 
 
+from shotconfig import * 
 from shotmail import *
+from shotdbutil import *
+from gluon.storage import Storage
 
 T.force('de')
 
@@ -21,30 +24,36 @@ def form():
     if config.enableregis == False:
         redirect(URL('main', 'index'))
         
+    i = Ident(shotdb, *request.args)
         
     display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email', 'kindergarten']
-    comments = {'kindergarten': T('Please indicate if you have a child in one of the kindergartens in Ottersweier.')}
-    i=Ident()  
-    form = SQLFORM(shotdb.vendor, fields = display_fields, hidden = {'code': i.code}, submit_button = T('submit'), col3 = comments)
+    comments = {'kindergarten': T('Please indicate if you have a child in one of the kindergartens in Ottersweier.')} 
+    form = SQLFORM(shotdb.vendor, fields = display_fields, submit_button = T('submit'), col3 = comments)
     
-    # pre-populate the form in case of re-direction from form_vendor_confirm() (back button pressed)
-    # see book, section 'Pre-populating the form' in chapter 'Forms and Validators'
     form.vars.kindergarten = '' # do not use config.no_kindergarten_id here to initialize form with empty field
     if session.vendor:
+        # pre-populate the form in case of re-direction from form_vendor_confirm() (back button pressed)
+        # see book, section 'Pre-populating the form' in chapter 'Forms and Validators'
         form.vars = session.vendor
-    
-    
-    # Copy request to form field as described in web2py book, chapter 'Forms and Validators'
-    form.vars.code = request.vars.code
-    
+    elif i.b_verified:
+        # pre-populate form if function is called with vendor code link
+        # To prevent mixing up fields (e.g., id, log, verified, code) between vendors only the fields displayed in the form must be copied to vars!!!
+        # Note that errors "IntegrityError: PRIMARY KEY must be unique" occur if false 'id' fields of the form would propagate to the insert or update operations!
+        form.vars = Storage()
+        for f in display_fields:
+            form.vars[f] = i.vendor[f]
+        # Note: The SQLFORM constructor augmentes the list of fields with 'id'!
+        del form.vars['id']
+                
+        form.vars.kindergarten = ''
+        session.vendor_id = i.id
     
     # There is a mistake in the book: form.validate() returns True or False. form.process() returns the form itself
     # see http://osdir.com/ml/web2py/2011-11/msg00467.html
     if form.validate():  
         session.vendor = form.vars 
         redirect(URL('confirm'))
-       
-       
+        
     return dict(form=form)
 
 def confirm():
@@ -68,107 +77,131 @@ def confirm():
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
     form = FORM(TABLE(TR(
                          INPUT(_type = 'submit', _class = 'button', _name = 'submit back', _value = T('back')),
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = T('go!'))
+                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = T('go!'), _id = config.cssid.waitmsgtrig)
                          )
-                       )
+                       ),
+                DIV(T(config.msg.wait), _id = config.cssid.waitmsg)
                 )
+
         
     if 'submit back' in request.vars:
         redirect(URL('form'))
     elif 'submit send' in request.vars:
-        #response.flash = 'Send button has been pressed!'
+        if session.vendor != None:
             
-        # Add the vendor information to the database and send mail:
-        if session.vendor != None:  
-            id = db.vendor.insert(**session.vendor)
-            session.vendor = None # prevent multiple database entries
-            rm = RegistrationMail(db.vendor(id).as_dict())
-            rm.send()         
-            #response.flash = 'Registration mail has been sent!'
-            redirect(URL('final'))
-    else:
-        #response.flash = 'Nothing has been pressed!'
-        pass
-        
+            ve = VendorEntry(session.vendor)
+            
+            # Prevent multiple database entries
+            # Note: The reference to the object session.vendor can be deleted here.
+            # The data persist in memory and the object ve contains a duplicate private reference.
+            session.vendor = None 
+            
+            if (ve.verified):
+                # The vendor is known and the email has been verified already.
+                ve.update(send_regmail = False)
+                session.vendor_id = ve.id
+                redirect(URL('sale', 'form'))
+                
+            if (ve.exists):
+                # The vendor is known but the email is to be verified.
+                ve.update(send_regmail = True)
+                redirect(URL('final'))
+            
+            else:
+                # Vendor is not known yet.
+                ve.insert()
+                redirect(URL('final'))                
+
     return(dict(data = data, form = form))
 
 
-
 def check():
-    
-    b_success = False
-    try:
-        i = Ident()
-        i.set_linkcode(request.args[0])
-        b_success = i.verify()
-        session.id = i.id
-    except:
-        pass
-    
-    
-    if(b_success):
-        msg = 'Your email address has been verified. You may proceed to the next step.'
-        url = URL('sale', 'form')
+    i = Ident(shotdb, request.args[0])
+
+    if i.b_verified:
+        session.vendor_id = i.id
+        session.msg = T('Your email address has been verified.')
+        redirect(URL('vendor', 'info'))     
     else:
-        msg = 'A problem occurred. Please try again.'
-        url = URL('main', 'index')
+        msg = T('A problem occurred. Please try again.')
 
-    form = FORM(INPUT(_type = 'submit', _class = 'button', _value = T('proceed to the sale numbers')), _action = url)
+    return dict(msg = msg)
 
+
+def info():
     
-    return dict(form = form, id = session.id)
+    url = URL('sale', 'form')
+    form = FORM(INPUT(_type = 'submit', _class = 'button', _value = T('proceed to the sale numbers')), _action = url)
+    
+    return dict(msg = session.msg, form = form)
 
 
 def final():
     return dict()                               
 
-##################################################################################################################
-'''
-Unfortunately, I didn't manage to move the material below to the modules folder.
-'''
+##################################################################################################################          
 
-import random
-import string
-import re
-
-
-class Ident():
+class VendorEntry():
     '''
-    This class provides methods for the generation of identification codes and their verification.
-    The identification link shall not display the variables used. Instead a single identification string
-    comprising the database id and the code shall be used.
+    This class provides all methods to add new vendors or to update existing vendor records.  
     '''
     
-    def __init__(self):
+    def __init__(self, vendor):
         '''
-        This method generates a random identification code.
-        The code shall start with a first letter, not a digit.
+        vendor is a reference to a dict containing the the form/database fields of the vendor record.
         '''
-        char = string.ascii_lowercase + string.digits
-        self.code = random.choice(string.ascii_lowercase) + ''.join([random.choice(char) for i in range(12)])
+        self.vendor   = vendor
+        # self.vendor must not contain an id!
+        # Otherwise an error "IntegrityError: PRIMARY KEY must be unique" will occur at the insert and update operations
+        # if this id is different from self.id.
+        # The only relevant id here is self.id!
+        if self.vendor.has_key('id'):
+            del self.vendor['id']
+            
+        self.id       = None
+        self.exists   = False
+        self.verified = False
         
+        # check if vendor is already known to the database      
+        q  = shotdb.vendor.name     == self.vendor['name']
+        q &= shotdb.vendor.forename == self.vendor['forename']
+        q &= shotdb.vendor.email    == self.vendor['email']  
+        rows = shotdb(q).select()
 
-    def set_linkcode(self, linkcode):
-        self.linkcode = linkcode
-        self.id = 0
-        
-        p = re.compile('([0-9]+)')
-        m = p.match(self.linkcode)
-        if(m):
-            self.id = int(m.group(0))
-            self.code = self.linkcode.replace(m.group(0),'',1)
-        
-    def verify(self):
+        if (len(rows) > 0):
+            self.id     = rows[0].id
+            self.exists = True
+            
+            # Check if email address has already been verified.
+            ev = rows[0].verified # event number of verification
+            if (ev != None and ev > 0):
+                self.verified = True
+            
+    def insert(self):
         '''
-        This method checks if the code matches the data base entry referenced by the id.
-        If so, the successful code verification is stored in the data base.
+        method to add a new vendor to the database
         '''
+        self.vendor.code = Ident().code  
+        id = shotdb.vendor.insert(**self.vendor)
+        Log(shotdb).vendor(id, 'initial')      
+        RegistrationMail(shotdb.vendor(id).as_dict()).send()
+
+    def update(self, send_regmail = False):
+        '''
+        method to update the non-essential fields of a database record
+        '''
+        # construct string with the old values of the fields to be modified
+        oldvendor = shotdb.vendor(self.id)
+        s = 'update fields: '
+        sep = ''
+        for f, v in self.vendor.iteritems():
+            ov =oldvendor[f] 
+            if ov!= v:
+                s +=sep + f + ' (' + str(ov) + ')'
+                sep = ', '
         
-        b_match = False
-        vendor = db.vendor(self.id)
-        if(vendor != None):            
-            if(self.code == vendor.code):
-                b_match = True
-                db(db.vendor.id == self.id).update(verified = True)
-              
-        return b_match
+        shotdb(shotdb.vendor.id == self.id).update(**self.vendor)
+        Log(shotdb).vendor(self.id, s)
+         
+        if (send_regmail):    
+            RegistrationMail(shotdb.vendor(self.id).as_dict()).send() 
