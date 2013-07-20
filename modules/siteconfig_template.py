@@ -8,7 +8,7 @@
 # site-dependant paths
 shotpath  = '/var/web/web2py/applications/shot/'
 shoturl   = 'http://secondhand-ottersweier.de/'
-
+appname   = 'shot'
 
 # passwords
 passwd_staff = 'dummy'
@@ -19,8 +19,11 @@ paswd_mail   = 'dummy'
 # show debug output
 debug = True
 
-# show and activate vendor registration functions
+# show and activate registration functions
 enableregis = True
 
 # show menu items for admins
 showadminitems = True
+
+# send mail real contacts or only to test address
+simulate_mail = True

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
-
+#from gluon.custom_import import track_changes
+#track_changes(True)
 """
 This module provides all classes concerning email for the shot application.
 """
@@ -10,7 +11,9 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from shotconfig import *
-
+from gluon.dal import DAL
+from shotdbutil import *
+from gluon.html import *
 
 
 
@@ -20,7 +23,7 @@ class EMail:
     It defines an html/ plain text two part email (See: http://docs.python.org/library/email-examples.html)
     The constructor argument selects the email account to be used (refer to class EMailAccount)
     """
-    def __init__(self, account_id):
+    def __init__(self, template, account_id):
         self.account        = EMailAccount(account_id)
         self.send_backup    = False
         self.subject_backup = 'backup'
@@ -30,6 +33,9 @@ class EMail:
         self.subs           = {}
         self.attachments    = []
         
+        file = open(config.shotpath + template, 'r')
+        self.html = file.read()
+        file.close()
    
     def _convert_html_to_text(self):
         """
@@ -49,17 +55,7 @@ class EMail:
         for k,v in sub.iteritems():
             text = re.compile(k).sub(v,text)
         return text
-   
-    def set_html(self, template):
-        """
-        This method is used to set the html content for the ShotMail.
-            first argument: full path to the html email template file to be used.
-        """
-        file = open(template, 'r')
-        self.html = file.read()
-        file.close()
-        for k,s in self.subs.iteritems():
-            self.html = re.compile(k).sub(s, self.html)
+
  
     def attachpdf(self, file, name):
         """
@@ -67,10 +63,9 @@ class EMail:
         Once other types shall be send this method has to be generalized (e.g., http://snippets.dzone.com/posts/show/10237)
         """
         
-        a = MIMEApplication(_data = open(file,"rb").read(), _subtype='pdf')
+        a = MIMEApplication(_data = open(config.shotpath + file,"rb").read(), _subtype='pdf')
         a.add_header('Content-Disposition', 'attachment', filename = name)
         self.attachments.append(a)       
-        
         
     
     def send(self):
@@ -80,6 +75,11 @@ class EMail:
         
         # Record the MIME types of both parts - text/plain and text/html.
         body = MIMEMultipart('alternative')
+        
+        # substitute placeholder
+        for k,s in self.subs.iteritems():
+            self.html = re.compile(k).sub(s, self.html)
+                   
         text = self._convert_html_to_text()
         bodytext = MIMEText(text, 'plain')
         bodytext.set_charset('utf-8') # set utf8 because of ü,ß,etc. 
@@ -101,6 +101,8 @@ class EMail:
             for a in self.attachments:
                 msg.attach(a)  
         
+        if config.simulate_mail:
+            self.receiver = config.simulate_to
     
         msg['From']     = self.account.sender
         msg['To']       = self.receiver
@@ -123,94 +125,197 @@ class EMail:
 
 class ShotMail(EMail):
     '''
-    This class is special to the application shot. It handles common operations with the vendor database records.
-    Note: The constructor takes a dictionary representation of a vendors database record.
+    This class is special to the application shot. It handles common operations with the person database records.
+    Note: The constructor takes a dictionary representation of a persons database record.
           This is because the database is declared only in the application's controllers, not in the general modules.
     '''
-    
-    def __init__(self, account_id, vendor):
-        EMail.__init__(self, account_id)
-        self.receiver = vendor['email']
-        self.subs['PLACEHOLDER_FULLNAME'] = vendor['forename'] + ' ' + vendor['name']
+    def __init__(self, db, pid, template):
+        EMail.__init__(self, template, account_id = 'shot_staff')
+        self.pid = pid
+        self.db = db
+        self.person = self.db.person(pid)
+        self.receiver = self.person['email']
+        self.subs['PLACEHOLDER_FULLNAME'] = self.person.forename + ' ' + self.person.name
+        self.subs['PLACEHOLDER_DISABLE_MAIL_URL'] = config.shoturl + 'registration/disable_mail/' + str(self.person.id) + self.person.code
+
+    def add_sale_number(self):
+        '''
+        This methods retrieves the persons sale number from the database and adds it to the mail.
+        '''
+        n = NumberAssignment(self.db, self.pid).get_number()
+        if n > 0:
+            self.number = str(n)
+        else:
+            self.number = '---'
+        self.subs['PLACEHOLDER_SALE_NUMBER'] = self.number 
+        
+    def add_contributions(self, b_condition = False):
+        '''
+        This methods retrieves all contributions (the persons sale number from the database and adds it to the mail.
+        '''        
+        self.currentevent = Events(self.db).current_id
+        # retrieve help information
+        query  = (self.db.shift.event == self.currentevent)
+        query &= (self.db.help.shift == self.db.shift.id)
+        query &= (self.db.help.person == self.pid)
+        
+        elem = [TR(r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity) for r in self.db(query).select()]
+        if len(elem) > 0:
+            helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
+        else:
+            helptext = DIV(SPAN('Sie können keine Helferschicht übernehmen.'))
+ 
+        self.subs['PLACEHOLDER_HELP']  = str(helptext)           
+        
+        
+        # retrieve bring information
+        query  = (self.db.donation.event == self.currentevent)        
+        query &= (self.db.bring.donation == self.db.donation.id)
+        query &= (self.db.bring.person == self.pid)
+        
+        elem = []
+        for r in self.db(query).select():
+            d = r.donation.item
+            if r.bring.note != None:
+                d += ' (' + r.bring.note + ')'
+            elem.append(d)   
+                 
+        if len(elem) > 0:
+            s = ''
+            if b_condition:
+                s = ' (sofern Sie eine Kommissionsnummer erhalten)'
+            bringtext = DIV(SPAN('Sie haben sich bereit erklärt, für das Cafe folgendes zu spenden' + s + ':'), BR(), TABLE(*elem))
+        else:
+            bringtext = DIV(SPAN('Sie können keinen Kuchen für das Cafe mitbringen.'))
+
+        self.subs['PLACEHOLDER_BRING']  = str(bringtext) 
+
+    def add_waitlist_position(self):
+        '''
+        This method calculates the current position of the person on the wait list and adds it to the mail.
+        '''
+        query = (self.db.wait.event == self.currentevent)
+        rows = self.db(query).select()
+            
+        # determine wait id of the person
+        if len(rows) > 0:
+            wid = rows.find(lambda r: r.person == self.pid).last().id
+            
+            # determine how many ids are lower
+            pos = str(len([r for r in rows if wid >= r.id]))
+        else:
+            # should not happen!
+            pos = '???'
+            
+        self.subs['PLACEHOLDER_WAIT_POSITION']  = pos
+            
 
 class  RegistrationMail(ShotMail):
     """
-    This class defines the email with the vendor registration link.
+    This class defines the email with the personal registration code link.
     """
-    def __init__(self, vendor):
-        ShotMail.__init__(self, 'shot_staff', vendor)            
-        self.subject = config.regmail.subject
-        self.subs['PLACEHOLDER_REGISTRATION_URL'] = config.regmail.linkbase + str(vendor['id']) + vendor['code']
-        self.set_html(config.regmail.template)       
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/registration_de.html')
+                    
+        self.subject = 'Registrierung als Verkäufer'
+        self.subs['PLACEHOLDER_REGISTRATION_URL'] = config.shoturl + 'registration/check/' + str(self.person.id) + self.person.code     
+
+
 
 class  InvitationMail(ShotMail):
     """
     This class defines the invitation email with the personal link to the registration form.
     """
-    def __init__(self, vendor):
-        ShotMail.__init__(self, 'shot_staff', vendor)            
-        self.subject = config.invmail.subject
-        self.subs['PLACEHOLDER_FORM_URL'] = config.invmail.linkbase + str(vendor['id']) + vendor['code']
-        self.set_html(config.invmail.template)
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/invitation_de.html')
+                  
+        self.subject = 'Einladung zum Markt'
+        self.subs['PLACEHOLDER_FORM_URL'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
         
         self.send_backup    = True
-        self.subject_backup = 'backup invitation: ' + vendor['name'] + ', ' + vendor['forename']
+        self.subject_backup = 'backup invitation: ' + self.person.name + ', ' + self.person.forename
 
-class  WaitlistMail(ShotMail):
-    """
-    This class defines the mail informing that a vendor is on the waitlist.
-    """
-    def __init__(self, vendor):
-        ShotMail.__init__(self, 'shot_staff', vendor)            
-        self.subject = 'Sie sind auf der Warteliste!'
-        self.set_html(siteconfig.shotpath + 'static/mail_templates/waitlist_de.html')
-        
-        self.send_backup    = True
-        self.subject_backup = 'backup waitlist: ' + vendor['name'] + ', ' + vendor['forename']
-
-class  UnzhurstMail(ShotMail):
-    """
-    special one time mail
-    """
-    def __init__(self, vendor):
-        ShotMail.__init__(self, 'shot_staff', vendor)            
-        self.subject = 'Information'
-        self.set_html(siteconfig.shotpath + 'static/mail_templates/unzhurst_de.html')
-        
-        self.send_backup    = True
-        self.subject_backup = 'backup unzhurst: ' + vendor['name'] + ', ' + vendor['forename']
-              
+         
 class NumberMail(ShotMail):
     '''
-    This class defines the email with the vendor's sale number.
+    This class defines the email with the person's sale number.
     '''
-    def __init__(self, vendor, number, contributions):
-        '''
-        vendor is a database record containing name and email
-        number and contributions are strings!
-        '''
-        ShotMail.__init__(self, 'shot_staff', vendor)
-        self.subject = config.numbermail.subject       
-        self.subs['PLACEHOLDER_SALE_NUMBER']    = number              
-        self.subs['PLACEHOLDER_CONTRIBUTIONS']  = contributions
-        self.set_html(config.numbermail.template)
-        self.attachpdf(config.numbermail.attachment, config.numbermail.attachmentname)    
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_de.html')
         
+        self.add_sale_number()
+        self.add_contributions()
+             
+        self.subject = 'Ihre Kommissionsnummer'      
+        self.attachpdf('static/Richtlinien.pdf', 'Richtlinien für die Annahme.pdf')    
         self.send_backup    = True
-        self.subject_backup = 'backup sale number: ' + ' ' + number + ' ' + vendor.name + ', ' + vendor.forename
+        self.subject_backup = 'backup sale number: ' + ' ' + self.number + ' ' + self.person.name + ', ' + self.person.forename
+
+class NumberFromWaitlistMail(ShotMail):
+    '''
+    This class defines the email with the person's sale number. It is sent when the wait list is resolved.
+    '''
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist.html')
         
+        self.add_sale_number()
+        self.add_contributions()
+             
+        self.subject = 'Ihre Kommissionsnummer'      
+        self.attachpdf('static/Richtlinien.pdf', 'Richtlinien für die Annahme.pdf')    
+        self.send_backup    = True
+        self.subject_backup = 'backup sale number: ' + ' ' + self.number + ' ' + self.person.name + ', ' + self.person.forename
+
+
+class WaitMail(ShotMail):
+    '''
+    This class defines the email for persons put on the waitlist.
+    '''
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/wait.html')
         
+        self.add_contributions(b_condition = True)
+        self.add_waitlist_position() # add_waitlist_position must be called after add_contributions because of the determination of the current event
         
+        self.subject = 'Sie sind auf der Warteliste'       
+        self.send_backup    = True
+        self.subject_backup = 'backup waitlist: ' + self.person.name + ', ' + self.person.forename
+        
+class WaitDenialMail(ShotMail):
+    '''
+    This class defines the email for persons who got no number from the waitlist.
+    '''
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/wait_denial.html')
+        
+        self.subject = 'Sie haben leider keine Nummer :('       
+        self.send_backup    = True
+        self.subject_backup = 'backup waitlist no number: ' + self.person.name + ', ' + self.person.forename
+
+         
+class HelperMail(ShotMail):
+    '''
+    This class defines the email sent to the helpers as a reminder short time before the event..
+    '''
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/helper.html')
+        
+        self.add_sale_number()
+        self.add_contributions()
+             
+        self.subject = 'Erinnerung: Sie helfen!'       
+        self.send_backup    = True
+        self.subject_backup = 'helper: ' + self.person.name + ', ' + self.person.forename
+
           
 class ContactMail(EMail):
     '''
     This class defines the email for the SHOT contact form.
     '''
     def __init__(self, category, msg, name, email):
-        EMail.__init__(self, 'shot_staff')
+        EMail.__init__(self, 'static/mail_templates/contact_de.html', 'shot_staff')
         self.receiver = config.contactmail.to[category]
-        self.subject = config.contactmail.subject + ' von ' + name
+        self.subject = 'Kontaktanfrage von ' + name
         self.subs['PLACEHOLDER_MSG']    = msg   
         self.subs['PLACEHOLDER_NAME']   = name
         self.subs['PLACEHOLDER_EMAIL']  = email     
-        self.set_html(config.contactmail.template) 

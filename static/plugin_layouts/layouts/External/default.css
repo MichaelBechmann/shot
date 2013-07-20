@@ -48,7 +48,8 @@ h2 {
 }
 
 h3 {
-	margin-bottom: 2em;
+    margin-top: 0em;	
+	margin-bottom: 1em;
 	font-size: 1.2em;
 	font-weight: bold;
 }
@@ -69,7 +70,6 @@ a {
 	text-decoration: none;}
 
 a:hover {
-	text-decoration: none;
 	color: #FF5134;
 }
 
@@ -212,9 +212,4 @@ input[type="submit"] {
     font-weight: bold;
     border-right: 2px solid #B24100;
     border-bottom: 1px solid #B24100;
-}
-
-.termin {
-
-font-size: 1.4em;
 }

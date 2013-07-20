@@ -1,3 +1,15 @@
+Frühjahr 2013:
+
+    - Bei den Schichten stört die Trennung zw. Day und Time => zusammenfassen
+    - Bei der Konfig des Events ist ein event filter notwendig
+    - sqlite durch mysql ersetzen!
+    - Fehlerbehandlung bei gleichzeitigem Datenbankzugriff (database locked); Fehler abfangen und nochmals versuchen!
+    - Datenbankzugriffe reduzieren!!
+    - Zugriffe durch admins besser kontrollieren, db accounts nutzen?
+    - modulare background functions (generic logfile generation)
+    - Auflösen der Warteliste: Trennung db-Aktionen von E-Mail
+    - Warteliste: doppelte Verknüpfung auf sale ist blöd, wenn Nummern zurückgegeben werden und sales gelöscht werden! ondelete = CASCADE nimmt Person dann von der Warteliste.
+
 Robustheit des Ablaufs:
     - jeweils nächste Seite erzwingen, auch wenn Nutzer während der Verarbeitung auf einen anderen Link klickt, insbesondere bei den finalen 'los !' Knöpfen
     - erweiterte und eindeutigere Fehlerbehandlung

@@ -42,7 +42,7 @@ Description: Three-column blog design with the third column allocated for ads. F
     
     if config.enableregis:
         menu.extend([
-        			[T('Vendor registration'), False, '/vendor/form']
+        			['Registrierung', False, '/registration/form']
         			])
         pass    
             
@@ -53,8 +53,9 @@ Description: Three-column blog design with the third column allocated for ads. F
                  
     if session.staffmember:   
         menu.extend([
-                     [T('Vendors'),     'False', '/staff/vendorlist'],
-                     [T('Sale'), 'False', '/staff/salelist'],       
+                     [T('Persons'),     'False', '/staff/personlist'],
+                     [T('Sale'), 'False', '/staff/salelist'],    
+                     [T('Wait'), 'False', '/staff/waitlist'],   
                      [T('Numbers'),     'False', '/staff/numbers'],
                      [T('Help'), 'False', '/staff/helplist'],
                      [T('Bring'), 'False', '/staff/bringlist'],

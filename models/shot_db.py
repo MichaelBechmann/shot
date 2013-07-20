@@ -12,7 +12,7 @@ T.force('de')
 
 # There is one single database containing the data of all market events.
 
-shotdb= DAL('sqlite://shotdb.sqlite')
+shotdb = DAL('sqlite://shotdb.sqlite')
 
 # The table 'event' contains all configuration data of the market events.
 shotdb.define_table('event',
@@ -31,8 +31,8 @@ shotdb.define_table('event',
                     
 ) # end of 'event'
 
-# The table 'vendor' contains all data personal data of the vendors
-shotdb.define_table('vendor',
+# The table 'person' contains all data personal data of the registered people.
+shotdb.define_table('person',
                     
     Field('name',           'string',   label = T('name'),          requires=IS_NOT_EMPTY(error_message = T('Please enter your name.'))),                               
     Field('forename',       'string',   label = T('forename'),      requires=IS_NOT_EMPTY(error_message = T('Please enter your forename.'))),                
@@ -53,12 +53,15 @@ shotdb.define_table('vendor',
     # id of the most recent event for which the email address has been verified with
     Field('verified',       'integer'),
     
+    # flag indicating if round mails are enabled
+    Field('mail_enabled',   'boolean'),
+    
     # automatically generated log data when the record is updated
     Field('log',            'text'),
     
     # define how a record is represented if referenced from other tables
     format='%(name)s, %(forename)s'
-) # end of 'vendor'
+) # end of 'person'
 
 
 # The table 'sale' contains all data directly related to the sale of each vendor at the markets.
@@ -67,8 +70,8 @@ shotdb.define_table('sale',
     # relation to the sale event
     Field('event', shotdb.event),
                         
-    # relation to the vendor
-    Field('vendor', shotdb.vendor),
+    # relation to the person
+    Field('person', shotdb.person),
     
     # the sale number          
     Field('number',             'integer',  label = T('number')),
@@ -76,12 +79,32 @@ shotdb.define_table('sale',
     # did the vendor choose the number or has it been assigned automatically
     Field('number_assigned',    'boolean'),
     
-    # This shall ensure that the combiation of event and number is unique on database level.
+    # This shall ensure that the combination of event and number is unique on database level.
     # Note: The unique attribute must be present already when the sqlite database file is created. Otherwise it will not take effect!
     # Apparently it cannot be changed lateron.
-    Field('number_unikey',      'string',  unique = True, compute=lambda r: str(r['event']) + ':' + str(r['number'])),   
+    Field('number_unikey',      'string',  unique = True, compute=lambda r: str(r['event']) + ':' + str(r['number'])),  
+    
+    # define how a record is represented if referenced from other tables
+    format='%(number)s (sale id %(id)s)'
               
 ) # end of 'sale'
+
+
+# The table 'wait' collects all persons who are waitlisted for a given event and contains all related information.
+shotdb.define_table('wait',
+                    
+    # relation to the sale event
+    Field('event', shotdb.event),
+                        
+    # relation to the person
+    Field('person', shotdb.person),
+    
+    # relation to the sale (if a person on the wait list finally gets a sale number)
+    Field('sale', shotdb.sale),    
+    
+
+) # end of 'wait'
+
 
 
 # The table 'shift' contains the configuration data for the helper shifts.
@@ -115,14 +138,14 @@ class VirtualFieldsShift():
 shotdb.shift.virtualfields.append(VirtualFieldsShift())
 # end of 'shift'
 
-# The auxiliary table 'help' links the vendors to the shifts
+# The auxiliary table 'help' links the persons to the shifts
 shotdb.define_table('help',
                     
     # relation to the shit
     Field('shift', shotdb.shift),
     
-    # relation to the vendor
-    Field('vendor', shotdb.vendor),
+    # relation to the person
+    Field('person', shotdb.person),
                  
                     
 ) #end of 'help'
@@ -154,14 +177,14 @@ class VirtualFieldsDonation():
 shotdb.donation.virtualfields.append(VirtualFieldsDonation())
 # end of 'donation'
 
-# The auxiliary table 'bring' links the vendors to the donations
+# The auxiliary table 'bring' links the persons to the donations
 shotdb.define_table('bring',
                     
     # relation to the donation
     Field('donation', shotdb.donation),
     
-    # relation to the vendor
-    Field('vendor', shotdb.vendor),
+    # relation to the person
+    Field('person', shotdb.person),
     
     # The field 'note' is intended to be provide a simple communication about the donations.
     Field('note', 'string'),          
@@ -175,46 +198,11 @@ shotdb.define_table('message',
     # relation to the sale event
     Field('event', shotdb.event),
                                
-    # relation to the vendor
-    Field('vendor', shotdb.vendor),
+    # relation to the person
+    Field('person', shotdb.person),
     
-    # a text message the vendor can leave when the sale number is chosen
+    # a text message the person can leave during the actual enrollment for an event
     Field('text',        'text',     label = T('message'),      )
     
 ) # end of 'message'  
 
-
-# Below is the simple single-table database use for the first event.
-
-# This file defines the complete shot database.
-# The table "vendor" contains all vendor information: peronal data, contacts, registration data, etc.
-# I decided to use only one single table because the relations between vendors, sale numbers, and contributions
-# are simply one-to-one.
-# This will change when real user accounts will be used. Then several sale numbers and contributions from 
-# different market events will be linked to one account ...
-
-# idea for translation: switch off translation in this file by T.force(None) and define the fields with T('name') etc.
-
-db = DAL('sqlite://storage.sqlite')
-
-db.define_table('vendor',
-    Field('name',           'string',   label = T('name'),          requires=IS_NOT_EMPTY(error_message = T('Please enter your name.'))),                               
-    Field('forename',       'string',   label = T('forename'),      requires=IS_NOT_EMPTY(error_message = T('Please enter your forename.'))),                
-    Field('place',          'string',   label = T('place'),         requires=IS_NOT_EMPTY(error_message = T('Please enter your place of living.'))),
-    Field('zip_code',       'string',   label = T('zip code'),      requires=IS_NOT_EMPTY(error_message = T('Please enter your zip code.'))),          
-    Field('street',         'string',   label = T('street'),        requires=IS_NOT_EMPTY(error_message = T('Please enter the street name.'))),
-    Field('house_number',   'string',   label = T('house number'),  requires=IS_NOT_EMPTY(error_message = T('Please enter your house number.'))),   
-    Field('telephone',      'string',   label = T('telephone'),     requires=IS_NOT_EMPTY(error_message = T('Please enter your telephone number.'))),
-    Field('email',          'string',   label = T('email'),         requires=IS_EMAIL(    error_message = T('Please enter your valid email address.'))),      
-    Field('kindergarten',   'string',   label = T('kindergarten'),  requires=IS_IN_SET([(config.no_kindergarten_id, T('no, in neither one')), 
-                                                                                        ('St. Marien',              T('yes, in St. Marien')), 
-                                                                                        ('St. Michael',             T('yes, in St. Michael'))],
-                                                                                          error_message = T('Please choose.') )),
-                                                                                          
-    Field('code',           'string',   requires=IS_NOT_EMPTY()),
-    Field('verified',       'boolean'),
-    Field('number',         'integer',  label = T('number'),      unique=True),   
-    Field('number_assigned','boolean'), 
-    Field('message',        'text',     label = T('message'),      ),
-    *[Field(c['name'], 'boolean') for c in config.contribution_data]
-    )

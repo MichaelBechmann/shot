@@ -10,7 +10,7 @@ if 0:
     global request
     global response
     global session
-    global db    
+    global shotdb
 
 
 
@@ -26,7 +26,7 @@ def form():
     
     display_fields = ['forename', 'name', 'email']
      
-    form = SQLFORM(db.vendor, fields = display_fields, submit_button = T('go!'))
+    form = SQLFORM(shotdb.person, fields = display_fields, submit_button = T('go!'))
     
     # Add additional elements: see web2py book, 'Forms and Validators'
     
@@ -46,6 +46,7 @@ def form():
         email = form.vars.email
         
         if cat == 'tech':
+            msg += str(BR())
             msg += 'session\n' + BEAUTIFY(session).xml()
             msg += 'request.env\n' + BEAUTIFY(request.env).xml() 
         

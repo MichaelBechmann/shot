@@ -1,5 +1,7 @@
 p, #iwaitmsg  {
-font-size: 1.2em;
+    font-size: 1.2em;
+    margin: 0 0 1em 0;
+    line-height: 180%;
 }
 
 .confirm_data {
@@ -13,7 +15,20 @@ color: #CF3822;
 }
 
 a.intext {
+text-decoration: none;
+border-bottom:2px dotted; 
+color: #000000;
+}
+
+a:hover {
+    color: #FF5134;
+}
+
+#next_event_date {
 font-weight: bold;
+font-size: 1.6em;
+margin:  0 0 1em 0;
+color: #000000;
 }
 
 #no_numbers_alarm {
@@ -28,12 +43,13 @@ padding: 8px;
 color: red;
 }
 
-#sale_number {
-font-weight: bold;
-}
-
 #iwaitmsg {
     display: none;
     margin-top: 6px;
     text-align:center;
+}
+#itblconfdat td{
+	padding: 0 1em 0.4em 0;
+	
+	}
 }

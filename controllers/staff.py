@@ -7,9 +7,9 @@ if 0:
     global session
     global shotdb   
 
-import re
 #import sys
 from shotdbutil import *
+from gluon.tools import Crud
 
 T.force('de')
 
@@ -42,7 +42,7 @@ def login():
 
 
     if form.validate(onvalidation = __check_password):        
-        nextpage = 'vendorlist'
+        nextpage = 'personlist'
         if session.frompage:
             nextpage = session.frompage
             session.frompage = None
@@ -51,37 +51,13 @@ def login():
         
     return dict(form = form)
 
-
-def __list_ordered(query = db.vendor['id'] > 0):
-    # This function handles the ordering.
-    
-    # o is an object of class db Field which defines the order column
-    o = db.vendor.id
-    
-    # Checking the type appeared to be the best way to whether or not the variable is set.
-    if (type(request.vars.orderby) == str):
-        f = request.vars.orderby.split('.')[-1]
-        if(session.vendorlistorderfield == f):
-            o = ~getattr(db.vendor,f)
-            session.vendorlistorderfield = ''
-        else:
-            o = getattr(db.vendor,f)
-            session.vendorlistorderfield = f
-    else:
-        session.vendorlistorderfield = ''
-    
-    return db(query).select(orderby = o)
     
 
-def list_vendors():
-    __login(role = 'staff', frompage = 'list_vendors')
-    return dict(rows = __list_ordered())
 
-
-def vendorlist():
-    __login(role = 'staff', frompage = 'vendorlist')
-    query = shotdb.vendor.id > 0
-    f = Filter('vendor', query, displayeventfilter = False)
+def personlist():
+    __login(role = 'staff', frompage = 'personlist')
+    query = shotdb.person.id > 0
+    f = Filter('person', query, displayeventfilter = False)
     
     return dict(form = f.form, sqltab = f.sqltab)
     
@@ -89,32 +65,6 @@ def vendorlist():
 
 
 #################################################################################
-
-from gluon.tools import Crud
-
-crud = Crud(db)
-crud.settings.controller = 'staff'
-crud.settings.create_next = URL('vendor_control')
-crud.settings.update_next = URL('vendor_control')
-crud.settings.update_deletable = True
-crud.settings.showid = True
-
-
-
-def vendor_control():
-    __login(role = 'admin', frompage = 'vendor_control')
-    
-    table = db['vendor']
-    
-    if(request.args(0) == 'add'):
-        crud_response = crud.create(table)  
-    elif(request.args(0) == 'edit' and request.args(1) != None):
-        crud_response = crud.update(table, request.args(1))
-    else: 
-        table.id.represent = lambda id, row: A(id,_href=URL('vendor_control/edit', args=(id)))
-        crud_response = crud.select(table)
-
-    return dict(crud_response = crud_response)
 
 def numbers():
     __login(role = 'staff', frompage = 'numbers')
@@ -130,33 +80,38 @@ def numbers():
 
 def helplist():
     __login(role = 'staff', frompage = 'helplist')
-    query  = (shotdb.help.vendor == shotdb.vendor.id)
+    query  = (shotdb.help.person == shotdb.person.id)
     query &= (shotdb.help.shift  == shotdb.shift.id)
     f = Filter('help', query, eventtable = 'shift')
     return dict(form = f.form, sqltab = f.sqltab)
 
 def bringlist():
     __login(role = 'staff', frompage = 'bringlist')
-    query =  (shotdb.bring.vendor   == shotdb.vendor.id)
+    query =  (shotdb.bring.person   == shotdb.person.id)
     query &= (shotdb.bring.donation == shotdb.donation.id)
     f = Filter('bring', query, eventtable = 'donation')
     return dict(form = f.form, sqltab = f.sqltab)
 
 def messagelist():
     __login(role = 'staff', frompage = 'messagelist')
-    query = (shotdb.message.vendor == shotdb.vendor.id)
+    query = (shotdb.message.person == shotdb.person.id)
     f = Filter('message', query)
     return dict(form = f.form, sqltab = f.sqltab)
    
 def salelist():
     __login(role = 'staff', frompage = 'salelist')   
-    query =  (shotdb.sale.vendor == shotdb.vendor.id)
+    query =  (shotdb.sale.person == shotdb.person.id)
     f = Filter('sale', query = query)
     return dict(form = f.form, sqltab = f.sqltab)
-
+   
+def waitlist():
+    __login(role = 'staff', frompage = 'waitlist')   
+    query = (shotdb.wait.person == shotdb.person.id)
+    f = Filter('wait', query = query)
+    return dict(form = f.form, sqltab = f.sqltab)
 
 def crud():
-    __login(role = 'staff', frompage = 'vendorlist')  
+    __login(role = 'staff', frompage = 'personlist')  
     
     tablename = request.args(0)
     action = request.args(1)
@@ -207,8 +162,11 @@ class Filter():
         name_colset = 'selcs'
           
         e = Events(shotdb)
-        le = e.all
+        le = e.all_labels
         le.insert(0, label_all)
+        
+        # create dictionary {event label : event id} which is helpful for displaying the event dropdowns
+        self.eids = dict((v, k) for k, v in e.all.iteritems())
         
         ls = config.colsets[self.tablename]['sets'].keys()
         
@@ -231,7 +189,7 @@ class Filter():
             if selev == label_all:
                 self.event_id = 0
             else:
-                self.event_id = e.id[selev]
+                self.event_id = self.eids[selev]
         else:
             self.form.vars[name_event] = e.current
             self.event_id = e.current_id 
@@ -266,7 +224,7 @@ class Filter():
         if request.vars.orderby:                
             if session.sort_column.has_key(self.tablename) and session.sort_column[self.tablename]== request.vars.orderby:
                 # table is already sorted for this very column => sort in reverse order
-                # due to the '~' operator for revers sorting the database field must be constructed (no better solution so far)
+                # due to the '~' operator for reverse sorting the database field must be constructed (no better solution so far)
                 aux = request.vars.orderby.split('.')
                 self.orderby = ~getattr(getattr(shotdb,aux[-2]),aux[-1])
                 del session.sort_column[self.tablename]

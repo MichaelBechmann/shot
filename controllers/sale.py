@@ -16,23 +16,21 @@ from shotmail import *
 from shotdbutil import *
 import re
 
+
 T.force('de')
 
 def __validateform(form):
     '''
     Functions that take arguments or start with a double underscore are not publicly exposed and can only be called by other functions.
-    This validation function checks whether or not at least one of the possible contribution checkbox fields has been checked.
+    This validation function checks whether or not at least one of the help shift checkbox fields has been checked.
     '''
     sale = Sale()
     sale.analyzecheckboxes(form.vars)
-    b_contrib = False
-    if (len(sale.shifts_checked) + len(sale.donations_checked)) > 0:
-        b_contrib = True
-    if b_contrib == False and sale.b_cannot_help_checked == False:
-        form.errors.msg = T('You didn\'t check any of the contribution options! Please confirm that you cannot contribute anything.')
-    elif b_contrib == True and sale.b_cannot_help_checked == True:
-        form.errors.msg = T('You made an inconsistent choice! Please either check some contribution or confirm that you cannot contribute anything.')
-
+    if sale.b_does_help == False and sale.b_cannot_help == False:
+        form.errors.msg = 'Sie haben sich für keine Helferschicht eingetragen. Bitte bestätigen Sie, daß Sie nicht helfen können.'
+    elif sale.b_does_help == True and sale.b_cannot_help == True:
+        form.errors.msg = 'Sie haben widersprüchliche Angaben gemacht! Bitte tragen Sie sich entweder für eine Helferschicht ein oder markieren Sie, daß Sie nicht helfen können.'
+        
 def _contribelement(label, formname, a, t):
     '''
     This function returns a list containing the complete contribution form elements (shift or donation).
@@ -73,32 +71,23 @@ def form():
     # check whether or not the sale information form shall be displayed
     if session.form_passive:
         # The form shall be displayed for configuration purposes only.
-        # Database emanipulations are not intended! 
+        # Database manipulations are not intended! 
         sale = Sale()
-        l = sale.numbers.config_all()
-    elif session.vendor_id == None:
+    elif session.person_id == None:
         # Something went wrong.
         redirect(URL('main', 'index'))
     else:
         # The form is active.
-        sale = Sale(session.vendor_id)
-        l = sale.getfreenumbers()
-        if sale.b_vendor_has_number:
-            # The vendor already has a number for the current event.
-            redirect(URL('main', 'index'))
-        elif len(l) == 0:
-            # There are no numbers left.
-            redirect(URL('no_numbers'))
-        # Finally this is the normal case!
-        l.insert(0, sale.nonumber)
-        
-        
+        sale = Sale(session.person_id)
+            
     # construct the form from the database tables
     formelements = []
-    formelements.append(DIV(SPAN(T('My desired sale number:'), SELECT(l, _name = config.formname.sale_number)), _id = config.cssid.salenumber))
+    formelements.append(DIV(INPUT(_type = 'checkbox', _name = config.formname.sale_number, _checked = 'checked',_value = 'on'), ' Ich möchte eine Kommissionsnummer haben.', _id = config.cssid.salenumber))
     
+    formelements.append(TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.no_contrib), 'Ich kann leider keine Helferschicht übernehmen.'), _id = config.cssid.nocontrib))
+    formelements.extend([BR(), BR()])
     # all shifts related to the current event
-    formelements.append(DIV(T('I will help here:'), _class = config.cssclass.contribheading))
+    formelements.append(DIV('Ich kann folgende Helferschicht(en) übernehmen:', _class = config.cssclass.contribheading))
     
     # construct two column table of the shift elements
     # correct odd number of shifts
@@ -119,7 +108,7 @@ def form():
             if d not in groupheads:
                 groupheads[d] = shift.timelabel
             elif session.form_passive and (groupheads[d] != shift.timelabel):
-                # The shift grouped together havd different times => notify admin
+                # The shift grouped together have different times => notify admin
                 ce.append(SPAN(T('check times!!'), _class = config.cssclass.configwarn))
 
             if d in groups:
@@ -141,7 +130,7 @@ def form():
 
 
     # all donations related to the current event
-    formelements.append(DIV(T('For the cafe I will bring the following:'), _class = config.cssclass.contribheading))
+    formelements.append(DIV('Für das Café bringe ich folgendes mit (sofern ich eine Kommissionsnummer erhalte):', _class = config.cssclass.contribheading))
     de = []
     for donation in sale.getdonations():
         a = donation.actual_number
@@ -149,7 +138,7 @@ def form():
         
         de.append(TR(*_contribelement(donation.label, donation.name, a, t)))
         
-        # check for a < t here because if one has NoScript activa and target number is reached the notes shall not be visible
+        # check for a < t here because if one has NoScript active and target number is reached the notes shall not be visible
         if a < t and donation.enable_notes:
             de.append(TR('', TABLE(TR(T('I bring this:'),      INPUT(_type = 'text', _name = donation.name_note)),
                                    TR(T('Others bring this:'), SPAN(*map(LI,donation.notes))                    ),
@@ -157,10 +146,10 @@ def form():
           
     formelements.append(TABLE(*de, _id = config.cssid.contribtbldons))
 
-    formelements.append(TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.no_contrib), T('I cannot help nor bring anything!')), _id = config.cssid.nocontrib))
+
     
     formelements.append(TABLE(TR(
-                                 T('My message:'), TEXTAREA(_type = 'text', _name = config.formname.vendor_message, _cols = 50, _rows = 3),
+                                 T('My message:'), TEXTAREA(_type = 'text', _name = config.formname.person_message, _cols = 50, _rows = 3),
                                  INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = T('submit'))
                                  ), _id = config.cssid.tblsubmit))
       
@@ -173,55 +162,60 @@ def form():
             session.sale_vars = None
             redirect(URL('config', 'config_event'))    
     else:
-        # pre-populate the form in case of re-direction from form_vendor_confirm() (back button pressed)
+        # pre-populate the form in case of re-direction from confirmation page (back button pressed)
         # see book, section 'Pre-populating the form' in chapter 'Forms and Validators'
         if session.sale_vars:
             form.vars = session.sale_vars
-        else:
-            on = sale.getoldnumber()
-            if on != None:
-                form.vars[config.formname.sale_number] = on
         
         if form.validate(onvalidation = __validateform):      
             session.sale_vars = form.vars
-            sale.setnumber(session.sale_vars)
             redirect(URL('confirm'))
     
         if session.sale_error_msg:
             form.errors.msg = session.sale_error_msg
             session.sale_error_msg = None
      
-    return dict(form = form, id = session.vendor_id)
+    return dict(form = form, b_numbers_free = sale.b_numbers_free)
 
 
 def confirm():
-    # check if there is vendor information to be confirmed
-    if (session.sale_vars == None) or (session.vendor_id == None):
+    # check if there is personal information to be confirmed
+    if (session.sale_vars == None) or (session.person_id == None):
         redirect(URL('main', 'index'))
-    sale = Sale(session.vendor_id)
+    sale = Sale(session.person_id)
     
     # construct display of data to be confirmed
     de = [] # de: data elements
-    de.append(TR(T('You are:'), sale.vendor_name))
-    de.append(TR(T('Your sale number is:'), DIV(session.sale_vars[config.formname.sale_number], _id = 'sale_number')))
+    de.append(TR('Ich bin:', sale.person_name))
     
     sale.analyzecheckboxes(session.sale_vars)
+    
+    if sale.b_wants_sale_number:
+        de.append(TR('', 'Ich möchte eine Kommissionsnummer haben.'))
+    else:
+        de.append(TR('', TD('Ich möchte ', STRONG('keine'), ' Kommissionsnummer haben.')))
+    
     for s in sale.getcheckedshifts():
-        de.append(TR(T('You help here:'), DIV(s.day + ', ' + s.time + ', ' + s.activity)))
+        de.append(TR('Hier helfe ich:', s.day + ', ' + s.time + ', ' + s.activity))
+    
+    if sale.b_cannot_help:
+        de.append(TR('', TD('Ich kann leider keine Helferschicht übernehmen.')))        
+    
     for d in sale.getcheckeddonations():
         out =  d.item
         if d.note != None:
             out += ' (' + d.note + ')'
-        de.append(TR(T('You bring this:'), DIV(out)))
+        de.append(TR('Das bringe ich mit:', out))
     
-    if sale.b_cannot_help_checked:
-        de.append(TR('Schade:', DIV(T('Sie können leider nicht helfen.'))))
-    
-    if session.sale_vars[config.formname.vendor_message]:
-        de.append(TR(T('You left a message:'), session.sale_vars[config.formname.vendor_message]))
+    if sale.b_cannot_donate:
+        de.append(TR('', TD('Ich kann leider nichts für das Café spenden.')))
 
     
-    data = TABLE(*de)
+    if session.sale_vars[config.formname.person_message]:
+        de.append(TR('Meine Nachricht:', session.sale_vars[config.formname.person_message]))
+
+    
+    data = TABLE(*de, _id = config.cssid.tblconfirmdata)
         
     
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
@@ -236,33 +230,31 @@ def confirm():
     if 'submit back' in request.vars:
         redirect(URL('form'))
     elif 'submit send' in request.vars:
+
             
         # Add the sale information to the database and send mail:
         try:  
             # Add submitted information to database record.
-            sale.setdbentries(session.sale_vars)
-        
+            sale.setdbentries()
+            
             # prevent multiple database entries
             session.clear()
-                
-            # send mail with sale number
-            sale.sendnumbermail()
-            nextpage = URL('final')
+            if sale.b_sale_number_assigned or (not sale.b_wants_sale_number):
+                nextpage = URL('sale','final')
+            else:
+                nextpage = URL('sale','final_wait')
             
         except:
-            '''
-            If the number to be added is already in the table for some reason the 'unique' attribute of the field 'number'
-            causes an exception.
-            '''
-            session.sale_vars.number = None     # Do not pre-populate form with number which is already assigned!
-            session.sale_error_msg = T('Oops! Your sale number has just been assigned to someone else. Please choose another one.')
-            nextpage = URL('form')
+            nextpage = URL('main','error')
             
         redirect(nextpage)      
         
     return(dict(form = form, data = data))
 
 def final():
+    return dict()
+
+def final_wait():
     return dict()
 
 def no_numbers():
@@ -274,50 +266,30 @@ class Sale():
     This class provides methods for handling all sale related information like sale numbers or help information.
     These methods include all interaction with the database.
     
-    argument: vid - vendor id
+    argument: pid - person id
     '''
-    def __init__(self, vid = 0):  
-        self.currentevent = shotdb(shotdb.event.active == True).select().last().id
-        self.vid = vid
-        if self.vid > 0:
-            self.vendor_name = shotdb.vendor(session.vendor_id).forename + ' ' + shotdb.vendor(session.vendor_id).name
-            if self._salenumber() == None:
-                self.b_vendor_has_number = False
-            else:
-                self.b_vendor_has_number = True
-        else:
-            self.vendor_name = 'anonymous'
-        self.nonumber = ' - '
-        self.b_cannot_help_checked = False
-        self.numbers = Numbers(shotdb, self.currentevent)
-        self.freenumbers = []
-
-    def getfreenumbers(self):
-        '''
-        This method returns a list of all still free numbers.
-        The result depends on the vendor(kindergarten or not).
-        '''          
-        if shotdb.vendor(self.vid).kindergarten != config.no_kindergarten_id:
-            self.freenumbers = self.numbers.free_kg()
-        else:    
-            self.freenumbers = self.numbers.free()
-        return(self.freenumbers)
-    
-    def getoldnumber(self):
-        '''
-        This method tries to retrieve the sale number the vendor had at the last event
-        '''
-        n = None
-        query = (shotdb.sale.event == (self.currentevent - 1)) & (shotdb.sale.vendor == self.vid)
-        rows = shotdb(query).select()
-        if rows:
-            n = rows.last().number
-            if n not in set(self.freenumbers):
-                n = None
-        return n
+    def __init__(self, pid = 0): 
+        self.pid = pid         
+        self.currentevent = Events(shotdb).current_id
+        
+        self.person_name = 'anonymous'
+        self.b_has_number = False
+        self.b_is_in_kindergarten = False
+        rows = shotdb(shotdb.person.id == self.pid).select()
+        if len(rows) > 0:
+            person = rows.last()
+            # get name of the person
+            self.person_name = person.forename + ' ' + person.name
+            # kindergarten
+            if person.kindergarten != config.no_kindergarten_id:
+                self.b_is_in_kindergarten = True
+                
+        # Are there free numbers?
+        self.b_numbers_free = Numbers(shotdb, self.currentevent).get_b_numbers_free(self.b_is_in_kindergarten)
 
     def setnumber(self, vars):
         '''
+        move!!!
         This function checks if a sale number has been chosen.
         If not the number is assigned automatically. Note that the form.vars object passes to this function (by reference) is modified!
         To keep track of the user input a new boolean field is added.
@@ -366,18 +338,20 @@ class Sale():
     
     def analyzecheckboxes(self, vars):
         '''
-        This method analyzes which checkboxes of the are checked.
+        This method analyzes which checkboxes of the form are checked.
         For the shifts list of the related database ids are constructed.
         For the donations a dictionary is generated containing also the notes:
             {donation id: note}; None if there is no note
-        The 'no contribution' checkbox a translates to a boolean.
+        The 'want sale number' and 'no contribution' checkbox translate to boolean.
         '''
+        self.vars = vars
         self.shifts_checked = []
+        self.b_does_help = False
         self.donations_checked = {}
         # iterate through the dictionary 'vars' containing the form elements
         # for the form elements which have been checked => decode the database table and the id from the key
         p = re.compile('^([a-z]+)\$([0-9]+)$')
-        for (k, v) in vars.iteritems():
+        for (k, v) in self.vars.iteritems():
             if v == 'on':
                 m = p.match(k)
                 if m:
@@ -385,6 +359,7 @@ class Sale():
                     id = int(m.group(2))
                     if table == config.formname.shift:
                         self.shifts_checked.append(id)
+                        self.b_does_help = True
                     elif table == config.formname.donation:
                         self.donations_checked[id] = None
                         
@@ -396,10 +371,17 @@ class Sale():
                     did = int(m.group(1)) # 'donation-id'
                     # There may well be notes without the corresponding donation being checked!
                     if did in self.donations_checked:
-                        self.donations_checked[did] = v                           
+                        self.donations_checked[did] = v
+                                                
+        if self.vars[config.formname.sale_number] == 'on':
+            self.b_wants_sale_number = True
+        else:
+            self.b_wants_sale_number = False
                         
-        if vars[config.formname.no_contrib] == 'on':
-            self.b_cannot_help_checked = True
+        if self.vars[config.formname.no_contrib] == 'on':
+            self.b_cannot_help = True
+        else:
+            self.b_cannot_help = False
 
     def getcheckedshifts(self):
         '''
@@ -416,74 +398,46 @@ class Sale():
         '''
         dids = self.donations_checked.keys() # donation ids
         rows = shotdb(shotdb.donation.id.belongs(dids)).select()
+        self.b_cannot_donate = True
         for r in rows:
             r.note = self.donations_checked[r.id]
-    
+            self.b_cannot_donate = False
+            
         return rows
 
-    def setdbentries(self, vars):
+    def setdbentries(self):
         '''
         This method creates all database entries related to the sale (sale number, shifts, donations, message).
         '''
-        self.analyzecheckboxes(vars)
-        
-        # sale number
-        sid = shotdb.sale.insert(event = self.currentevent, vendor = self.vid, number = vars[config.formname.sale_number], number_assigned = vars.number_assigned) 
-        
-        # add log info to vendor
-        s = 'sale # ' + str(sid) + ' added'
-        Log(shotdb).vendor(self.vid, s)
-        
-        # message
-        if vars[config.formname.vendor_message] != '':
-            shotdb.message.insert(event = self.currentevent, vendor = self.vid, text = vars[config.formname.vendor_message]) 
-        
         # shifts
-        for id in self.shifts_checked:
-            shotdb.help.insert(shift = id, vendor = self.vid)
+        for sid in self.shifts_checked:
+            shotdb.help.update_or_insert(shift = sid, person = self.pid)
             
         # donations
-        for (id, note) in self.donations_checked.iteritems():
-            shotdb.bring.insert(donation = id, vendor = self.vid, note = note)
-    
-    def _salenumber(self):
-        '''
-        This method determines the sale number for the vendor and the current event fromthe database.
-        '''
-        query = (shotdb.sale.event == self.currentevent) & (shotdb.sale.vendor == self.vid)
-        r = shotdb(query).select(shotdb.sale.number).last()
-        if r != None:
-            n = r.number
+        for (did, note) in self.donations_checked.iteritems():
+            shotdb.bring.update_or_insert(donation = did, person = self.pid, note = note)
+            
+        # message
+        if self.vars[config.formname.person_message] != '':
+            shotdb.message.insert(event = self.currentevent, person = self.pid, text = self.vars[config.formname.person_message])
+        
+        
+        # sale numbers
+        self.b_sale_number_assigned = False
+        if self.b_wants_sale_number: 
+            if (self.b_is_in_kindergarten or self.b_does_help) and self.b_numbers_free:
+                # person gets sale number
+                if NumberAssignment(shotdb, self.pid).assign_number() > 0:
+                    # sale number has been assigned successfully
+                    NumberMail(shotdb, self.pid).send()
+                    self.b_sale_number_assigned = True
+                    
+
+            if self.b_sale_number_assigned == False:
+                # person shall not be assigned a sale number or assignment failed (no free numbers left)
+                # set person on wait list and send mail
+                shotdb.wait.update_or_insert(event = self.currentevent, person = self.pid)
+                WaitMail(shotdb, self.pid).send()
         else:
-            n = None
-        return n
-    
-    def sendnumbermail(self):
-        '''
-        This method collects all information for the number mail to be sentto the vendor.
-        Unlike the pages before the mail contains the data from the database not from the forms!
-        '''
-        vendor = shotdb.vendor(self.vid)
-        
-        # retrieve sale number
-        number = self._salenumber()
-        
-        # retrieve help information
-        query = (shotdb.help.shift == shotdb.shift.id) & (shotdb.help.vendor == self.vid) & (shotdb.shift.event == self.currentevent)
-        cl =  ['Sie helfen: ' + r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity for r in shotdb(query).select()]
-        
-        # retrieve bring information
-        query = (shotdb.bring.donation == shotdb.donation.id) & (shotdb.bring.vendor == self.vid) & (shotdb.donation.event == self.currentevent)
-        for r in shotdb(query).select():
-            d = 'Sie bringen mit: ' + r.donation.item
-            if r.bring.note != None:
-                d += ' (' + r.bring.note + ')'
-            cl.append(d)
-        
-        if len(cl) > 0:
-            contributions = UL(*cl)
-        else:
-            contributions = 'Sie können leider nicht helfen.'
-        
-        NumberMail(vendor, str(number), str(contributions)).send()
+            NumberMail(shotdb, self.pid).send()
         
