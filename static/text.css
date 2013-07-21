@@ -26,7 +26,15 @@ a:hover {
 
 #next_event_date {
 font-weight: bold;
-font-size: 1.6em;
+font-size: 1.4em;
+margin:  0 0 1em 0;
+color: #000000;
+line-height:1.8;
+}
+
+#enroll_date {
+font-weight: bold;
+font-size: 1.2em;
 margin:  0 0 1em 0;
 color: #000000;
 }

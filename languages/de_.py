@@ -18,15 +18,16 @@
 'yes, in St. Michael':      'ja, in St. Michael',
 
 # menu
-'Info':                 'Info',
-'Vendor registration':  'Registrierung als Verkäufer',
-'Contact':              'Kontakt',
-'Privacy':              'Datenschutz',
-'Staff':                'SH-Team',
-'Vendor list':          'Vendor list',
-'Vendor control':       'Vendor control',
-'Add vendor':           'Add vendor',
-'Legal Details':        'Impressum',
+'Start':                    'Start',
+'Vendor registration':      'Registrierung als Verkäufer',
+'Information for vendors':  'Informationen für Verkäufer',
+'Contact':                  'Kontakt',
+'Privacy':                  'Datenschutz',
+'Staff':                    'SH-Team',
+'Vendor list':              'Vendor list',
+'Vendor control':           'Vendor control',
+'Add vendor':               'Add vendor',
+'Legal Details':            'Impressum',
 
 
 # form elements

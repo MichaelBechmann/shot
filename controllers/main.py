@@ -16,6 +16,9 @@ T.force('de')
 def index():
     return dict()
 
+def vendorinfo():
+    return dict()
+
 def privacy():
     return dict()
 

@@ -1,5 +1,6 @@
 *.pyc
 .*
+*.log
 !.gitignore
 /__etc
 /cache
