@@ -44,15 +44,8 @@ def form():
         name  = form.vars.forename + ' ' + form.vars.name
         msg   = form.vars.message
         email = form.vars.email
-        
-        if cat == 'tech':
-            msg += str(BR())
-            msg += 'session\n' + BEAUTIFY(session).xml()
-            msg += 'request.env\n' + BEAUTIFY(request.env).xml() 
-        
-        cm = ContactMail(cat, msg, name, email)
-    
-        cm.send()
+
+        ContactMail(cat, msg, name, email).send()
         redirect(URL('final'))
     
     return dict(form=form)

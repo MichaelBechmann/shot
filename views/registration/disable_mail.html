@@ -1,0 +1,21 @@
+{{extend 'layout.html'}}
+
+<h3>
+Deaktivierung Ihres E-Mail-Kontakts
+</h3>
+
+{{
+if c == None:
+    response.write(P('Es konnte kein E-Mail-Kontakt identifiziert werden.'))
+    pass
+else:
+    response.write(P('Der Kontakt ', STRONG(c), 
+    ' ist aus unserem E-Mail-Verteiler entfernt worden. Es werden keine Rundschreiben mehr an diesen Kontakt versendet werden. Sollten Sie sich mit denselben Kontaktdaten erneut anmelden, wird der Kontakt jedoch wieder aktiv werden.'
+                      ))
+    pass
+}}
+<center>
+<p>
+Das Secondhand-Team Ottersweier.
+</p>
+</center>

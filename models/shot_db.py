@@ -12,10 +12,10 @@ T.force('de')
 
 # There is one single database containing the data of all market events.
 
-shotdb = DAL('sqlite://shotdb.sqlite')
+shotdbold = DAL('sqlite://shotdb.sqlite')
 
 # The table 'event' contains all configuration data of the market events.
-shotdb.define_table('event',
+shotdbold.define_table('event',
         
     Field('label',      'string',   label = T('event label'),          requires=IS_NOT_EMPTY(error_message = T('Please enter a unique identifying label for the event.'))),       
     
@@ -32,7 +32,7 @@ shotdb.define_table('event',
 ) # end of 'event'
 
 # The table 'person' contains all data personal data of the registered people.
-shotdb.define_table('person',
+shotdbold.define_table('person',
                     
     Field('name',           'string',   label = T('name'),          requires=IS_NOT_EMPTY(error_message = T('Please enter your name.'))),                               
     Field('forename',       'string',   label = T('forename'),      requires=IS_NOT_EMPTY(error_message = T('Please enter your forename.'))),                
@@ -65,13 +65,13 @@ shotdb.define_table('person',
 
 
 # The table 'sale' contains all data directly related to the sale of each vendor at the markets.
-shotdb.define_table('sale',
+shotdbold.define_table('sale',
                     
     # relation to the sale event
-    Field('event', shotdb.event),
+    Field('event', shotdbold.event),
                         
     # relation to the person
-    Field('person', shotdb.person),
+    Field('person', shotdbold.person),
     
     # the sale number          
     Field('number',             'integer',  label = T('number')),
@@ -91,16 +91,16 @@ shotdb.define_table('sale',
 
 
 # The table 'wait' collects all persons who are waitlisted for a given event and contains all related information.
-shotdb.define_table('wait',
+shotdbold.define_table('wait',
                     
     # relation to the sale event
-    Field('event', shotdb.event),
+    Field('event', shotdbold.event),
                         
     # relation to the person
-    Field('person', shotdb.person),
+    Field('person', shotdbold.person),
     
     # relation to the sale (if a person on the wait list finally gets a sale number)
-    Field('sale', shotdb.sale),    
+    Field('sale', shotdbold.sale),    
     
 
 ) # end of 'wait'
@@ -108,10 +108,10 @@ shotdb.define_table('wait',
 
 
 # The table 'shift' contains the configuration data for the helper shifts.
-shotdb.define_table('shift',
+shotdbold.define_table('shift',
                     
     # relation to the sale event
-    Field('event', shotdb.event),
+    Field('event', shotdbold.event),
     
     # a short description of the activity which will appear in the registration form
     Field('activity',   'string'),
@@ -133,28 +133,28 @@ shotdb.define_table('shift',
 class VirtualFieldsShift():
     def actual_number(self):
         # This field indicates how many people are currently registered for the particular shift.
-        return len(shotdb(shotdb.help.shift == self.shift.id).select())
+        return len(shotdbold(shotdbold.help.shift == self.shift.id).select())
         
-shotdb.shift.virtualfields.append(VirtualFieldsShift())
+shotdbold.shift.virtualfields.append(VirtualFieldsShift())
 # end of 'shift'
 
 # The auxiliary table 'help' links the persons to the shifts
-shotdb.define_table('help',
+shotdbold.define_table('help',
                     
     # relation to the shit
-    Field('shift', shotdb.shift),
+    Field('shift', shotdbold.shift),
     
     # relation to the person
-    Field('person', shotdb.person),
+    Field('person', shotdbold.person),
                  
                     
 ) #end of 'help'
     
 # The table 'donation' contains all things people are asked to bring, like cake, waffle dough, etc.
-shotdb.define_table('donation',
+shotdbold.define_table('donation',
                     
     # relation to the sale event
-    Field('event', shotdb.event),
+    Field('event', shotdbold.event),
     
     # short description of item to bring
     Field('item',   'string'),
@@ -172,19 +172,19 @@ shotdb.define_table('donation',
 class VirtualFieldsDonation():
     def actual_number(self):
         # This field indicates how many people are currently registered for the particular donation.
-        return len(shotdb(shotdb.bring.donation == self.donation.id).select())
+        return len(shotdbold(shotdbold.bring.donation == self.donation.id).select())
         
-shotdb.donation.virtualfields.append(VirtualFieldsDonation())
+shotdbold.donation.virtualfields.append(VirtualFieldsDonation())
 # end of 'donation'
 
 # The auxiliary table 'bring' links the persons to the donations
-shotdb.define_table('bring',
+shotdbold.define_table('bring',
                     
     # relation to the donation
-    Field('donation', shotdb.donation),
+    Field('donation', shotdbold.donation),
     
     # relation to the person
-    Field('person', shotdb.person),
+    Field('person', shotdbold.person),
     
     # The field 'note' is intended to be provide a simple communication about the donations.
     Field('note', 'string'),          
@@ -193,13 +193,13 @@ shotdb.define_table('bring',
 
 # The table 'message' contains all messages the people leave via the forms.
 # An extra table is used because messages do not relate solely to sales, shifts, or donations.
-shotdb.define_table('message',
+shotdbold.define_table('message',
     
     # relation to the sale event
-    Field('event', shotdb.event),
+    Field('event', shotdbold.event),
                                
     # relation to the person
-    Field('person', shotdb.person),
+    Field('person', shotdbold.person),
     
     # a text message the person can leave during the actual enrollment for an event
     Field('text',        'text',     label = T('message'),      )

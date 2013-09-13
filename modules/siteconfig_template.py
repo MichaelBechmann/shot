@@ -15,6 +15,8 @@ passwd_staff = 'dummy'
 passwd_admin = 'dummy'
 paswd_mail   = 'dummy'
 
+# database connection string
+db_connection_string = 'mysql://__user__:__password__@__host__/__database__'
 
 # show debug output
 debug = True
@@ -27,3 +29,6 @@ showadminitems = True
 
 # send mail real contacts or only to test address
 simulate_mail = True
+
+# enable execution of tasks (e.g., send invitation mail etc.)
+enable_tasks = True

@@ -16,26 +16,36 @@ from shotconfig import *
 from shotmail import *
 from shotdbutil import *
 from gluon.storage import Storage
+from shoterrors import ShotError
+from miscutils import regularizeName
 
 T.force('de')
 
+
+def __regularize_form_input(form):
+    '''
+    This function brings the user input to standard.
+    '''
+    form.vars.forename = regularizeName(form.vars.forename)
+    form.vars.name     = regularizeName(form.vars.name)
+    form.vars.street   = regularizeName(form.vars.street)
+    form.vars.place    = regularizeName(form.vars.place)
+    
+
 def form():
-    # check if registration  is enabled
+
+    # do the identity check first so that users can verify their email contact by clicking on the invitation link
+    i = Ident(shotdb, *request.args)
+    
+    # check if registration  is enabled    
     if config.enableregis == False:
         redirect(URL('registration', 'locked'))
+
         
-    i = Ident(shotdb, *request.args)
-        
-    display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email', 'kindergarten']
-    comments = {'kindergarten': T('Please indicate if you have a child in one of the kindergartens in Ottersweier.')} 
-    form = SQLFORM(shotdb.person, fields = display_fields, submit_button = T('submit'), col3 = comments)
+    display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email']
+    form = SQLFORM(shotdb.person, fields = display_fields, submit_button = T('submit'))
     
-    form.vars.kindergarten = '' # do not use config.no_kindergarten_id here to initialize form with empty field
-    if session.person:
-        # pre-populate the form in case of re-direction from confirmation page (back button pressed)
-        # see book, section 'Pre-populating the form' in chapter 'Forms and Validators'
-        form.vars = session.person
-    elif i.b_verified:
+    if i.b_verified:
         # pre-populate form if function is called with personal code link
         # To prevent mixing up fields (e.g., id, log, verified, code) between persons only the fields displayed in the form must be copied to vars!!!
         # Note that errors "IntegrityError: PRIMARY KEY must be unique" occur if false 'id' fields of the form would propagate to the insert or update operations!
@@ -44,13 +54,18 @@ def form():
             form.vars[f] = i.person[f]
         # Note: The SQLFORM constructor augments the list of fields with 'id'!
         del form.vars['id']
-                
-        form.vars.kindergarten = ''
-        session.person_id = i.id
+        # prevent wrong initialization of the later sale form when several users register from the same machine 
+        session.sale_vars = None
+        
+    elif session.person:
+        # pre-populate the form in case of re-direction from confirmation page (back button pressed)
+        # see book, section 'Pre-populating the form' in chapter 'Forms and Validators'
+        form.vars = session.person        
+        
     
     # There is a mistake in the book: form.validate() returns True or False. form.process() returns the form itself
     # see http://osdir.com/ml/web2py/2011-11/msg00467.html
-    if form.validate():  
+    if form.validate(onvalidation = __regularize_form_input):
         session.person = form.vars 
         redirect(URL('registration','confirm'))
         
@@ -59,7 +74,7 @@ def form():
 def confirm():
     # check if there is personal information to be confirmed
     if session.person == None:
-        redirect(URL('main', 'index'))
+        raise ShotError('Registration confirm page entered without identified person.')
 
     # construct display of data to be confirmed
     data_items = [
@@ -68,8 +83,6 @@ def confirm():
                    TR(T('Your telephone number:'), session.person['telephone']),
                    TR(T('Your email address:'), session.person['email'])
                 ]
-    if session.person['kindergarten'] != config.no_kindergarten_id:
-        data_items.append(TR(T('You have a child in:'), session.person['kindergarten']))
         
     data = TABLE(*data_items, _id = config.cssid.tblconfirmdata)           
     
@@ -95,24 +108,21 @@ def confirm():
             # Note: The reference to the object session.person can be deleted here.
             # The data persist in memory and the object pe contains a duplicate private reference.
             session.person = None 
-            try:
-                if (pe.verified):
-                    # The person is known and the email has been verified already.
-                    pe.update(send_regmail = False)
-                    session.person_id = pe.id
-                    nextpage = URL('sale', 'form')
-                        
-                elif (pe.exists):
-                    # The person is known but the email is to be verified.
-                    pe.update(send_regmail = True)
-                    nextpage = URL('final')  
+            if (pe.verified):
+                # The person is known and the email has been verified already.
+                pe.update(send_regmail = False)
+                session.person_id = pe.id
+                nextpage = URL('sale', 'form')
                     
-                else:
-                    # person is not known yet.
-                    pe.insert()
-                    nextpage = URL('final')  
-            except:
-                nextpage = URL('main', 'error')
+            elif (pe.exists):
+                # The person is known but the email is to be verified.
+                pe.update(send_regmail = True)
+                nextpage = URL('final')  
+                
+            else:
+                # person is not known yet.
+                pe.insert()
+                nextpage = URL('final')  
             
             
             redirect(nextpage)
@@ -128,6 +138,7 @@ def check():
     i = Ident(shotdb, request.args[0])
 
     if i.b_verified:
+        session.clear()
         session.person_id = i.id
         redirect(URL('info'))
    
@@ -216,7 +227,7 @@ class PersonEntry():
         sep = ''
         for f, v in self.person.iteritems():
             op =oldperson[f] 
-            if op!= v:
+            if op != v:
                 s +=sep + f + ' (' + str(op) + ')'
                 sep = ', '
         

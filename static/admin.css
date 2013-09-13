@@ -1,10 +1,28 @@
-table {
+table.caution {
 	font-family: verdana,arial,sans-serif;
 	font-size:12px;
 	border-style: double;
-	border-width: 3px;
+	border-width: 2px;
     border-color: #ff4040;
 }
-th, td {
-	padding-left: 5px;
+table.caution td {
+	padding: 5px;
+	border-width: 1px;
+	border-style: solid;
+    border-color: #ff4040;
+}
+
+
+#task_status {
+	font-weight: normal;
+	font-size: 1.0em;
+}
+
+#task_status .active{
+	font-weight: bold;
+	color: #EE5555;
+}
+#task_status .inactive{
+    font-weight: normal;
+    color: #33CC33;
 }

@@ -49,7 +49,7 @@ h2 {
 
 h3 {
     margin-top: 0em;	
-	margin-bottom: 1em;
+	margin-bottom: 1.2em;
 	font-size: 1.2em;
 	font-weight: bold;
 }
@@ -146,11 +146,11 @@ img.left {
 #menu a {
 	display: block;
 	float: left;
-	margin: 6px 4px 6px 2px;
+	margin: 5px 0px 0px 0px;/*margin: 6px 4px 6px 2px;*/
 	padding: 1px 10px;
 	text-decoration: none;
 	font-size: 1em;
-	font-weight: normal;
+	font-weight: bold;
 	color: #FFFFFF;
 }
 
@@ -166,6 +166,50 @@ img.left {
 	border-right: 2px solid #B24100;
 	border-bottom: 1px solid #B24100;
 }
+
+/* Menu for staff items */
+#menu_staff {
+    width: 950px;
+    height: 27px;
+    margin: 0 auto;
+    margin-top: -27px;
+}
+
+#menu_staff ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#menu_staff li {
+    display: inline;
+    font-family: Tahoma, Arial, sans-serif;
+}
+
+
+#menu_staff a {
+    display: block;
+    float: left;
+    padding: 1px 10px;
+    text-decoration: none;
+    font-size: 1em;
+    font-weight: bold;
+    color: #CC3333;
+}
+
+#menu_staff a:hover {
+    color: #FF0000;
+}
+
+#menu_staff .current_page_item {
+}
+
+#menu_staff .current_page_item a {
+    background: #E8922B;
+    border-right: 2px solid #B24100;
+    border-bottom: 1px solid #B24100;
+}
+
 
 /* Page */
 
@@ -212,4 +256,9 @@ input[type="submit"] {
     font-weight: bold;
     border-right: 2px solid #B24100;
     border-bottom: 1px solid #B24100;
+}
+
+h2.debug{
+	color: #5555FF;
+	}
 }

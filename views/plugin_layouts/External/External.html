@@ -14,7 +14,7 @@ Description: Three-column blog design with the third column allocated for ads. F
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
   <title>
-   Second Hand Ottersweier
+   Secondhand Ottersweier
   </title>
   <link href="/static/plugin_layouts/layouts/External/default.css" rel="stylesheet" type="text/css" />
   <link href="/static/plugin_layouts/layouts/External/images/shot.ico"  rel="shortcut icon" /> 
@@ -27,7 +27,7 @@ Description: Three-column blog design with the third column allocated for ads. F
    <div id="header">
     <div id="logo">
      <h1>
-      Second Hand Ottersweier
+      Secondhand Ottersweier
      </h1>
     </div>
    </div>
@@ -48,13 +48,19 @@ Description: Three-column blog design with the third column allocated for ads. F
         			])
         pass    
             
-            
         menu.extend([[T('Privacy'), 'False', '/main/privacy'],
             		 [T('Contact'), False, '/contact/form']
            			  ])
+        if config.showadminitems:
+            menu.extend([
+                        [T('Staff'), 'False', '/staff/login']
+                        ])
+        pass
+                      
+    response.write(DIV(MENU(menu), _id='menu'))
                  
     if session.staffmember:   
-        menu.extend([
+        menu_staff = ([
                      [T('Persons'),     'False', '/staff/personlist'],
                      [T('Sale'), 'False', '/staff/salelist'],    
                      [T('Wait'), 'False', '/staff/waitlist'],   
@@ -65,20 +71,15 @@ Description: Three-column blog design with the third column allocated for ads. F
                      ])
         
         if session.admin:
-            menu.extend([
-                         [T('Config event'), 'False', '/config/config_event']                
+            menu_staff.extend([
+                         [T('Config Event'), 'False', '/config/config_event'],
+                         [T('Tasks'), 'Fasle', '/tasks/start']          
                         ])
             pass
-        pass
-        
-    elif config.showadminitems:
-        menu.extend([
-                     [T('Staff'), 'False', '/staff/login']
-                    ])
-        pass
-                 
-    
-    response.write(DIV(MENU(menu), _id='menu'))
+            
+    response.write(DIV(MENU(menu_staff), _id='menu_staff'))        
+    pass
+
     }}
     
 	<!-- end menu -->

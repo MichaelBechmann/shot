@@ -1,7 +1,5 @@
-{{extend 'layout.html'}}
-<link href="/static/list.css" rel="stylesheet" type="text/css" />
-      
-        
+{{extend 'layout_admin.html'}}
+
 {{
 response.write(H3('help'))
 response.write(SQLTABLE(rows_help, orderby='dummy', headers='fieldname:capitalize'))

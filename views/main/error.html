@@ -1,15 +1,16 @@
 {{extend 'layout.html'}}
 
-<h3>Es ist ein Fehler aufgetreten!</h3>
+<h3>Mist! Es ist ein <span id=error_alarm>Fehler</span> aufgetreten!</h3>
 
 <p>
-Leider konnten Ihre Daten nicht wie vorgesehen verarbeitet werden. Möglicherweise ist unser System vorübergehend überlastet. Versuchen Sie es später noch einmal.
+Leider konnten Ihre Daten nicht wie vorgesehen verarbeitet werden. Möglicherweise ist unser System vorübergehend überlastet.
+Was auch immer Sie gerade tun wollten, versuchen Sie es später noch einmal.
 <br />
-Zur Analyse des Problems wäre es sehr hilfreich, wenn Sie über unser {{= A('Kontaktformular', _href=URL('contact', 'form'), _class = 'intext')}} beschreiben könnten, was zu diesem Fehler führte.
+Zur genaueren  Analyse des Problems wäre es äußerst hilfreich, wenn Sie über unser {{= A('Kontaktformular', _href=URL('contact', 'form'), _class = 'intext')}} beschreiben könnten, welche Aktionen zu diesem Fehler führten.
 </p>
 <center>
 <p>
-Vielen Dank, Das Second Hand Team Ottersweier
+Vielen Dank, Das Secondhand-Team Ottersweier
 </p>
 </center>
 

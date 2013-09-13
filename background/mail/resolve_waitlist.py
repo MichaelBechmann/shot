@@ -8,42 +8,49 @@ if 0:
     global shotdb
 
 from shotdbutil import *
-from shotmail import *
-from time import *
-import datetime
+from shotmail import NumberFromWaitlistMail, NumberFromWaitlistMailSuccession
+from time import sleep
+from shotlogging import logger_bg
 
 '''
 This function goes through the sorted wait list and assigns sale numbers as long as there are numbers left.
 An email is sent to each person who got a sale number this way.
 '''
 
-f = open('applications/' + config.appname + '/background/mail/resolve_waitlist.log', 'w', 1)
-    
-f.write('shotpath: ' + config.shotpath + '\n')
-f.write('start resolving wait list:\n')
+logger_bg.info('start with script "resolve_waitlist" ...')
 
-wl = WaitList(shotdb)
-    
-count = 0
-for row in wl.rows_sorted:
-    if Numbers(shotdb, wl.eid).get_b_numbers_free():
-        count += 1  
-        t = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-        if row.sale == None or not row.sale > 0:
-            sid = NumberAssignment(shotdb, row.person).assign_number()
-            if sid > 0:
-                shotdb(shotdb.wait.id == row.id).update(sale = sid)
-                shotdb.commit()
-                NumberFromWaitlistMail(shotdb, row.person).send()
-                f.write(str(count) + '\t' + t + '\t' + 'wait id ' + str(row.id) + '\t' + 'sale id: ' + str(sid) + '\t' + row.person.name + ', ' + row.person.forename + '\n')
-                sleep(30)
+try:
+    wl = WaitList(shotdb)
+    count = 0
+    for row in wl.rows_sorted:
+        if Numbers(shotdb, wl.eid).b_numbers_available():
+            count += 1
+            msg = '#%d, id: %d\t%s, %s' % (count, row.id, row.person.name, row.person.forename)
+            if row.sale == None or not row.sale > 0:
+                sid = NumberAssignment(shotdb, row.person).assign_number()
+                if sid > 0:
+                    shotdb(shotdb.wait.id == row.id).update(sale = sid)
+                    shotdb.commit()
+                    
+                    msg = msg + ', sale id: ' + str(sid)
+                    
+                    if row.denial_sent:
+                        NumberFromWaitlistMailSuccession(shotdb, row.person).send()
+                        msg = msg + ' (succession)'
+                    else:
+                        NumberFromWaitlistMail(shotdb, row.person).send()
+                    
+                    logger_bg.info(msg)
+                    sleep(30)
+                else:
+                    logger_bg.info(msg + 'Something is wrong! Sale number could not be assigned!')
             else:
-                f.write(str(count) + '\t' + t + '\t' + 'wait id ' + str(row.id) + '\t' + row.person.name + ', ' + row.person.forename + ': Something is wrong! Sale number could not be assigned!\n')  
+                logger_bg.info(msg + ' has sale number already.')
         else:
-            f.write(str(count) + '\t' + t + '\t' + 'wait id ' + str(row.id) + '\t' + row.person.name + ', ' + row.person.forename + ' has sale number already.\n')  
-    else:
-        f.write('There are no free numbers left any more. No further actions are done.\n') 
-        break     
+            logger_bg.info('There are no numbers available any more. No further actions are done.') 
+            break
+    logger_bg.info('all done.')
+    
+except Exception, e:
+    logger_bg.error(str(e)) 
                 
-f.write('all done.')  
-f.close()

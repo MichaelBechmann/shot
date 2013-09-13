@@ -15,6 +15,7 @@ if 0:
 from shotmail import *
 from shotdbutil import *
 import re
+from shoterrors import ShotError
 
 
 T.force('de')
@@ -75,7 +76,7 @@ def form():
         sale = Sale()
     elif session.person_id == None:
         # Something went wrong.
-        redirect(URL('main', 'index'))
+        raise ShotError('Sale form entered without identified person.')
     else:
         # The form is active.
         sale = Sale(session.person_id)
@@ -128,7 +129,6 @@ def form():
             
         formelements.append(TABLE(*[TR(stblgroups[i], stblgroups[i+1], _class = config.cssclass.shifttblrow) for i in range(0, len(stblgroups), 2)], _id = config.cssid.contribtblshifts))
 
-
     # all donations related to the current event
     formelements.append(DIV('Für das Café bringe ich folgendes mit (sofern ich eine Kommissionsnummer erhalte):', _class = config.cssclass.contribheading))
     de = []
@@ -146,8 +146,6 @@ def form():
           
     formelements.append(TABLE(*de, _id = config.cssid.contribtbldons))
 
-
-    
     formelements.append(TABLE(TR(
                                  T('My message:'), TEXTAREA(_type = 'text', _name = config.formname.person_message, _cols = 50, _rows = 3),
                                  INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = T('submit'))
@@ -175,13 +173,13 @@ def form():
             form.errors.msg = session.sale_error_msg
             session.sale_error_msg = None
      
-    return dict(form = form, b_numbers_free = sale.b_numbers_free)
+    return dict(form = form, b_numbers_available = sale.b_numbers_available)
 
 
 def confirm():
     # check if there is personal information to be confirmed
     if (session.sale_vars == None) or (session.person_id == None):
-        redirect(URL('main', 'index'))
+        raise ShotError('Sale confirm page entered without identified person.')
     sale = Sale(session.person_id)
     
     # construct display of data to be confirmed
@@ -225,27 +223,21 @@ def confirm():
                         ),
                 DIV(T(config.msg.wait), _id = config.cssid.waitmsg)
                 )
-    
         
     if 'submit back' in request.vars:
         redirect(URL('form'))
+        
     elif 'submit send' in request.vars:
-
-            
         # Add the sale information to the database and send mail:
-        try:  
             # Add submitted information to database record.
-            sale.setdbentries()
-            
-            # prevent multiple database entries
-            session.clear()
-            if sale.b_sale_number_assigned or (not sale.b_wants_sale_number):
-                nextpage = URL('sale','final')
-            else:
-                nextpage = URL('sale','final_wait')
-            
-        except:
-            nextpage = URL('main','error')
+        sale.setdbentries()
+        
+        # prevent multiple database entries
+        session.clear()
+        if sale.b_sale_number_assigned or not sale.b_wants_sale_number:
+            nextpage = URL('sale','final')
+        else:
+            nextpage = URL('sale','final_wait')
             
         redirect(nextpage)      
         
@@ -270,34 +262,18 @@ class Sale():
     '''
     def __init__(self, pid = 0): 
         self.pid = pid         
-        self.currentevent = Events(shotdb).current_id
+        self.currentevent = Events(shotdb).current.id
         
         self.person_name = 'anonymous'
         self.b_has_number = False
-        self.b_is_in_kindergarten = False
         rows = shotdb(shotdb.person.id == self.pid).select()
         if len(rows) > 0:
             person = rows.last()
             # get name of the person
             self.person_name = person.forename + ' ' + person.name
-            # kindergarten
-            if person.kindergarten != config.no_kindergarten_id:
-                self.b_is_in_kindergarten = True
                 
         # Are there free numbers?
-        self.b_numbers_free = Numbers(shotdb, self.currentevent).get_b_numbers_free(self.b_is_in_kindergarten)
-
-    def setnumber(self, vars):
-        '''
-        move!!!
-        This function checks if a sale number has been chosen.
-        If not the number is assigned automatically. Note that the form.vars object passes to this function (by reference) is modified!
-        To keep track of the user input a new boolean field is added.
-        '''
-        vars.number_assigned = False
-        if vars[config.formname.sale_number] == self.nonumber:
-            vars.number_assigned = True
-            vars[config.formname.sale_number] = self.getfreenumbers()[-1]
+        self.b_numbers_available = Numbers(shotdb, self.currentevent).b_numbers_available()
               
     def getshifts(self):
         '''
@@ -328,10 +304,21 @@ class Sale():
             r.name_note = config.formname.note + '$' +  str(r.id)
             
             # add a list of all notes which already exist for this donation
-            r.notes = []
+            notes = {}
             for bring in shotdb(shotdb.bring.donation == r.id).select():
                 if bring.note != None:
-                    r.notes.append(bring.note)
+                    # add note if new, increment counter otherwise
+                    if bring.note in notes:
+                        notes[bring.note] += 1
+                    else:
+                        notes[bring.note] = 1
+            r.notes = []
+            for k, v in notes.iteritems():
+                s = k
+                if v > 1:
+                    s += ' (%dx)' % v
+                r.notes.append(s)
+            r.notes.sort()
             
         # Note: Here a reference is returned!
         return self.rows
@@ -425,13 +412,12 @@ class Sale():
         # sale numbers
         self.b_sale_number_assigned = False
         if self.b_wants_sale_number: 
-            if (self.b_is_in_kindergarten or self.b_does_help) and self.b_numbers_free:
+            if (self.b_does_help):
                 # person gets sale number
                 if NumberAssignment(shotdb, self.pid).assign_number() > 0:
-                    # sale number has been assigned successfully
+                    # sale number has been assigned successfully or person already has a sale number
                     NumberMail(shotdb, self.pid).send()
                     self.b_sale_number_assigned = True
-                    
 
             if self.b_sale_number_assigned == False:
                 # person shall not be assigned a sale number or assignment failed (no free numbers left)

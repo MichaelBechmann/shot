@@ -9,15 +9,16 @@ if 0:
     global session
     global shotdb
     
-from shotmail import *
+from shotdbutil import Events
+from shotmail import ErrorMail
 
 T.force('de')
 
 def index():
-    return dict()
+    return dict(date = Events(shotdb).current.date)
 
 def vendorinfo():
-    return dict()
+    return dict(enrol_date = Events(shotdb).current.enrol_date)
 
 def privacy():
     return dict()
@@ -25,13 +26,8 @@ def privacy():
 def legal():
     return dict()
 
-def error():
-    msg  = 'ERROR ERROR ERROR'
-    msg += str(BR())
-    msg += 'session\n' + BEAUTIFY(session).xml()
-    msg += 'request.env\n' + BEAUTIFY(request.env).xml() 
-        
-    ContactMail('tech', msg, 'anonymous', 'no email').send()
+def error():  
+    ErrorMail().send()
     return dict()
 
 

@@ -32,7 +32,7 @@ color: #000000;
 line-height:1.8;
 }
 
-#enroll_date {
+#enrol_date {
 font-weight: bold;
 font-size: 1.2em;
 margin:  0 0 1em 0;
@@ -45,6 +45,12 @@ font-size: 2em;
 text-decoration: blink;
 color: #CF3822;
 padding: 8px;
+}
+
+#error_alarm {
+	text-decoration: blink;
+	font-size: 1.4em;
+	color: #FF0000;
 }
 
 .error {

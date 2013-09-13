@@ -1,0 +1,29 @@
+{{extend 'layout.html'}}
+
+<link href="/static/admin.css" rel="stylesheet" type="text/css" />
+          
+{{
+
+if config.enable_tasks:
+    s = 'enabled'
+    c = 'active'
+else:
+    s = 'disabled'
+    c = 'inactive'
+    pass
+r1 = TR('Tasks activation status:', TD(s, _class = c))
+
+if config.mail.simulate_mail:
+    s = 'simulate'
+    c = 'inactive'
+else:
+    s = 'LIVE!'
+    c = 'active'
+    pass
+r2 = TR('Mail status:', TD(s, _class = c))
+
+response.write(TABLE(r1, r2, _id = 'task_status'))
+
+response.write(form)
+
+}}

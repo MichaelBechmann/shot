@@ -1,4 +1,4 @@
-table {
+table.list {
 	font-family: verdana,arial,sans-serif;
 	font-size:11px;
 	color:#000000;
@@ -6,35 +6,35 @@ table {
 	border-color: #a0a0a0;
 	border-collapse: collapse;
 }
-table th {
+table.list th {
 	border-width: 1px;
 	padding: 8px;
 	border-style: solid;
 	border-color: #a0a0a0;
 	background-color: #f4c995;
 }
-table td {
+table.list td {
 	border-width: 1px;
 	padding: 8px;
 	border-style: solid;
 	border-color: #a0a0a0;
 }
-table tr.odd{
+table.list tr.odd{
 	background-color: #fcf1e4;
 }
-table tr.even{
+table.list tr.even{
 	background-color:#ffffff;
 }
 
-td.true{
+table.list td.true{
     text-align:center;
     color: green;
 }
-td.false{
+table.list td.false{
     text-align:center;
     color: red;
 }
-td.none{
+table.list td.none{
     text-align:center;
     color: #b0b0b0;
 }

@@ -12,8 +12,9 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from shotconfig import *
 from gluon.dal import DAL
-from shotdbutil import *
+from shotdbutil import Events, NumberAssignment
 from gluon.html import *
+from gluon import current
 
 
 
@@ -65,8 +66,18 @@ class EMail:
         
         a = MIMEApplication(_data = open(config.shotpath + file,"rb").read(), _subtype='pdf')
         a.add_header('Content-Disposition', 'attachment', filename = name)
-        self.attachments.append(a)       
+        self.attachments.append(a)
         
+    def add_debug_data(self):
+        '''
+        This method is special to web2py.
+        It adds some environment information to the email for the purpose of error analysis.
+        '''
+        dd  = str(STRONG('session\n')) + BEAUTIFY(current.session).xml()
+        dd += str(STRONG('request.env\n')) + BEAUTIFY(current.request.env).xml()
+        dd += str(STRONG('request.vars\n')) + BEAUTIFY(current.request.vars).xml()
+        dd += str(STRONG('request.user_agent()\n')) + BEAUTIFY(current.request.user_agent()).xml()
+        self.subs['PLACEHOLDER_DEBUG_DATA'] = dd        
     
     def send(self):
         """
@@ -101,8 +112,8 @@ class EMail:
             for a in self.attachments:
                 msg.attach(a)  
         
-        if config.simulate_mail:
-            self.receiver = config.simulate_to
+        if config.mail.simulate_mail:
+            self.receiver = config.mail.simulate_to
     
         msg['From']     = self.account.sender
         msg['To']       = self.receiver
@@ -116,7 +127,7 @@ class EMail:
         # backup mail
         if self.send_backup:
             msg.__delitem__('To')
-            msg['To']       = config.backup_to
+            msg['To']       = config.mail.backup_to
             msg.__delitem__('Subject')
             msg['Subject']  = self.subject_backup
             s.sendmail(msg['From'], msg['To'], msg.as_string())
@@ -129,12 +140,21 @@ class ShotMail(EMail):
     Note: The constructor takes a dictionary representation of a persons database record.
           This is because the database is declared only in the application's controllers, not in the general modules.
     '''
+    re_waffle = re.compile('Waffel')
+    
+    recipe = SPAN('Wir möchten Sie bitten, den Waffelteig nach folgendem Rezept zu machen:', BR(), TABLE(*[TR(TD(x[0]), TD(x[1])) for x in config.recipe_list]))
+    
     def __init__(self, db, pid, template):
         EMail.__init__(self, template, account_id = 'shot_staff')
         self.pid = pid
         self.db = db
+        
+        self.events = Events(self.db)
+        
         self.person = self.db.person(pid)
         self.receiver = self.person['email']
+        self.subs['PLACEHOLDER_DATE'] = self.events.current.date
+        self.subs['PLACEHOLDER_ENROL_DATE'] = self.events.current.enrol_date
         self.subs['PLACEHOLDER_FULLNAME'] = self.person.forename + ' ' + self.person.name
         self.subs['PLACEHOLDER_DISABLE_MAIL_URL'] = config.shoturl + 'registration/disable_mail/' + str(self.person.id) + self.person.code
 
@@ -153,9 +173,8 @@ class ShotMail(EMail):
         '''
         This methods retrieves all contributions (the persons sale number from the database and adds it to the mail.
         '''        
-        self.currentevent = Events(self.db).current_id
         # retrieve help information
-        query  = (self.db.shift.event == self.currentevent)
+        query  = (self.db.shift.event == self.events.current.id)
         query &= (self.db.help.shift == self.db.shift.id)
         query &= (self.db.help.person == self.pid)
         
@@ -169,13 +188,16 @@ class ShotMail(EMail):
         
         
         # retrieve bring information
-        query  = (self.db.donation.event == self.currentevent)        
+        query  = (self.db.donation.event == self.events.current.id)        
         query &= (self.db.bring.donation == self.db.donation.id)
         query &= (self.db.bring.person == self.pid)
         
         elem = []
+        b_add_recipe = False
         for r in self.db(query).select():
             d = r.donation.item
+            if self.re_waffle.search(d):
+                b_add_recipe = True
             if r.bring.note != None:
                 d += ' (' + r.bring.note + ')'
             elem.append(d)   
@@ -188,13 +210,17 @@ class ShotMail(EMail):
         else:
             bringtext = DIV(SPAN('Sie können keinen Kuchen für das Cafe mitbringen.'))
 
+        # add waffle recipe
+        if b_add_recipe:
+            bringtext = DIV(bringtext, BR(), self.recipe)
+
         self.subs['PLACEHOLDER_BRING']  = str(bringtext) 
 
     def add_waitlist_position(self):
         '''
         This method calculates the current position of the person on the wait list and adds it to the mail.
         '''
-        query = (self.db.wait.event == self.currentevent)
+        query = (self.db.wait.event == self.events.current.id)
         rows = self.db(query).select()
             
         # determine wait id of the person
@@ -265,6 +291,21 @@ class NumberFromWaitlistMail(ShotMail):
         self.attachpdf('static/Richtlinien.pdf', 'Richtlinien für die Annahme.pdf')    
         self.send_backup    = True
         self.subject_backup = 'backup sale number: ' + ' ' + self.number + ' ' + self.person.name + ', ' + self.person.forename
+        
+class NumberFromWaitlistMailSuccession(ShotMail):
+    '''
+    This class defines the email with the person's sale number. It is sent when the wait list is resolved and the person has got a denial previously.
+    '''
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist_succession.html')
+        
+        self.add_sale_number()
+        self.add_contributions()
+             
+        self.subject = 'Ihre Kommissionsnummer'      
+        self.attachpdf('static/Richtlinien.pdf', 'Richtlinien für die Annahme.pdf')    
+        self.send_backup    = True
+        self.subject_backup = 'backup sale number: ' + ' ' + self.number + ' ' + self.person.name + ', ' + self.person.forename     
 
 
 class WaitMail(ShotMail):
@@ -314,8 +355,25 @@ class ContactMail(EMail):
     '''
     def __init__(self, category, msg, name, email):
         EMail.__init__(self, 'static/mail_templates/contact_de.html', 'shot_staff')
-        self.receiver = config.contactmail.to[category]
+        self.receiver = config.mail.contactmail_to[category]
         self.subject = 'Kontaktanfrage von ' + name
         self.subs['PLACEHOLDER_MSG']    = msg   
         self.subs['PLACEHOLDER_NAME']   = name
-        self.subs['PLACEHOLDER_EMAIL']  = email     
+        self.subs['PLACEHOLDER_EMAIL']  = email
+        if category == 'tech':
+            self.add_debug_data()
+        else:
+            self.subs['PLACEHOLDER_DEBUG_DATA'] = ''
+        
+class ErrorMail(EMail):
+    '''
+    This class defines the email which is automatically sent to the system admin in case an error has been detected.
+    ''' 
+    def __init__(self, msg = 'no message'):
+        EMail.__init__(self, 'static/mail_templates/error.html', 'shot_staff')
+        self.receiver = config.mail.error_to
+        self.subject  = 'Error (%s)' % config.shoturl
+        self.add_debug_data()
+        self.subs['PLACEHOLDER_MSG'] = msg   
+        
+        

@@ -1,4 +1,4 @@
-{{extend 'layout.html'}}
+{{extend 'layout_admin.html'}}
 
 {{
 
@@ -7,15 +7,19 @@ response.write(H3('Here is all information on the sale numbers.'))
 
 response.write(TABLE(TR('assigned total: ',           len(assigned)),
                      TR('general free: ',             len(free)),
-                     TR('kindergarten free: ',        len(free_kg)),
                         )
                )
                
 response.write(TABLE(TR('These are the already assigned numbers: ',  str(assigned)),
                      TR('These are the free general numbers: ',      str(free)),
-                     TR('These are the free kindergarten numbers: ', str(free_kg))
                      )
                )
+response.write(TABLE(TR('This is the number limit: ',  str(limit)),
+                     TR('Number of available numbers', str(available)),
+                     TR('Numbers are available: ',      str(b_available)),
+                     )
+               )               
+               
 
 
 if config.debug:

@@ -10,14 +10,14 @@ import siteconfig
 class EMailAccount:
     # This class defines all email account information like addresses, smtp servers, passwords, etc.
     # The constructor argument selects the account to be used:
-    #    shot_staff - for all Second Hand Ottersweier staff members
+    #    shot_staff - for all Secondhand Ottersweier staff members
     def __init__(self, id):
         if id == 'shot_staff':
             self.server = 'smtp.web.de'
             self.port   = 587
             self.login   = 'secondhand.ottersweier'
             self.passwd = siteconfig.passwd_mail
-            self.sender = 'Second Hand Ottersweier <secondhand.ottersweier@web.de>'
+            self.sender = 'Secondhand Ottersweier <secondhand.ottersweier@web.de>'
         else:
             # not implemented yet
             pass
@@ -26,7 +26,7 @@ class EMailAccount:
 class ConfigurationConstants:
     class ConfigMail:
         pass
-    contactmail = ConfigMail()
+    mail = ConfigMail()
     
     class ConfigNumbers:
         pass    
@@ -52,8 +52,11 @@ class ConfigurationConstants:
 
 config = ConfigurationConstants()
 
+config.db_connection_string = siteconfig.db_connection_string
+
 config.debug            = siteconfig.debug
 config.enableregis      = siteconfig.enableregis
+config.enable_tasks     = siteconfig.enable_tasks
 config.showadminitems   = siteconfig.showadminitems
 
 config.shoturl          = siteconfig.shoturl
@@ -63,10 +66,11 @@ config.appname          = siteconfig.appname
 config.staffpassword = siteconfig.passwd_staff
 config.adminpassword = siteconfig.passwd_admin
 
-config.simulate_mail = siteconfig.simulate_mail
-config.simulate_to   = 'michael_bechmann@yahoo.de'
-config.backup_to     = 'michael_bechmann@yahoo.de'
-config.contactmail.to       = {'general':   'secondhand.ottersweier@web.de',
+config.mail.simulate_mail = siteconfig.simulate_mail
+config.mail.simulate_to   = 'michael_bechmann@yahoo.de'
+config.mail.backup_to     = 'michael_bechmann@yahoo.de'
+config.mail.error_to      = 'michael_bechmann@yahoo.de'
+config.mail.contactmail_to       = {'general':   'secondhand.ottersweier@web.de',
                                'help':      'ninabugner@yahoo.de',
                                'tech':      'michael_bechmann@yahoo.de'
                                }
@@ -118,13 +122,13 @@ config.msg.wait                 = 'The processing of your data takes some time. 
 
 
 config.colsets = {}      
-config.colsets['sale'] = { 'sets':{'details' : ['sale.id', 'sale.event', 'person.name', 'person.forename', 'sale.number', 'sale.number_unikey', 'sale.number_assigned'], 
+config.colsets['sale'] = { 'sets':{'details' : ['sale.id', 'sale.event', 'person.name', 'person.forename', 'person.place', 'sale.number', 'sale.number_unikey', 'sale.number_assigned'], 
                                    'default'  : ['sale.event', 'person.name', 'person.forename', 'sale.number'],
                                    'sign list': ['sale.number','person.name', 'person.forename', 'person.place', 'person.street', 'person.house_number', 'person.telephone']
                                    },
                            'default': 'default'
                          }
-config.colsets['wait'] = { 'sets':{'details' : ['wait.id', 'wait.event', 'person.name', 'person.forename', 'wait.sale'],
+config.colsets['wait'] = { 'sets':{'details' : ['wait.id', 'wait.event', 'person.name', 'person.forename', 'wait.sale', 'wait.denial_sent'],
                                    },
                            'default': 'details'
                          }
@@ -146,8 +150,19 @@ config.colsets['message'] = { 'sets':{'details': ['message.id', 'message.event',
                            'default': 'default'
                          }
 config.colsets['person'] = { 'sets':{'details':  ['person.id', 'person.name', 'person.forename', 'person.place', 'person.zip_code', 'person.street', 'person.house_number', 'person.email', 'person.telephone'],
-                                     'default' : ['person.name', 'person.forename', 'person.kindergarten', 'person.place', 'person.email', 'person.telephone'],
-                                     'technical':['person.id', 'person.name', 'person.forename', 'person.kindergarten', 'person.code', 'person.verified', 'person.mail_enabled', 'person.log']
+                                     'default' : ['person.name', 'person.forename', 'person.place', 'person.email', 'person.telephone'],
+                                     'technical':['person.id', 'person.name', 'person.forename', 'person.code', 'person.verified', 'person.mail_enabled', 'person.log']
                                    },
                            'default': 'default'
                          }
+
+# waffle recipe
+config.recipe_list = (('300 g', 'Margarine'),
+                      ('200 g', 'Zucker'),
+                      ('2  Päckchen', 'Vanillezucker'),
+                      ('1 Prise', 'Salz'),
+                      ('6', 'Eier'), 
+                      ('500 g', 'Mehl'),
+                      ('2 Teelöffel', 'Backpulver'),
+                      ('500 ml', 'Wasser')
+                     )

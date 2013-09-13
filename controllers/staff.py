@@ -10,6 +10,7 @@ if 0:
 #import sys
 from shotdbutil import *
 from gluon.tools import Crud
+from shoterrors import ShotError
 
 T.force('de')
 
@@ -30,7 +31,6 @@ def __check_password(form):
         session.staffmember = None
         session.admin = None
         form.errors.msg = 'The password is not correct!'
-        
 
 
 def login():
@@ -51,8 +51,6 @@ def login():
         
     return dict(form = form)
 
-    
-
 
 def personlist():
     __login(role = 'staff', frompage = 'personlist')
@@ -60,8 +58,6 @@ def personlist():
     f = Filter('person', query, displayeventfilter = False)
     
     return dict(form = f.form, sqltab = f.sqltab)
-    
-
 
 
 #################################################################################
@@ -69,13 +65,15 @@ def personlist():
 def numbers():
     __login(role = 'staff', frompage = 'numbers')
     
-    eid = shotdb(shotdb.event.active == True).select().last().id
-    n = Numbers(shotdb, eid)
+    e = Events(shotdb)
+    n = Numbers(shotdb, e.current.id)
     
     return dict(
-                assigned  = n.assigned(),
-                free      = n.free(), 
-                free_kg   = n.free_kg(),
+                assigned    = n.assigned(),
+                free        = n.free(),
+                available   = n.number_of_available(),
+                b_available = n.b_numbers_available(),
+                limit       = e.current.numbers_limit
                 )
 
 def helplist():
@@ -100,12 +98,15 @@ def messagelist():
    
 def salelist():
     __login(role = 'staff', frompage = 'salelist')   
-    query =  (shotdb.sale.person == shotdb.person.id)
+    query = (shotdb.sale.person == shotdb.person.id)
     f = Filter('sale', query = query)
     return dict(form = f.form, sqltab = f.sqltab)
    
 def waitlist():
     __login(role = 'staff', frompage = 'waitlist')   
+    
+    
+    
     query = (shotdb.wait.person == shotdb.person.id)
     f = Filter('wait', query = query)
     return dict(form = f.form, sqltab = f.sqltab)
@@ -161,12 +162,10 @@ class Filter():
         name_event  = 'selev'
         name_colset = 'selcs'
           
-        e = Events(shotdb)
-        le = e.all_labels
+        self.e = Events(shotdb)
+        self.e.get_all()
+        le = self.e.all.keys()
         le.insert(0, label_all)
-        
-        # create dictionary {event label : event id} which is helpful for displaying the event dropdowns
-        self.eids = dict((v, k) for k, v in e.all.iteritems())
         
         ls = config.colsets[self.tablename]['sets'].keys()
         
@@ -175,8 +174,8 @@ class Filter():
         
         formelements = []
         if self.displayeventfilter:
-            formelements.append(SPAN(T('event:'),      SELECT(le, _name = name_event)))
-        formelements.append(SPAN(T('column set:'), SELECT(ls, _name = name_colset)))
+            formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event)))
+        formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset)))
         formelements.append(INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = T('display')))
         formelements.append(DIV(A('Click here to add new entry!',_href=URL('staff/crud', self.tablename, 'add'))))
         self.form = FORM(*formelements)
@@ -189,10 +188,10 @@ class Filter():
             if selev == label_all:
                 self.event_id = 0
             else:
-                self.event_id = self.eids[selev]
+                self.event_id = self.e.all[selev]
         else:
-            self.form.vars[name_event] = e.current
-            self.event_id = e.current_id 
+            self.form.vars[name_event] = self.e.current.label
+            self.event_id = self.e.current.id 
         
         # column set selection    
         if session.selected_colsets != None and session.selected_colsets.has_key(self.tablename):
@@ -240,7 +239,7 @@ class Filter():
         # construct table
         self.sqltab = SQLTABLE(shotdb(self.query).select(orderby = self.orderby),
                                columns = self.colset,
-                               headers = 'fieldname:capitalize', orderby = 'dummy')
+                               headers = 'fieldname:capitalize', orderby = 'dummy', _class = 'list')
 
         
     
