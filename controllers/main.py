@@ -18,7 +18,9 @@ def index():
     return dict(date = Events(shotdb).current.date)
 
 def vendorinfo():
-    return dict(enrol_date = Events(shotdb).current.enrol_date)
+    date = Events(shotdb).current.date
+    enrol_date = Events(shotdb).current.enrol_date
+    return dict(enrol_date = enrol_date, date = date)
 
 def privacy():
     return dict()

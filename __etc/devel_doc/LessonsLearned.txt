@@ -1,74 +1,16 @@
-Frühjahr 2014:
-    - Shot-Fehler (no person identified) analysieren
-    - Problem, wenn person mehrfach identisch existiert (S. Dilger, #141 + #232), Daten kommen durcheinander zw. den person-Einträgen; E-Mail wurde verifiziert über #232 (laut apache log), aber mail_enabled wurdezu #141 geschrieben!
-    - statische Dateien (*.css, *.js, etc.) nur einmal laden!
-    - DB-commit() bevor Nummern-Mail versandt wird! Bei einem Fehler könnte Nummer versandt werden und anschließend ein rollback() passieren!
-    - ssl-Verbindung für admin, Dateneingabe durch Nutzer
 
-
-Herbst 2013:
-    - (v) Migration auf MySql-DB
-    - (v) einhaeitliches logging der background Prozesse mittels log-module
-    - (v) Kindergarten entfernen
-    - üöäß in mails!!
-        => Unicode
-
-
-Frühjahr 2013:
-
-    - Bei der Konfig des Events ist ein event filter notwendig
-    - (v) sqlite durch mysql ersetzen!
-    - (v) Fehlerbehandlung bei gleichzeitigem Datenbankzugriff (database locked); Fehler abfangen und nochmals versuchen!
-    - Datenbankzugriffe reduzieren!!
-    - Zugriffe durch admins besser kontrollieren, db accounts nutzen?
-    - (v) modulare background functions (generic logfile generation)
-    - Auflösen der Warteliste: Trennung db-Aktionen von E-Mail
-    - Warteliste: doppelte Verknüpfung auf sale ist blöd, wenn Nummern zurückgegeben werden und sales gelöscht werden! ondelete = CASCADE nimmt Person dann von der Warteliste.
 
 Robustheit des Ablaufs:
     - jeweils nächste Seite erzwingen, auch wenn Nutzer während der Verarbeitung auf einen anderen Link klickt, insbesondere bei den finalen 'los !' Knöpfen
-    - (ok) erweiterte und eindeutigere Fehlerbehandlung
         => Mechanismus über 'routes_onerror' geht nicht immer! WARUM?
-    - bessere Erklärungen!
     - Keine-Cookies-Erkennung
     - Stelle sicher, daß www.*, http://* und * funktioniert
     - Wann sollen person ids in session gespeichert werden? Wenn sich mehrere Leute an einem Rechner anmelden, kann das sale Formular falsch vorbelegt werden.
-         => Codierung, unicode verstehen
-   
-Modularer code:
-    - wiederverwendbare login-Funktion, über controller hinweg
-    - Klassen in modules, mit vollem Zugriff auf web2py-Umgebung
-    - allg. Laden der Übersetzungstabellen
-    - allg. debug-output
-    
-    
-Sauberes xhtml:
-   	- 
-   
-   
+  
+
 Performance:
-    - code effizienter gestalten
     - einen großen oder viele spezifische css files
     - besseres, modulareres view-Konzept
-    - Static asset management (siehe web2py-Buch)
-    - controller so strukturieren, daß nicht unnötig Datenbankabfragen gemacht werden.
     
-    
-Inhalt:
-    - wasserdichtes Impressum, Datenschutzerklärung
-    - Bilder
-    - unterstützte Projekte
-    - bessere Unicode-Unterstützung
-    
- 
-Sicherheit:
-    - Verschlüsselte Paßwörter, Zertifikate?
-    - check gluon/contrib/login_methods
-    
-    
-Umgebung:
-    - besseres deployment, backup
-    - Versionskontrolle
-    - Modultests
-    - spell check Deutsch
-    - Task-Verwaltung in Eclipse
+
+
