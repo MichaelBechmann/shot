@@ -81,6 +81,7 @@
 'street': 'Straße',
 'submit': 'weiter',
 'Submit': 'Submit',
+'Success!': 'Success!',
 'Tasks': 'Tasks',
 'telephone': 'Telefon',
 'test': 'test',

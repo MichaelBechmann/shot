@@ -9,19 +9,26 @@ import siteconfig
 
 class EMailAccount:
     # This class defines all email account information like addresses, smtp servers, passwords, etc.
-    # The constructor argument selects the account to be used:
-    #    shot_staff - for all Secondhand Ottersweier staff members
-    def __init__(self, id):
-        if id == 'shot_staff':
+    # The first constructor argument selects the account to be used,
+    # the second if a special mass mail server shall be used if available.
+    def __init__(self, account_id, mass = False):
+
+        if account_id == 'postmaster' or account_id == 'team' or account_id == 'help':
+            self.port   = 465
+            self.login, self.passwd, self.sender  = siteconfig.email_auth[account_id]
+            if mass:
+                self.server = 'mass.selfhost.de'
+            else:
+                self.server = 'mail.selfhost.de'
+            
+        elif account_id == 'fallback':
             self.server = 'smtp.web.de'
             self.port   = 587
-            self.login   = 'secondhand.ottersweier'
-            self.passwd = siteconfig.passwd_mail
-            self.sender = 'Secondhand Ottersweier <secondhand.ottersweier@web.de>'
+            self.login, self.passwd, self.sender  = siteconfig.email_auth['web.de']             
         else:
             # not implemented yet
             pass
-          
+
 
 class ConfigurationConstants:
     class ConfigMail:
@@ -66,15 +73,13 @@ config.appname          = siteconfig.appname
 config.staffpassword = siteconfig.passwd_staff
 config.adminpassword = siteconfig.passwd_admin
 
-config.mail.simulate_mail = siteconfig.simulate_mail
-config.mail.simulate_to   = 'michael_bechmann@yahoo.de'
-config.mail.backup_to     = 'michael_bechmann@yahoo.de'
-config.mail.error_to      = 'michael_bechmann@yahoo.de'
-config.mail.contactmail_to       = {'general':   'secondhand.ottersweier@web.de',
-                               'help':      'ninabugner@yahoo.de',
-                               'tech':      'michael_bechmann@yahoo.de'
-                               }
+config.mail.simulate_mail   = siteconfig.simulate_mail
+config.mail.simulate_to     = siteconfig.email_simulate_to
+config.mail.backup_to       = siteconfig.email_backup_to
+config.mail.error_to        = siteconfig.email_error_to
+config.mail.contactmail_to  = siteconfig.email_contactmail_to
 
+config.backup_enabled = siteconfig.backup_enabled
 
 config.no_kindergarten_id   = ' - '
 

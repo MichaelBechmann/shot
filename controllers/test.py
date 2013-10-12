@@ -50,3 +50,11 @@ def _number_assignment():
     
     
     return t
+
+def _path():
+    
+    import sys
+    out = (DIV(STRONG('PATH:'), BR()))
+    for s in sys.path:
+        out += DIV(s, BR())
+    return out

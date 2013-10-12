@@ -24,13 +24,13 @@ class EMail:
     It defines an html/ plain text two part email (See: http://docs.python.org/library/email-examples.html)
     The constructor argument selects the email account to be used (refer to class EMailAccount)
     """
-    def __init__(self, template, account_id):
-        self.account        = EMailAccount(account_id)
+    
+    def __init__(self, template, account_id, mass = False):
+        self.account        = EMailAccount(account_id, mass)
         self.send_backup    = False
         self.subject_backup = 'backup'
         self.html           = 'default'
         self.subject        = 'default'
-        self.receiver       = 'michael_bechmann@yahoo.de'
         self.subs           = {}
         self.attachments    = []
         
@@ -120,12 +120,12 @@ class EMail:
         msg['Subject']  = self.subject
         
         #  See http://docs.python.org/library/smtplib.html
-        s = smtplib.SMTP(self.account.server, self.account.port)
+        s = smtplib.SMTP_SSL(self.account.server, self.account.port)
         s.login(self.account.login, self.account.passwd)
         s.sendmail(msg['From'], msg['To'], msg.as_string())
         
         # backup mail
-        if self.send_backup:
+        if config.backup_enabled and self.send_backup:
             msg.__delitem__('To')
             msg['To']       = config.mail.backup_to
             msg.__delitem__('Subject')
@@ -144,8 +144,8 @@ class ShotMail(EMail):
     
     recipe = SPAN('Wir möchten Sie bitten, den Waffelteig nach folgendem Rezept zu machen:', BR(), TABLE(*[TR(TD(x[0]), TD(x[1])) for x in config.recipe_list]))
     
-    def __init__(self, db, pid, template):
-        EMail.__init__(self, template, account_id = 'shot_staff')
+    def __init__(self, db, pid, template, account_id = 'team', mass = False):
+        EMail.__init__(self, template, account_id, mass)
         self.pid = pid
         self.db = db
         
@@ -252,13 +252,13 @@ class  InvitationMail(ShotMail):
     """
     This class defines the invitation email with the personal link to the registration form.
     """
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/invitation_de.html')
+    def __init__(self, db, pid, mass = True):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/invitation_de.html', mass = mass)
                   
         self.subject = 'Einladung zum Markt'
         self.subs['PLACEHOLDER_FORM_URL'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
         
-        self.send_backup    = True
+        self.send_backup    = False
         self.subject_backup = 'backup invitation: ' + self.person.name + ', ' + self.person.forename
 
          
@@ -281,8 +281,8 @@ class NumberFromWaitlistMail(ShotMail):
     '''
     This class defines the email with the person's sale number. It is sent when the wait list is resolved.
     '''
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist.html')
+    def __init__(self, db, pid, mass = False):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist.html', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
@@ -296,8 +296,8 @@ class NumberFromWaitlistMailSuccession(ShotMail):
     '''
     This class defines the email with the person's sale number. It is sent when the wait list is resolved and the person has got a denial previously.
     '''
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist_succession.html')
+    def __init__(self, db, pid, mass = False):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist_succession.html', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
@@ -306,7 +306,6 @@ class NumberFromWaitlistMailSuccession(ShotMail):
         self.attachpdf('static/Richtlinien.pdf', 'Richtlinien für die Annahme.pdf')    
         self.send_backup    = True
         self.subject_backup = 'backup sale number: ' + ' ' + self.number + ' ' + self.person.name + ', ' + self.person.forename     
-
 
 class WaitMail(ShotMail):
     '''
@@ -326,36 +325,35 @@ class WaitDenialMail(ShotMail):
     '''
     This class defines the email for persons who got no number from the waitlist.
     '''
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/wait_denial.html')
+    def __init__(self, db, pid, mass = True):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/wait_denial.html', mass = mass)
         
         self.subject = 'Sie haben leider keine Nummer :('       
-        self.send_backup    = True
+        self.send_backup    = False
         self.subject_backup = 'backup waitlist no number: ' + self.person.name + ', ' + self.person.forename
-
          
 class HelperMail(ShotMail):
     '''
     This class defines the email sent to the helpers as a reminder short time before the event..
     '''
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/helper.html')
+    def __init__(self, db, pid, mass = True):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/helper.html', account_id = 'help', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
              
         self.subject = 'Erinnerung: Sie helfen!'       
-        self.send_backup    = True
+        self.send_backup    = False
         self.subject_backup = 'helper: ' + self.person.name + ', ' + self.person.forename
-
           
 class ContactMail(EMail):
     '''
     This class defines the email for the SHOT contact form.
     '''
     def __init__(self, category, msg, name, email):
-        EMail.__init__(self, 'static/mail_templates/contact_de.html', 'shot_staff')
+        EMail.__init__(self, 'static/mail_templates/contact_de.html', account_id = 'postmaster')
         self.receiver = config.mail.contactmail_to[category]
+        
         self.subject = 'Kontaktanfrage von ' + name
         self.subs['PLACEHOLDER_MSG']    = msg   
         self.subs['PLACEHOLDER_NAME']   = name
@@ -370,7 +368,7 @@ class ErrorMail(EMail):
     This class defines the email which is automatically sent to the system admin in case an error has been detected.
     ''' 
     def __init__(self, msg = 'no message'):
-        EMail.__init__(self, 'static/mail_templates/error.html', 'shot_staff')
+        EMail.__init__(self, 'static/mail_templates/error.html', 'postmaster')
         self.receiver = config.mail.error_to
         self.subject  = 'Error (%s)' % config.shoturl
         self.add_debug_data()

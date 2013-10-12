@@ -22,10 +22,18 @@ try:
     hl = HelperList(shotdb)
     count = 0
     for row in hl.rows_compact:
-        count += 1        
-        HelperMail(shotdb, row.person.id).send()
-        logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.person.id, row.person.name, row.person.forename))
-        sleep(30)
+        m = HelperMail(shotdb, row.person.id, mass = True)
+        if count == 0:
+            # output account settings
+            logger_bg.info('The following account settings are used:')
+            logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
+        else:
+            sleep(1)
+            
+        m.send()
+        count += 1 
+        logger_bg.info('#%d, id: %d\t%s, %s   (%s)' % (count, row.person.id, row.person.name, row.person.forename, str(HelperMail)))
+        
     logger_bg.info('all done.')
 
 except Exception, e:

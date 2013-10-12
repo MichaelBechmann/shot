@@ -7,7 +7,6 @@ if 0:
     global session
     global shotdb   
 
-#import sys
 from shotdbutil import *
 from gluon.tools import Crud
 from shoterrors import ShotError

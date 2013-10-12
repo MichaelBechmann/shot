@@ -22,10 +22,18 @@ try:
     count = 0   
     for row in shotdb(shotdb.person.id < 2).select():  
         if row.mail_enabled == None or row.mail_enabled == True:
-            InvitationMail(shotdb, row.id).send() 
+            
+            m = InvitationMail(shotdb, row.id)
+            if count == 0:
+                # output account settings
+                logger_bg.info('The following account settings are used:')
+                logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
+            else:
+                sleep(1)
+            
+            m.send()
             count += 1
             logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.id, row.name, row.forename))
-            sleep(30)
         
     logger_bg.info('all done.')
 

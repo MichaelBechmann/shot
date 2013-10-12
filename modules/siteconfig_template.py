@@ -15,6 +15,22 @@ passwd_staff = 'dummy'
 passwd_admin = 'dummy'
 paswd_mail   = 'dummy'
 
+# email
+email_auth = {}
+email_auth['web.de']      = ('login',                 'passwd',   'sender')
+email_auth['postmaster']  = ('login',                 'passwd',   'sender')
+email_auth['team']        = ('login',                 'passwd',   'sender')
+email_auth['help']        = ('login',                 'passwd',   'sender')
+
+email_simulate_to     = 'dummy'
+email_backup_to       = 'dummy'
+email_error_to        = 'dummy'
+
+email_contactmail_to  = {'general':   'dummy',
+                         'help':      'dummy',
+                         'tech':      'dummy'
+                         }
+backup_enabled = False
 # database connection string
 db_connection_string = 'mysql://__user__:__password__@__host__/__database__'
 

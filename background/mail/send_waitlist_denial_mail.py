@@ -27,12 +27,22 @@ try:
     else:
         count = 0
         for row in wl.rows_denial:
-            count += 1
+            
             shotdb(shotdb.wait.id == row.id).update(denial_sent = True)
             shotdb.commit()
-            WaitDenialMail(shotdb, row.person).send()
+            
+            m = WaitDenialMail(shotdb, row.person)
+            if count == 0:
+                # output account settings
+                logger_bg.info('The following account settings are used:')
+                logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
+            else:
+                # wait before sending next mail
+                sleep(1)          
+            
+            m.send()
+            count += 1
             logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.id, row.person.name, row.person.forename))
-            sleep(30)
         logger_bg.info('all done.')
 
 except Exception, e:

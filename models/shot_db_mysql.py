@@ -86,7 +86,7 @@ shotdb.define_table('sale',
     # This shall ensure that the combination of event and number is unique on database level.
     # Note: The unique attribute must be present already when the sqlite database file is created. Otherwise it will not take effect!
     # Apparently it cannot be changed lateron.
-    Field('number_unikey',      'string',  unique = True, compute=lambda r: str(r['event']) + ':' + str(r['number'])),  
+    Field('number_unikey',      'string',  length=255, unique = True, compute=lambda r: str(r['event']) + ':' + str(r['number'])),  
     
     # define how a record is represented if referenced from other tables
     format='%(number)s (sale id %(id)s)'

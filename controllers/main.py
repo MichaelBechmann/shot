@@ -32,22 +32,3 @@ def error():
     ErrorMail().send()
     return dict()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
