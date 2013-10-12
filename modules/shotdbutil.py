@@ -352,7 +352,7 @@ class NumberAssignment():
                     sn = self.determine_number()
                     if sn > 0:
                         # add sale entry    
-                        sid = self.db.sale.insert(event = self.e.current.id, person = self.pid, number = sn, number_assigned = True) 
+                        sid = self.db.sale.insert(event = self.e.current.id, person = self.pid, number = sn) 
                         log = 'sale # ' + str(sid) + '/ number ' + str(sn) + ' added'
                     else:
                         log = 'no sale added: no more sale numbers available'

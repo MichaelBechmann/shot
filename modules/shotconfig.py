@@ -125,7 +125,7 @@ config.msg.wait                 = 'The processing of your data takes some time. 
 
 
 config.colsets = {}      
-config.colsets['sale'] = { 'sets':{'details' : ['sale.id', 'sale.event', 'person.name', 'person.forename', 'person.place', 'sale.number', 'sale.number_unikey', 'sale.number_assigned'], 
+config.colsets['sale'] = { 'sets':{'details' : ['sale.id', 'sale.event', 'person.name', 'person.forename', 'person.place', 'sale.number', 'sale.number_unikey'], 
                                    'default'  : ['sale.event', 'person.name', 'person.forename', 'sale.number'],
                                    'sign list': ['sale.number','person.name', 'person.forename', 'person.place', 'person.street', 'person.house_number', 'person.telephone']
                                    },

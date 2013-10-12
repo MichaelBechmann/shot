@@ -80,9 +80,6 @@ shotdb.define_table('sale',
     # the sale number          
     Field('number',             'integer',  label = T('number')),
     
-    # did the vendor choose the number or has it been assigned automatically
-    Field('number_assigned',    'boolean'),
-    
     # This shall ensure that the combination of event and number is unique on database level.
     # Note: The unique attribute must be present already when the sqlite database file is created. Otherwise it will not take effect!
     # Apparently it cannot be changed lateron.
