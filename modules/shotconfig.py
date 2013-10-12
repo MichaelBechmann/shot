@@ -81,8 +81,6 @@ config.mail.contactmail_to  = siteconfig.email_contactmail_to
 
 config.backup_enabled = siteconfig.backup_enabled
 
-config.no_kindergarten_id   = ' - '
-
 
 # strings used as identifying names of form input elements
 config.formname.no_contrib      = 'fnnoco'
