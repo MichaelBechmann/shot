@@ -38,3 +38,9 @@ table.list td.none{
     text-align:center;
     color: #b0b0b0;
 }
+form.test{
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a0a0a0;  
+}

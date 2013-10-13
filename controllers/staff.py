@@ -174,10 +174,10 @@ class Filter():
         formelements = []
         if self.displayeventfilter:
             formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event)))
-        formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset)))
-        formelements.append(INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = T('display')))
+        formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset, _id = 'idcolset')))
+        formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
         formelements.append(DIV(A('Click here to add new entry!',_href=URL('staff/crud', self.tablename, 'add'))))
-        self.form = FORM(*formelements)
+        self.form = FORM(*formelements, _id = 'idform')
 
         # extract selections from session object for use in the controller and pre-populate selectors
         # event filter selection
