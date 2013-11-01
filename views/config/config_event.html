@@ -1,4 +1,4 @@
-{{extend 'layout.html'}}
+{{extend 'layout_admin.html'}}
 <link href="/static/crud.css" rel="stylesheet" type="text/css" />
 
 {{
@@ -21,18 +21,4 @@ response.write(BR())
 
 response.write(button)
 
-if config.debug:
-
-    response.write(H1('Debug output'))
-
-    response.write(H2('response.flash'))
-    response.write(BEAUTIFY(response.flash))    
-
-    response.write(H2('session'))
-    response.write(BEAUTIFY(session))   
-    
-    response.write(H2('request.vars'))
-    response.write(BEAUTIFY(request.vars))    
-    
-    pass
 }}

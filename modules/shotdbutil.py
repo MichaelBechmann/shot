@@ -43,6 +43,7 @@ class Events():
         
     def get_all(self):
         self.all = {r.label:r.id  for r in self.db(self.db.event.id > 0).select()}
+        return self.all
         
     def previous(self, eid = 0):
         '''
@@ -431,7 +432,7 @@ class HelperList():
         self.rows = db(query).select(db.person.id, db.help.person, db.person.name, db.person.forename)        
         
         # remove multiple occurrence of helping persons
-        # For some reason the db argument is required fro SQLTABLE to work properly.
+        # For some reason the db argument is required for SQLTABLE to work properly.
         self.rows_compact = Rows(db)
         # For some reason the records must be cleared (otherwise the helperlist will grow each time this class is called!).
         self.rows_compact.records = []
@@ -442,10 +443,75 @@ class HelperList():
                 self.rows_compact.records.append(row)
                 person_list.append(row.person.id)
             
+class Person():
+    '''
+    This class provides methods related to the person summary.
+    '''
+    def __init__(self, db, pid):
+        self.record = db(db.person.id == pid).select().first()
+        
+        self.data = {}
+        e = Events(db)
+        for label, eid in e.get_all().iteritems():
+            self.data[eid] = {'label': label, 'current': False, 'numbers': [], 'wait entries': [], 'shifts': [], 'donations': [], 'messages': []}
+            if eid == e.current.id:
+                self.data[eid]['current'] = True 
+        
+        # retrieve all sale numbers
+        query =  (db.event.id == db.sale.event)
+        query &= (db.person.id == db.sale.person)
+        query &= (db.person.id == pid)
+        
+        for row in db(query).select(db.event.id, db.sale.id, db.sale.number):
+            self.data[row.event.id]['numbers'].append((row.sale.id, row.sale.number))
+        
+        # retrieve all entries in waitlist
+        query =  (db.event.id == db.wait.event)
+        query &= (db.person.id == db.wait.person)
+        query &= (db.person.id == pid)
+        
+        for row in db(query).select():
+            if row.wait.sale != None:
+                s = 'closed'
+            elif row.wait.denial_sent:
+                s = 'open, denial sent'
+            else:
+                s = 'open'
+                
+            self.data[row.event.id]['wait entries'].append((row.wait.id, s))
+        
+        # retrieve all helps
+        query =  (db.event.id == db.shift.event)
+        query &= (db.help.shift == db.shift.id)
+        query &= (db.help.person == db.person.id)
+        query &= (db.person.id == pid)
+        
+        for row in db(query).select(db.event.id, db.help.id, db.shift.activity, db.shift.day, db.shift.time):
+            eid = row.event.id
+            self.data[eid]['shifts'].append((row.help.id, '%(shift.activity)s, %(shift.day)s, %(shift.time)s' % row))       
+        
+        # retrieve all brings
+        query =  (db.event.id == db.donation.event)
+        query &= (db.bring.donation == db.donation.id)
+        query &= (db.bring.person == db.person.id)
+        query &= (db.person.id == pid)
+        
+        for row in db(query).select(db.event.id, db.bring.id, db.donation.item, db.bring.note):
+            eid = row.event.id
+            self.data[eid]['donations'].append((row.bring.id, '%(donation.item)s (%(bring.note)s)' % row))      
+        
+        # retrieve messages
+        query =  (db.event.id == db.message.event)
+        query &= (db.person.id == db.message.person)
+        query &= (db.person.id == pid)
+        
+        for row in db(query).select(db.event.id, db.message.id, db.message.text):
+            eid = row.event.id
+            self.data[eid]['messages'].append((row.message.id, '%(message.text)s' % row))
             
+        #  create sorted list
+        self.eventdata = []
+        for eid in sorted(self.data.keys(), reverse=True):
+            self.eventdata.append(self.data[eid])
             
-            
-            
-
-    
-            
+        

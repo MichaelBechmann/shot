@@ -12,7 +12,6 @@ table.caution td {
     border-color: #ff4040;
 }
 
-
 #task_status {
 	font-weight: normal;
 	font-size: 1.0em;
@@ -24,5 +23,29 @@ table.caution td {
 }
 #task_status .inactive{
     font-weight: normal;
-    color: #33CC33;
+    color: #33AA33;
+}
+
+/* person summary */
+#ps_name {
+	font-weight: bold;
+	font-size: 1.2em;
+}
+
+.ps_email_active {
+    color: #33AA33;	
+}
+.ps_email_inactive {
+    color: #EE5555; 
+}
+
+#ps_info_table > tbody > tr > td {
+    padding: 0px 40px 0px 0px;
+}
+
+.ps_add_link {
+    font-weight: bold;
+    font-size: 1.4em;
+    color: #33AA33;
+    float: right;
 }

@@ -26,3 +26,16 @@ def regularizeName(s):
     reg = ' '.join(aux)
     
     return reg
+
+class TableUtils():
+    '''
+    This class provides simple helper methods for creating tables.
+    '''
+    evenoddclasses = ('even', 'odd')
+    
+    def __init__(self):
+        self.state_evenodd = 1
+        
+    def get_class_evenodd(self):
+        self.state_evenodd += 1
+        return self.evenoddclasses[self.state_evenodd%2]

@@ -48,6 +48,8 @@
 'numbers limit': 'numbers limit',
 'Oops! Your sale number has just been assigned to someone else. Please choose another one.': 'Huch! Ihre Kommissionsnummer ist gerade anderweitig vergeben worden. Bitte wählen Sie eine andere.',
 'Others bring this:': 'Das bringen andere:',
+'Person summary': 'Person summary',
+'person:': 'person:',
 'Persons': 'Persons',
 'place': 'Ort',
 'Please check and confirm your data.': 'Bitte prüfen und bestätigen Sie Ihre Angaben.',

@@ -1,6 +1,6 @@
 $(document).ready(function(){
 	$('.js_hide').hide();
-	$('select').change(function() {
+	$('select.autosubmit').change(function() {
        $('form').submit();
    });
 });

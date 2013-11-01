@@ -5,11 +5,13 @@ if 0:
     global request
     global response
     global session
-    global shotdb   
+    global shotdb
+    global SQLField
 
 from shotdbutil import *
 from gluon.tools import Crud
 from shoterrors import ShotError
+from miscutils import *
 
 T.force('de')
 
@@ -50,16 +52,89 @@ def login():
         
     return dict(form = form)
 
-
-def personlist():
-    __login(role = 'staff', frompage = 'personlist')
-    query = shotdb.person.id > 0
-    f = Filter('person', query, displayeventfilter = False)
-    
-    return dict(form = f.form, sqltab = f.sqltab)
-
-
 #################################################################################
+def person_summary():
+    __login(role = 'staff', frompage = 'person_summary')
+    
+    label_neutral = '-- Select person --'
+
+    form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
+                           buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')])
+    form.custom.widget.person['_class'] = 'autosubmit'
+
+    # prepopulate form
+    if session.selected_pid != None:
+        pid = session.selected_pid
+        form.vars['person'] = pid
+    else:
+        pid = 0
+    
+    # prosess form
+    if form.process().accepted:
+        pid = form.vars['person']
+        session.selected_pid = pid
+        # redirect is necessary to pre-populate the form; didn't find another way
+        redirect(request.env.request_uri.split('/')[-1])
+    
+    p = Person(shotdb, pid)
+    
+    if p.record != None:
+        name = DIV(DIV('%s, %s'% (p.record.name, p.record.forename), _id = 'ps_name'), DIV(CENTER('(#%d)'%( p.record.id), _id = 'ps_id')))
+        if p.record.verified != None and p.record.verified > 0:
+            email_verify_note = SPAN('verified', _class = 'ps_email_active')
+        else:
+            email_verify_note = SPAN('not verified', _class = 'ps_email_inactive')
+            
+        if p.record.mail_enabled != False:
+            email_enable_note = SPAN('active', _class = 'ps_email_active')
+        else:
+            email_enable_note = SPAN('inactive', _class = 'ps_email_inactive')
+    
+        info = TABLE(
+                     TR('Adress:', '%s, %s, %s %s' %(p.record.place, p.record.zip_code, p.record.street, p.record.house_number)),
+                     TR('Phone:', p.record.telephone),
+                     TR('Email:', TD(SPAN('%s (' % (p.record.email)), email_verify_note, SPAN(', '), email_enable_note, SPAN(')'))),
+                     )
+        log = DIV(p.record.log, _id = 'ps_log')
+        tu = TableUtils()
+        data_elements = []
+        
+        col_conf = ('numbers', 'wait entries', 'shifts', 'donations', 'messages')
+        table_conf = {'numbers': 'sale', 'wait entries': 'wait', 'shifts': 'help', 'donations': 'bring', 'messages': None}
+        for ed in p.eventdata:
+            e = TD(ed['label'])
+            cols = []
+            for col in col_conf:
+                table = table_conf[col]
+                if col in ed:
+                    elems = []
+                    for x in ed[col]:
+                        if table == None:
+                            elems.append(DIV(x[1]))
+                        else:
+                            elems.append(DIV(A(x[1], _href = URL('staff','crud/%s/edit/%d/ps' % (table, x[0])))))
+                    
+                    if (ed['current'] == True):
+                        if (col in ('shifts', 'donations') or (col in ('numbers', 'wait entries') and len(elems) == 0)):
+                            elems.append(A('+', _href = URL('staff','crud/%s/add/ps' % (table)), _class = 'ps_add_link'))
+
+                cols.append(TD(*elems))
+
+            data_elements.append(TR(e, *cols, _class = tu.get_class_evenodd()))
+
+        
+        data = TABLE(THEAD(TR(TH('Event'), *[TH(c.capitalize()) for c in col_conf])),
+                     TBODY(*data_elements), _class = 'list')
+        
+    else:
+        name = None
+        info = None
+        log  = None
+        data = None
+        
+    return dict(form = form, name = name, info = info, log = log, data = data)
+
+
 
 def numbers():
     __login(role = 'staff', frompage = 'numbers')
@@ -74,6 +149,14 @@ def numbers():
                 b_available = n.b_numbers_available(),
                 limit       = e.current.numbers_limit
                 )
+
+def personlist():
+    __login(role = 'staff', frompage = 'personlist')
+    query = shotdb.person.id > 0
+    f = Filter('person', query, displayeventfilter = False)
+    
+    return dict(form = f.form, sqltab = f.sqltab)
+
 
 def helplist():
     __login(role = 'staff', frompage = 'helplist')
@@ -104,8 +187,6 @@ def salelist():
 def waitlist():
     __login(role = 'staff', frompage = 'waitlist')   
     
-    
-    
     query = (shotdb.wait.person == shotdb.person.id)
     f = Filter('wait', query = query)
     return dict(form = f.form, sqltab = f.sqltab)
@@ -117,26 +198,43 @@ def crud():
     action = request.args(1)
     id = request.args(2)
     
+    if request.args(-1) == 'ps':
+        # crud functions are called from person summary page
+        return_page = URL('person_summary')
+        pid = session.selected_pid
+        
+    else:
+        return_page = URL(tablename + 'list')
+        pid = None
+    
     table = shotdb[tablename]
      
     crud = Crud(shotdb)
     crud.settings.controller = 'staff'
-    crud.settings.create_next = URL(tablename + 'list')
-    crud.settings.update_next = URL(tablename + 'list')
+    crud.settings.create_next = return_page
+    crud.settings.update_next = return_page
     crud.settings.update_deletable = True
     crud.settings.showid = True   
     
     if(action == 'add'):
+        if pid != None:
+            shotdb[tablename].person.default = pid
+            shotdb[tablename].person.writable = False
+            if 'event' in shotdb[tablename]:
+                shotdb[tablename].event.default = Events(shotdb).current.id
+                shotdb[tablename].event.writable = False
+                
+        if tablename == 'wait':
+            shotdb.wait.sale.writable = False
+                
         crud_response = crud.create(tablename)
     elif(action == 'edit' and id != None):
-        crud_response = crud.update(table, id)
+        shotdb[tablename].person.writable = False
+        crud_response = crud.update(tablename, id)
     else:
         crud_response = 'Nothing selected!'
-        
-    
     
     return dict(crud_response = crud_response)
-
 
 class Filter():
     '''
@@ -173,11 +271,11 @@ class Filter():
         
         formelements = []
         if self.displayeventfilter:
-            formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event)))
-        formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset, _id = 'idcolset')))
+            formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
+        formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
         formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
         formelements.append(DIV(A('Click here to add new entry!',_href=URL('staff/crud', self.tablename, 'add'))))
-        self.form = FORM(*formelements, _id = 'idform')
+        self.form = FORM(*formelements)
 
         # extract selections from session object for use in the controller and pre-populate selectors
         # event filter selection
@@ -200,7 +298,7 @@ class Filter():
         self.form.vars[name_colset] = cs
         self.colset = config.colsets[self.tablename]['sets'][cs]
         
-        # prosess form
+        # process form
         if self.form.process().accepted:
             session.selected_event = self.form.vars[name_event]
             if session.selected_colsets == None:
