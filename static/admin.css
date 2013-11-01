@@ -45,7 +45,12 @@ table.caution td {
 
 .ps_add_link {
     font-weight: bold;
-    font-size: 1.4em;
+    font-size: 1.6em;
     color: #33AA33;
     float: right;
+}
+
+#ps_prediction {
+    font-weight: bold;
+    color: #999999;
 }

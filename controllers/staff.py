@@ -55,8 +55,6 @@ def login():
 #################################################################################
 def person_summary():
     __login(role = 'staff', frompage = 'person_summary')
-    
-    label_neutral = '-- Select person --'
 
     form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
                            buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')])
@@ -114,8 +112,10 @@ def person_summary():
                         else:
                             elems.append(DIV(A(x[1], _href = URL('staff','crud/%s/edit/%d/ps' % (table, x[0])))))
                     
-                    if (ed['current'] == True):
+                    if ed['current']:
                         if (col in ('shifts', 'donations') or (col in ('numbers', 'wait entries') and len(elems) == 0)):
+                            if col == 'numbers':
+                                elems.append(DIV('prediction: %d' % (NumberAssignment(shotdb, pid).determine_number()), _id = 'ps_prediction'))
                             elems.append(A('+', _href = URL('staff','crud/%s/add/ps' % (table)), _class = 'ps_add_link'))
 
                 cols.append(TD(*elems))
