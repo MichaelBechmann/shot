@@ -12,6 +12,9 @@ from shotdbutil import *
 from gluon.tools import Crud
 from shoterrors import ShotError
 from miscutils import *
+from shotmail import *
+import re
+
 
 T.force('de')
 
@@ -41,7 +44,6 @@ def login():
                       )
                 )
 
-
     if form.validate(onvalidation = __check_password):        
         nextpage = 'personlist'
         if session.frompage:
@@ -57,7 +59,8 @@ def person_summary():
     __login(role = 'staff', frompage = 'person_summary')
 
     form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
-                           buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')])
+                           buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')]
+                           )
     form.custom.widget.person['_class'] = 'autosubmit'
 
     # prepopulate form
@@ -69,14 +72,23 @@ def person_summary():
     
     # prosess form
     if form.process().accepted:
-        pid = form.vars['person']
+        pid = int(form.vars['person'])
         session.selected_pid = pid
+        session.mailform_appendix = None
         # redirect is necessary to pre-populate the form; didn't find another way
         redirect(request.env.request_uri.split('/')[-1])
     
     p = Person(shotdb, pid)
-    
     if p.record != None:
+        
+        tu = TableUtils()
+        
+        # initialise flags indicating which email actions shall be available 
+        b_person_has_number      = False
+        b_person_is_on_waitlist  = False
+        b_person_helps_or_brings = False       
+        
+        # person information
         name = DIV(DIV('%s, %s'% (p.record.name, p.record.forename), _id = 'ps_name'), DIV(CENTER('(#%d)'%( p.record.id), _id = 'ps_id')))
         if p.record.verified != None and p.record.verified > 0:
             email_verify_note = SPAN('verified', _class = 'ps_email_active')
@@ -94,47 +106,103 @@ def person_summary():
                      TR('Email:', TD(SPAN('%s (' % (p.record.email)), email_verify_note, SPAN(', '), email_enable_note, SPAN(')'))),
                      )
         log = DIV(p.record.log, _id = 'ps_log')
-        tu = TableUtils()
-        data_elements = []
         
-        col_conf = ('numbers', 'wait entries', 'shifts', 'donations', 'messages')
-        table_conf = {'numbers': 'sale', 'wait entries': 'wait', 'shifts': 'help', 'donations': 'bring', 'messages': None}
+        # table with person activity data
+        col_conf = (('numbers', 'sale'),
+                    ('wait entries', 'wait'),
+                    ('shifts', 'help'),
+                    ('donations', 'bring'),
+                    ('messages', None)
+                    )
+        data_elements = []
         for ed in p.eventdata:
             e = TD(ed['label'])
             cols = []
-            for col in col_conf:
-                table = table_conf[col]
+            for col, table in col_conf:
                 if col in ed:
                     elems = []
                     for x in ed[col]:
                         if table == None:
                             elems.append(DIV(x[1]))
                         else:
-                            elems.append(DIV(A(x[1], _href = URL('staff','crud/%s/edit/%d/ps' % (table, x[0])))))
+                            elems.append(DIV(A(x[1], _href = URL('staff','crud/%s/edit/%d/ps' % (table, x[0]))), _class = 'ps_' + table))
                     
                     if ed['current']:
                         if (col in ('shifts', 'donations') or (col in ('numbers', 'wait entries') and len(elems) == 0)):
                             if col == 'numbers':
                                 elems.append(DIV('prediction: %d' % (NumberAssignment(shotdb, pid).determine_number()), _id = 'ps_prediction'))
-                            elems.append(A('+', _href = URL('staff','crud/%s/add/ps' % (table)), _class = 'ps_add_link'))
 
-                cols.append(TD(*elems))
+                            elems.append(A('+', _href = URL('staff','crud/%s/add/ps' % (table)), _class = 'ps_add_link'))
+                            
+                        # evaluate email action flags
+                        if len(ed['shifts']) > 0 or len(ed['donations']) > 0:
+                            b_person_helps_or_brings = True
+                        if len(ed['numbers']) > 0:
+                            b_person_has_number = True
+                        if len(ed['wait entries']) > 0:
+                            b_person_is_on_waitlist = True                       
+
+                cols.append(TD(DIV(*elems)))
 
             data_elements.append(TR(e, *cols, _class = tu.get_class_evenodd()))
 
-        
-        data = TABLE(THEAD(TR(TH('Event'), *[TH(c.capitalize()) for c in col_conf])),
-                     TBODY(*data_elements), _class = 'list')
-        
+        data = TABLE(THEAD(TR(TH('Event'), *[TH(c[0].capitalize()) for c in col_conf])),
+                     TBODY(*data_elements), _class = 'list', _id = 'ps_data_table')
+
+        # mail actions
+        tu.reset()
+        mail_conf = ((0, 'Invitation mail',                             InvitationMail,                     True), 
+                     (1, 'Registration mail',                           RegistrationMail,                   True),
+                     (2, 'Sale number and contribution mail',           NumberMail,                         b_person_has_number),
+                     (3, 'Helper reminder mail',                        HelperMail,                         b_person_helps_or_brings),
+                     (4, 'Wait list mail',                              WaitMail,                           b_person_is_on_waitlist),
+                     (5, 'Wait list denial mail',                       WaitDenialMail,                     b_person_is_on_waitlist),
+                     (6, 'Sale number from waitlist mail',              NumberFromWaitlistMail,             b_person_is_on_waitlist),
+                     (7, 'Sale number from waitlist as successor mail', NumberFromWaitlistMailSuccession,   b_person_is_on_waitlist)
+                     )
+
+        rows = [TR(m[1],
+                   *[
+                     INPUT(_type = 'submit', _class = 'button', _name = 'p_' + str(m[0]), _value = T('preview')),
+                     INPUT(_type = 'submit', _class = 'button', _name = 's_' + str(m[0]), _value = T('send'))
+                    ]
+                    if m[3] 
+                    else [TD('preview', _class = 'ps_inactive'), TD('send', _class = 'ps_inactive')], _class = tu.get_class_evenodd()) 
+                    for m in mail_conf]
+
+        mailform = FORM(TABLE(TR(TD(TABLE(*rows, _class = 'list')),
+                        TD('Appendix:', BR(), TEXTAREA(_type = 'text', _name = 'appendix', _cols = 20, _rows = 10))), _id = 'ps_mail_table'))
+
+        # restore appendix text
+        if session.mailform_appendix != None:
+            mailform.vars['appendix'] = session.mailform_appendix
+
+        if mailform.validate():
+            for p in request.vars.iterkeys():
+                m = re.match('([ps])_(\d+)', p)
+                if m:
+                    mail = mail_conf[int(m.group(2))][2](shotdb, pid)
+                    mail.add_appendix(request.vars['appendix'])
+                    if m.group(1) == 'p':
+                        session.mailform_appendix = request.vars['appendix']
+                        return mail.get_preview()
+
+                    else:
+                        mail.send()
+                        session.mailform_appendix = None
+                        redirect(URL('mail_sent'))
+
     else:
-        name = None
-        info = None
-        log  = None
-        data = None
-        
-    return dict(form = form, name = name, info = info, log = log, data = data)
+        name        = None
+        info        = None
+        log         = None
+        data        = None
+        mailform    = None
 
+    return dict(form = form, mailform = mailform, name = name, info = info, log = log, data = data)
 
+def mail_sent():
+    return dict()
 
 def numbers():
     __login(role = 'staff', frompage = 'numbers')

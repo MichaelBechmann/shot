@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from shotconfig import *
 from gluon.dal import DAL
-from shotdbutil import Events, NumberAssignment
+from shotdbutil import Events, NumberAssignment, WaitListPos
 from gluon.html import *
 from gluon import current
 
@@ -31,7 +31,7 @@ class EMail:
         self.subject_backup = 'backup'
         self.html           = 'default'
         self.subject        = 'default'
-        self.subs           = {}
+        self.subs           = {'PLACEHOLDER_APPENDIX': ''}
         self.attachments    = []
         
         file = open(config.shotpath + template, 'r')
@@ -77,7 +77,28 @@ class EMail:
         dd += str(STRONG('request.env\n')) + BEAUTIFY(current.request.env).xml()
         dd += str(STRONG('request.vars\n')) + BEAUTIFY(current.request.vars).xml()
         dd += str(STRONG('request.user_agent()\n')) + BEAUTIFY(current.request.user_agent()).xml()
-        self.subs['PLACEHOLDER_DEBUG_DATA'] = dd        
+        self.subs['PLACEHOLDER_DEBUG_DATA'] = dd
+        
+    def do_substitution(self):
+        '''
+        This method substitutes all placeholder in the html mail text.
+        '''
+        for k,s in self.subs.iteritems():
+            self.html = re.compile(k).sub(s, self.html)        
+        
+    def add_appendix(self, s):
+        '''
+        This method adds the appendix for the mail actions in the person summary.
+        '''
+        if s not in ('', None):
+            self.subs['PLACEHOLDER_APPENDIX'] = '-------------------------------------------------------\n<br />\n' + s.replace('\n', '<br />\n')
+        
+    def get_preview(self):
+        '''
+        This method returns the completed html text as preview of the email.
+        '''
+        self.do_substitution()
+        return self.html
     
     def send(self):
         """
@@ -87,9 +108,8 @@ class EMail:
         # Record the MIME types of both parts - text/plain and text/html.
         body = MIMEMultipart('alternative')
         
-        # substitute placeholder
-        for k,s in self.subs.iteritems():
-            self.html = re.compile(k).sub(s, self.html)
+        # substitute placeholders
+        self.do_substitution()
                    
         text = self._convert_html_to_text()
         bodytext = MIMEText(text, 'plain')
@@ -220,20 +240,11 @@ class ShotMail(EMail):
         '''
         This method calculates the current position of the person on the wait list and adds it to the mail.
         '''
-        query = (self.db.wait.event == self.events.current.id)
-        rows = self.db(query).select()
-            
-        # determine wait id of the person
-        if len(rows) > 0:
-            wid = rows.find(lambda r: r.person == self.pid).last().id
-            
-            # determine how many ids are lower
-            pos = str(len([r for r in rows if wid >= r.id]))
-        else:
-            # should not happen!
+        pos = WaitListPos(self.db, self.pid).pos
+        if pos == 0:
             pos = '???'
-            
-        self.subs['PLACEHOLDER_WAIT_POSITION']  = pos
+
+        self.subs['PLACEHOLDER_WAIT_POSITION']  = str(pos)
             
 
 class  RegistrationMail(ShotMail):
@@ -252,7 +263,7 @@ class  InvitationMail(ShotMail):
     """
     This class defines the invitation email with the personal link to the registration form.
     """
-    def __init__(self, db, pid, mass = True):
+    def __init__(self, db, pid, mass = False):
         ShotMail.__init__(self, db, pid, 'static/mail_templates/invitation_de.html', mass = mass)
                   
         self.subject = 'Einladung zum Markt'
@@ -325,7 +336,7 @@ class WaitDenialMail(ShotMail):
     '''
     This class defines the email for persons who got no number from the waitlist.
     '''
-    def __init__(self, db, pid, mass = True):
+    def __init__(self, db, pid, mass = False):
         ShotMail.__init__(self, db, pid, 'static/mail_templates/wait_denial.html', mass = mass)
         
         self.subject = 'Sie haben leider keine Nummer :('       
@@ -336,7 +347,7 @@ class HelperMail(ShotMail):
     '''
     This class defines the email sent to the helpers as a reminder short time before the event..
     '''
-    def __init__(self, db, pid, mass = True):
+    def __init__(self, db, pid, mass = False):
         ShotMail.__init__(self, db, pid, 'static/mail_templates/helper.html', account_id = 'help', mass = mass)
         
         self.add_sale_number()

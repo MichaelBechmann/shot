@@ -4,8 +4,6 @@ $.extend($.expr[':'], {
 	}
 
 });
-
-
 $(document).ready(function(){
 	
 	$('td:containsExact(True)')
@@ -14,5 +12,10 @@ $(document).ready(function(){
 	.addClass("false");	
 	$('td:containsExact(None)')
 	.addClass("none");	
-	
+    // Loop through all the div.thatSetsABackgroundWithAnIcon on your page
+    $('#ps_data_table td > div').each(function(){
+          var $div = $(this);
+          // Set the div's height to its parent td's height
+          $div.height($div.closest('td').height());
+    });
 });

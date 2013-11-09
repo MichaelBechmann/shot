@@ -23,7 +23,7 @@ try:
     for row in shotdb(shotdb.person.id < 2).select():  
         if row.mail_enabled == None or row.mail_enabled == True:
             
-            m = InvitationMail(shotdb, row.id)
+            m = InvitationMail(shotdb, row.id, mass = True)
             if count == 0:
                 # output account settings
                 logger_bg.info('The following account settings are used:')

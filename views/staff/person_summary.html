@@ -6,9 +6,15 @@ response.write(H3('This page summarizes all information and actions available fo
 response.write(form)
 if name != None:
     response.write(BR())
+    response.write(BR())
     response.write(TABLE(TR(TD(name), TD(info)), _id = 'ps_info_table'))
     response.write(BR())
-    response.write(data)
+    response.write(BR())
+    response.write(DIV(STRONG('The persons activity information:'), data))
+    response.write(BR())
+    response.write(BR())
+    response.write(DIV(STRONG('Available email actions:'), mailform))
+    response.write(BR())
     response.write(BR())
     response.write(DIV(STRONG('Log entries:'), log))
     

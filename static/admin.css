@@ -39,18 +39,40 @@ table.caution td {
     color: #EE5555; 
 }
 
-#ps_info_table > tbody > tr > td {
-    padding: 0px 40px 0px 0px;
+#ps_info_table > tbody > tr > td{
+	padding: 0 12px 0 0;
+}
+
+#ps_data_table td > div{
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+#ps_data_table .ps_sale{
+    text-align: center;
 }
 
 .ps_add_link {
     font-weight: bold;
-    font-size: 1.6em;
+    font-size: 1.2em;
     color: #33AA33;
-    float: right;
+    position: absolute;
+    right: -6px;
+    bottom: -10px;
 }
 
 #ps_prediction {
     font-weight: bold;
     color: #999999;
+}
+
+#ps_mail_table > tbody > tr > td{
+    padding: 0 16px 0 0;
+}
+
+#ps_mail_table td.ps_inactive {
+    font-weight: bold;
+    color: #BBBBBB;
+	text-align: center;
 }

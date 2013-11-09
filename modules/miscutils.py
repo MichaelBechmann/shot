@@ -34,8 +34,11 @@ class TableUtils():
     evenoddclasses = ('even', 'odd')
     
     def __init__(self):
-        self.state_evenodd = 1
-        
+        self.reset()
+
     def get_class_evenodd(self):
         self.state_evenodd += 1
         return self.evenoddclasses[self.state_evenodd%2]
+
+    def reset(self):
+        self.state_evenodd = 1

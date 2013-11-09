@@ -31,7 +31,7 @@ try:
             shotdb(shotdb.wait.id == row.id).update(denial_sent = True)
             shotdb.commit()
             
-            m = WaitDenialMail(shotdb, row.person)
+            m = WaitDenialMail(shotdb, row.person, mass = True)
             if count == 0:
                 # output account settings
                 logger_bg.info('The following account settings are used:')

@@ -374,48 +374,69 @@ class NumberAssignment():
     
         
 class WaitList():
-        '''
-        This class collects code for the resolution of the wait list.
-        '''
-        def __init__(self, db):
-            self.eid = Events(db).current.id
+    '''
+    This class collects code for the resolution of the wait list.
+    '''
+    def __init__(self, db):
+        self.eid = Events(db).current.id
+    
+        # get all wait list entries from the current event with no sale linked to it yet
+        query  = (db.wait.event == self.eid)
+        query &= (db.wait.person == db.person.id)
+        query &= (db.wait.sale == None)
         
-            # get all wait list entries from the current event with no sale linked to it yet
-            query  = (db.wait.event == self.eid)
-            query &= (db.wait.person == db.person.id)
-            query &= (db.wait.sale == None)
-            
-            self.rows_all = db(query).select(db.wait.id, db.wait.person, db.wait.sale, db.wait.denial_sent)
+        self.rows_all = db(query).select(db.wait.id, db.wait.person, db.wait.sale, db.wait.denial_sent)
+    
+        # get all wait list entries which additionally are linked to shifts
+        query_help  = query
+        query_help &= (db.person.id == db.wait.person)
+        query_help &= (db.person.id == db.help.person)
+        query_help &= (db.shift.id == db.help.shift)
+        query_help &= (db.shift.event == self.eid)
         
-            # get all wait list entries which additionally are linked to shifts
-            query_help  = query
-            query_help &= (db.person.id == db.wait.person)
-            query_help &= (db.person.id == db.help.person)
-            query_help &= (db.shift.id == db.help.shift)
-            query_help &= (db.shift.event == self.eid)
+        
+        lhelp = []
+        for row in db(query_help).select(db.wait.id):
+            lhelp.append(row.id)
+        
+        if len(lhelp) > 0:
+            offset = max(lhelp)
+        else:
+            offset = 0                
+        
+        # sort helpers in front
+        # Note: sort method of rows object does not operate in place!
+        aux = self.rows_all.sort(lambda row: row.id if row.id in lhelp else row.id + offset)
+        
+        # return only as many rows as numbers are available
+        # negative numbers in slices do not work
+        self.rows_sorted = aux[:max([0, Numbers(db, self.eid).number_of_available()])]
+        
+        
+        # query like != True doesn't work
+        query_denial = query & ((db.wait.denial_sent == False) | (db.wait.denial_sent == None))
+        self.rows_denial = db(query_denial).select(db.wait.id, db.wait.person)
             
+class WaitListPos():
+    '''
+    This class contains code to calculate the position of a person on the wait list of a given event.
+    ''' 
+    def __init__(self, db, pid, eid = None):
+        
+        if eid == None:
+            eid = Events(db).current.id
             
-            lhelp = []
-            for row in db(query_help).select(db.wait.id):
-                lhelp.append(row.id)
+        query = (db.wait.event == eid)
+        rows = db(query).select()
             
-            if len(lhelp) > 0:
-                offset = max(lhelp)
-            else:
-                offset = 0                
-            
-            # sort helpers in front
-            # Note: sort method of rows object does not operate in place!
-            aux = self.rows_all.sort(lambda row: row.id if row.id in lhelp else row.id + offset)
-            
-            # return only as many rows as numbers are available
-            # negative numbers in slices do not work
-            self.rows_sorted = aux[:max([0, Numbers(db, self.eid).number_of_available()])]
-            
-            
-            # query like != True doesn't work
-            query_denial = query & ((db.wait.denial_sent == False) | (db.wait.denial_sent == None))
-            self.rows_denial = db(query_denial).select(db.wait.id, db.wait.person)
+        # determine wait id of the person
+        self.pos = 0
+        if len(rows) > 0:
+            prow = rows.find(lambda r: r.person == pid).last()
+            if prow != None:
+                # determine how many ids are lower
+                self.pos = len([r for r in rows if prow.id >= r.id])
+                
             
 class HelperList():
     '''
@@ -478,7 +499,7 @@ class Person():
             else:
                 s = 'open'
                 
-            self.data[row.event.id]['wait entries'].append((row.wait.id, s))
+            self.data[row.event.id]['wait entries'].append((row.wait.id, 'pos: %d (%s)' %(WaitListPos(db, pid, row.event.id).pos, s)))
         
         # retrieve all helps
         query =  (db.event.id == db.shift.event)
@@ -487,8 +508,7 @@ class Person():
         query &= (db.person.id == pid)
         
         for row in db(query).select(db.event.id, db.help.id, db.shift.activity, db.shift.day, db.shift.time):
-            eid = row.event.id
-            self.data[eid]['shifts'].append((row.help.id, '%(shift.activity)s, %(shift.day)s, %(shift.time)s' % row))       
+            self.data[row.event.id]['shifts'].append((row.help.id, '%(shift.activity)s, %(shift.day)s, %(shift.time)s' % row))       
         
         # retrieve all brings
         query =  (db.event.id == db.donation.event)
@@ -498,7 +518,10 @@ class Person():
         
         for row in db(query).select(db.event.id, db.bring.id, db.donation.item, db.bring.note):
             eid = row.event.id
-            self.data[eid]['donations'].append((row.bring.id, '%(donation.item)s (%(bring.note)s)' % row))      
+            s = row.donation.item
+            if row.bring.note not in ('', None):
+                s = s + ' (' + row.bring.note + ')'
+            self.data[eid]['donations'].append((row.bring.id, s))      
         
         # retrieve messages
         query =  (db.event.id == db.message.event)
