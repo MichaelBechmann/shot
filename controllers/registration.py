@@ -18,6 +18,7 @@ from shotdbutil import *
 from gluon.storage import Storage
 from shoterrors import ShotError
 from miscutils import regularizeName
+import re
 
 T.force('de')
 
@@ -26,11 +27,15 @@ def __regularize_form_input(form):
     '''
     This function brings the user input to standard.
     '''
-    form.vars.forename = regularizeName(form.vars.forename)
-    form.vars.name     = regularizeName(form.vars.name)
-    form.vars.street   = regularizeName(form.vars.street)
-    form.vars.place    = regularizeName(form.vars.place)
-    
+    for field in ('forename', 'name', 'street', 'place'):
+        form.vars[field] = regularizeName(form.vars[field])
+
+    # check zip code
+    s = form.vars['zip_code']
+    s = s.replace(' ', '')
+    if re.search('\D', s):
+        form.errors.zip_code = T('Please enter a valid zip code.')
+    form.vars['zip_code'] = s
 
 def form():
 

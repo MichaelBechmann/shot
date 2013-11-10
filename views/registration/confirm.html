@@ -10,15 +10,4 @@ response.write(DIV(data, _class = 'confirm_data'))
 
 response.write(form)
 
-if config.debug:
-
-    response.write(H1('Debug output'))
-
-    response.write(H2('response.flash'))
-    response.write(BEAUTIFY(response.flash))    
-
-    response.write(H2('session'))
-    response.write(BEAUTIFY(session))    
-    
-    pass
 }}

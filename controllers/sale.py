@@ -16,6 +16,7 @@ from shotmail import *
 from shotdbutil import *
 import re
 from shoterrors import ShotError
+from miscutils import regularizeName
 
 
 T.force('de')
@@ -24,6 +25,7 @@ def __validateform(form):
     '''
     Functions that take arguments or start with a double underscore are not publicly exposed and can only be called by other functions.
     This validation function checks whether or not at least one of the help shift checkbox fields has been checked.
+    Notes on donations are regularized.
     '''
     sale = Sale()
     sale.analyzecheckboxes(form.vars)
@@ -31,6 +33,10 @@ def __validateform(form):
         form.errors.msg = 'Sie haben sich für keine Helferschicht eingetragen. Bitte bestätigen Sie, daß Sie nicht helfen können.'
     elif sale.b_does_help == True and sale.b_cannot_help == True:
         form.errors.msg = 'Sie haben widersprüchliche Angaben gemacht! Bitte tragen Sie sich entweder für eine Helferschicht ein oder markieren Sie, daß Sie nicht helfen können.'
+    
+    for donation in sale.getdonations():
+        if donation.name_note in form.vars:
+            form.vars[donation.name_note] = regularizeName(form.vars[donation.name_note])
         
 def _contribelement(label, formname, a, t):
     '''

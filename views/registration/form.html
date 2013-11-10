@@ -3,20 +3,7 @@
 
 {{include 'registration/form_comment_de.html'}}
 
-
 {{
 response.write(form)
 
-if config.debug:
-
-	response.write(H1('Debug output'))
-
-	response.write(H2('response.flash'))
-	response.write(BEAUTIFY(response.flash))	
-	
-	response.write(H2('form.vars'))
-	response.write(BEAUTIFY(form.vars))
-	
-	pass
-	
 }}

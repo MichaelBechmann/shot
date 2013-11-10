@@ -53,6 +53,7 @@
 'Please enter your telephone number.':      'Bitte geben Sie Ihre Telefonnummer an.',
 'Please enter your valid email address.':   'Bitte geben Sie Ihre korrekte Email-Adresse an.',
 'Please choose.':                           'Bitte wählen Sie',
+'Please enter a valid zip code.':           'Bitte geben Sie eine gültige Postleitzahl ein.',
 
 'My question:':                                     'Meine Frage:',     
 'regards the help shifts and donations.':           'betrifft die Helferschichten oder Spenden.',

@@ -19,12 +19,4 @@ columns = ('message.id',
            )
 response.write(SQLTABLE(rows_message, columns = columns, orderby='dummy', headers='fieldname:capitalize'))
 
-
-if config.debug:
-
-response.write(H2('Special debug output'))
-
-
-    
-    pass
 }}

@@ -12,11 +12,17 @@ if 0:
     global session
     global shotdb
 
-
-
 from shotmail import *
+from miscutils import regularizeName
 
 T.force('de')
+
+def __regularize_form_input(form):
+    '''
+    This function brings the user input to standard.
+    '''
+    for field in ('forename', 'name'):
+        form.vars[field] = regularizeName(form.vars[field])
 
 def form():
     '''
@@ -39,7 +45,7 @@ def form():
      
         
         
-    if form.validate(): 
+    if form.validate(onvalidation = __regularize_form_input): 
         cat   = form.vars.category 
         name  = form.vars.forename + ' ' + form.vars.name
         msg   = form.vars.message
