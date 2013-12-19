@@ -11,6 +11,18 @@ from gluon.dal import DAL, Rows
 from gluon.contrib.pymysql import IntegrityError
 
 
+def extractTableFields(table, data):
+    '''
+    This function returns a dictionary which contains only those entries from the dictionary "data" which are fields of "table"
+    '''
+    data_red = {}
+    for k, v in data.iteritems():
+        if k in table.fields:
+            data_red[k] = v
+    
+    return data_red
+
+
 class Log:
     """
     This class provides auxiliary functions for the logging of database modifications
@@ -115,6 +127,82 @@ class Ident():
                 self.db(self.db.person.id == self.id).update(verified = currentevent)
                 self.person['verified'] = currentevent # This dictionary must be consistent with the db, otherwise the old current event will be re-written to the db!
                 self.b_verified = True
+
+class PersonEntry():
+    '''
+    This class provides methods to insert and update the records of the table "person".
+    '''
+    def __init__(self, db, data):
+        '''
+        "data" is a reference to a dictionary containing the the form/database fields of the person record.
+        Note that data may contain more fields (from forms combining several tables).
+        '''
+        self.db = db
+        # construct a dictionary containing only the fields of the table "person"
+        self.data = extractTableFields(db.person, data)
+            
+        # self.data must not contain an id!
+        # Otherwise an error "IntegrityError: PRIMARY KEY must be unique" will occur at the insert and update operations
+        # if this id is different from self.id.
+        # The only relevant id here is self.id!
+        if self.data.has_key('id'):
+            del self.data['id']
+            
+        self.id       = None
+        self.exists   = False
+        self.verified = False
+        
+        # check if person is already known to the database      
+        q  = db.person.name     == self.data['name']
+        q &= db.person.forename == self.data['forename']
+        q &= db.person.email    == self.data['email']
+        rows = db(q).select()
+
+        if (len(rows) > 0):
+            self.id     = rows[0].id
+            self.exists = True
+            
+            # Check if email address has already been verified.
+            ev = rows[0].verified # event number of verification
+            if (ev != None and ev > 0):
+                self.verified = True
+                
+    def insert(self):
+        '''
+        Creates a new database record for the person.
+        '''
+        self.data['code'] = Ident().code  
+        self.id = self.db.person.insert(**self.data)
+        Log(self.db).person(self.id, 'initial')
+
+        
+    def update(self):
+        '''
+        Updates an existing database record for the person.
+        '''
+        # construct string with the old values of the fields to be modified
+        oldperson = self.db.person(self.id)
+        s = 'update fields: '
+        sep = ''
+        for f, v in self.data.iteritems():
+            op =oldperson[f] 
+            if op != v:
+                s +=sep + f + ' (' + str(op) + ')'
+                sep = ', '
+        
+        self.db(self.db.person.id == self.id).update(**self.data)
+        Log(self.db).person(self.id, s)
+        
+    def set_mail_enabled(self):
+        self.data['mail_enabled'] = True
+        
+    def disable_mail(self):
+        '''
+        This method sets the flag in the person entry to disable round mails.
+        '''
+        self.data['mail_enabled'] = False
+        self.update()
+
 
 class Numbers():
     '''
@@ -537,4 +625,25 @@ class Person():
         for eid in sorted(self.data.keys(), reverse=True):
             self.eventdata.append(self.data[eid])
             
+
+class  AppropriationRequestEntry():
+    '''
+    This class provides the database interface for the table request.
+    '''
+    def __init__(self, db, data, pid):
+        '''
+        "data" is a reference to a dictionary containing the the form/database fields of the request record.
+        Note that data may contain more fields (from forms combining several tables).
+        '''
+        # construct a dictionary containing only the fields of the table "request"
+        self.data = extractTableFields(db.request, data)
+
+        # set the relation to the table person
+        self.data['person'] = pid
         
+        # add time stamp
+        self.data['date_of_receipt'] = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
+        
+        # insert record
+        self.aid = db.request.insert(**self.data)
+        Log(db).person(pid, 'appropriation request added')

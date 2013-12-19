@@ -13,7 +13,7 @@ if 0:
     global shotdb
 
 from shotmail import *
-from miscutils import regularizeName
+from formutils import regularizeName
 
 T.force('de')
 

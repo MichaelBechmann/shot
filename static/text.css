@@ -4,11 +4,6 @@ p, #iwaitmsg  {
     line-height: 180%;
 }
 
-.confirm_data {
-font-size: 1.2em;
-margin-bottom: 1em;
-}
-
 .mark {
 font-weight: bold;
 color: #CF3822;
@@ -62,8 +57,29 @@ color: red;
     margin-top: 6px;
     text-align:center;
 }
-#itblconfdat td{
-	padding: 0 1em 0.4em 0;
-	
-	}
+
+table.ctblconfdat{
+    font-size: 1.2em;
+    margin-bottom: 0.6em;
+}
+
+.ctblconfdat td.label{
+    width: 10em;
+	padding: 0 0.2em 0.2em 1em;
+}
+.ctblconfdat td.fullrow{
+	padding: 0.8em 0.2em 0.2em 1em;
+}
+
+
+/* appropriation request form */
+
+#form_request p{
+    line-height: 140%;
+    margin: 0 0 0.2em 0;
+}
+
+#form_request td.w2p_fl{
+	padding:  0 0 0 2em;
+	width: 12em
 }

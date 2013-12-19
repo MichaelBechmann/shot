@@ -204,8 +204,23 @@ shotdb.define_table('message',
     # relation to the person
     Field('person', shotdb.person),
     
-    # a text message the person can leave during the actual enrollment for an event
+    # a text message the person can leave during the actual enrolment for an event
     Field('text',        'text',     label = T('message'),      )
     
 ) # end of 'message'  
 
+# The table 'request' contains all data related to appropriation requests (information provided by the applicant as well as status and decision information from the shot team). 
+shotdb.define_table('request',
+    # relation to the person
+    Field('person', shotdb.person),
+    
+    Field('project',            'string',   label = 'Projektbezeichnung',         requires = IS_NOT_EMPTY(error_message = 'Bitte geben Sie eine Bezeichnung Ihres Projektes an.')),
+    Field('organization',       'string',   label = 'Organisation',               requires = IS_NOT_EMPTY(error_message = 'Bitte geben Sie Ihren Verein oder Ihre Institution oder "privat" an.')),
+    Field('amount_total',       'integer',  label = 'Gesamtkosten (EUR)',         requires = IS_INT_IN_RANGE(0, 1e100, error_message = 'Bitte geben Sie in Ziffern (ohne Punkt, Komma oder EUR!) die geschätzten Gesamtkosten Ihres Projektes an.')),
+    Field('amount_requested',   'integer',  label = 'Beantragte Mittel (EUR)',    requires = IS_INT_IN_RANGE(0, 1e100, error_message = 'Bitte geben Sie in Ziffern (ohne Punkt, Komma oder EUR!) an, welchen Betrag Sie als Förderung beantragen möchten.')),
+    Field('description',        'text',     label = 'Projektbeschreibung',        requires = IS_NOT_EMPTY(error_message = 'Bitte beschreiben Sie Ihr Projekt kurz und begründen Sie Ihren Antrag.')),
+    Field('date_of_receipt',    'string'    ),
+    Field('comment',            'text'      ),
+    Field('amount_spent',       'integer',  requires = IS_INT_IN_RANGE(0, 1e100)),
+    Field('status',             'string'    )
+    ) # end of request

@@ -30,15 +30,21 @@ email_contactmail_to  = {'general':   'dummy',
                          'help':      'dummy',
                          'tech':      'dummy'
                          }
-backup_enabled = False
-# database connection string
+email_backup_enabled = False
+
+# database connection and backup
 db_connection_string = 'mysql://__user__:__password__@__host__/__database__'
+db_backup_command = 'mysqldump --user=  --password= shot ...'
+
 
 # show debug output
 debug = True
 
 # show and activate registration functions
 enableregis = True
+
+# show and activate appropriation request functions
+enablerequest = True
 
 # show menu items for admins
 showadminitems = True

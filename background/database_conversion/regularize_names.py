@@ -15,7 +15,7 @@ if 0:
     global shotdb
     
 from shotlogging import logger_bg
-from miscutils import regularizeName
+from formutils import regularizeName
 
 logger_bg.info('start with script "resolve_waitlist" ...')
 

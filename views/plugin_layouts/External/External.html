@@ -38,23 +38,26 @@ Description: Three-column blog design with the third column allocated for ads. F
    <!-- start menu -->
     {{
     menu = [[T('Start'), True, '/'],
-            [T('Information for vendors'), True, '/main/vendorinfo'],
+            [T('Information for vendors'), True, '/main/vendorinfo']
             ]
     
     
     if config.enableregis:
-        menu.extend([
-        			['Registrierung', False, '/registration/form']
-        			])
+        menu.extend([['Registrierung', False, '/registration/form']])
         pass    
-            
-        menu.extend([[T('Privacy'), 'False', '/main/privacy'],
-            		 [T('Contact'), False, '/contact/form']
-           			  ])
-        if config.showadminitems:
-            menu.extend([
-                        [T('Staff'), 'False', '/staff/login']
-                        ])
+    
+    if config.enablerequest:        
+        menu.extend([[T('Appropriation requests'), True, '/appropriation/introduction']])
+        pass
+        
+    menu.extend([
+                 [T('Privacy'), 'False', '/main/privacy'],
+                 [T('Contact'), False, '/contact/form']
+           		])
+    if config.showadminitems:
+        menu.extend([
+                    [T('Staff'), 'False', '/staff/login']
+                    ])
         pass
                       
     response.write(DIV(MENU(menu), _id='menu'))
@@ -68,7 +71,8 @@ Description: Three-column blog design with the third column allocated for ads. F
                      [T('Numbers'),     'False', '/staff/numbers'],
                      [T('Help'), 'False', '/staff/helplist'],
                      [T('Bring'), 'False', '/staff/bringlist'],
-                     [T('Messages'), 'False', '/staff/messagelist']
+                     [T('Messages'), 'False', '/staff/messagelist'],
+                     [T('Requests'), 'False', '/staff/requestlist']
                      ])
         
         if session.admin:

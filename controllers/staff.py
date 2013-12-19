@@ -11,7 +11,7 @@ if 0:
 from shotdbutil import *
 from gluon.tools import Crud
 from shoterrors import ShotError
-from miscutils import *
+from formutils import *
 from shotmail import *
 import re
 
@@ -251,6 +251,7 @@ def salelist():
     query = (shotdb.sale.person == shotdb.person.id)
     f = Filter('sale', query = query)
     return dict(form = f.form, sqltab = f.sqltab)
+
    
 def waitlist():
     __login(role = 'staff', frompage = 'waitlist')   
@@ -258,6 +259,14 @@ def waitlist():
     query = (shotdb.wait.person == shotdb.person.id)
     f = Filter('wait', query = query)
     return dict(form = f.form, sqltab = f.sqltab)
+
+def requestlist():
+    __login(role = 'staff', frompage = 'requestlist')
+    query = shotdb.request.id > 0
+    f = Filter('request', query, displayeventfilter = False)
+    
+    return dict(form = f.form, sqltab = f.sqltab)
+
 
 def crud():
     __login(role = 'staff', frompage = 'personlist')  
@@ -297,7 +306,8 @@ def crud():
                 
         crud_response = crud.create(tablename)
     elif(action == 'edit' and id != None):
-        shotdb[tablename].person.writable = False
+        if shotdb[tablename].has_key('person'):
+            shotdb[tablename].person.writable = False
         crud_response = crud.update(tablename, id)
     else:
         crud_response = 'Nothing selected!'

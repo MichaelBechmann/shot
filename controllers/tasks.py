@@ -26,7 +26,8 @@ def start():
     tasklist = ((0, 'Send invitation mail to all former vendors.',  '/background/mail/send_invitation_mail.py',         False),
                 (1, 'Resolve waitlist and send sale number mail.',  '/background/mail/resolve_waitlist.py',             True),
                 (2, 'Send waitlist denial mail.',                   '/background/mail/send_waitlist_denial_mail.py',    True),
-                (3, 'Send reminder mail to all helpers.',           '/background/mail/send_helper_mail.py',             True)
+                (3, 'Send reminder mail to all helpers.',           '/background/mail/send_helper_mail.py',             True),
+                (4, 'Backup database',                              '/background/backup/backup_db.py',                  False)
                 )
     rows = [TR(t[1], 
                INPUT(_type = 'submit', _class = 'button', _name = str(t[0]), _value = T('go!')),

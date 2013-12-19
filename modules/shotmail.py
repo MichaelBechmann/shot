@@ -13,6 +13,7 @@ from email.mime.application import MIMEApplication
 from shotconfig import *
 from gluon.dal import DAL
 from shotdbutil import Events, NumberAssignment, WaitListPos
+from formutils import getAppRequestDataTale
 from gluon.html import *
 from gluon import current
 
@@ -84,7 +85,7 @@ class EMail:
         This method substitutes all placeholder in the html mail text.
         '''
         for k,s in self.subs.iteritems():
-            self.html = re.compile(k).sub(s, self.html)        
+            self.html = re.compile(k).sub(str(s), self.html)        
         
     def add_appendix(self, s):
         '''
@@ -145,7 +146,7 @@ class EMail:
         s.sendmail(msg['From'], msg['To'], msg.as_string())
         
         # backup mail
-        if config.backup_enabled and self.send_backup:
+        if config.email_backup_enabled and self.send_backup:
             msg.__delitem__('To')
             msg['To']       = config.mail.backup_to
             msg.__delitem__('Subject')
@@ -245,7 +246,7 @@ class ShotMail(EMail):
             pos = '???'
 
         self.subs['PLACEHOLDER_WAIT_POSITION']  = str(pos)
-            
+        
 
 class  RegistrationMail(ShotMail):
     """
@@ -345,7 +346,7 @@ class WaitDenialMail(ShotMail):
          
 class HelperMail(ShotMail):
     '''
-    This class defines the email sent to the helpers as a reminder short time before the event..
+    This class defines the email sent to the helpers as a reminder short time before the event.
     '''
     def __init__(self, db, pid, mass = False):
         ShotMail.__init__(self, db, pid, 'static/mail_templates/helper.html', account_id = 'help', mass = mass)
@@ -356,6 +357,21 @@ class HelperMail(ShotMail):
         self.subject = 'Erinnerung: Sie helfen!'       
         self.send_backup    = False
         self.subject_backup = 'helper: ' + self.person.name + ', ' + self.person.forename
+        
+class AppropriationRequestMail(ShotMail):
+    '''
+    This class defines the email sent as a confirmation when a appropriation request is received.
+    '''
+    def __init__(self, db, aid):
+        ar_row = db.request(aid)
+        ShotMail.__init__(self, db, ar_row.person, 'static/mail_templates/appropriation_request.html')
+        
+        self.subject = 'Ihr Antrag auf Fördermittel'       
+        self.send_backup    = True
+        self.subject_backup = 'Appropriation: ' + self.person.name + ', ' + self.person.forename
+        
+        self.subs['PLACEHOLDER_APPROPRIATION_REQUEST']  = getAppRequestDataTale(ar_row)
+        
           
 class ContactMail(EMail):
     '''

@@ -21,6 +21,7 @@
 'Start':                    'Start',
 'Vendor registration':      'Registrierung als Verkäufer',
 'Information for vendors':  'Informationen für Verkäufer',
+'Appropriation requests':   'Fördermittel beantragen',
 'Contact':                  'Kontakt',
 'Privacy':                  'Datenschutz',
 'Staff':                    'SH-Team',

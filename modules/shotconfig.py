@@ -60,9 +60,11 @@ class ConfigurationConstants:
 config = ConfigurationConstants()
 
 config.db_connection_string = siteconfig.db_connection_string
+config.db_backup_command = siteconfig.db_backup_command
 
 config.debug            = siteconfig.debug
 config.enableregis      = siteconfig.enableregis
+config.enablerequest    = siteconfig.enablerequest
 config.enable_tasks     = siteconfig.enable_tasks
 config.showadminitems   = siteconfig.showadminitems
 
@@ -79,7 +81,7 @@ config.mail.backup_to       = siteconfig.email_backup_to
 config.mail.error_to        = siteconfig.email_error_to
 config.mail.contactmail_to  = siteconfig.email_contactmail_to
 
-config.backup_enabled = siteconfig.backup_enabled
+config.email_backup_enabled = siteconfig.email_backup_enabled
 
 
 # strings used as identifying names of form input elements
@@ -97,8 +99,8 @@ config.cssid.nocontrib          = 'inoctrb'
 config.cssid.contribtblshifts   = 'itblshifts'
 config.cssid.contribtbldons     = 'itbldons'
 config.cssid.tblsubmit          = 'itblsubm'
-config.cssid.tblconfirmdata     = 'itblconfdat'
 
+config.cssclass.tblconfirmdata  = 'ctblconfdat'
 config.cssid.message            = 'imsg'
 config.cssid.salesubmit         = 'isubm'
 config.cssid.waitmsgtrig        = 'iwaitmsgtrig'
@@ -157,6 +159,11 @@ config.colsets['person'] = { 'sets':{'details':  ['person.id', 'person.name', 'p
                                      'technical':['person.id', 'person.name', 'person.forename', 'person.code', 'person.verified', 'person.mail_enabled', 'person.log']
                                    },
                            'default': 'default'
+                         }
+config.colsets['request'] = { 'sets':{'request':  ['request.id', 'request.project', 'request.organization', 'request.amount_total', 'request.amount_requested', 'request.description'],
+                                      'appropriation' : ['request.id', 'request.project', 'request.person', 'request.status', 'request.amount_total', 'request.amount_requested', 'request.amount_spent', 'request.comment']
+                                   },
+                           'default': 'request'
                          }
 
 # waffle recipe

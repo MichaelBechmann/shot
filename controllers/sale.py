@@ -16,7 +16,7 @@ from shotmail import *
 from shotdbutil import *
 import re
 from shoterrors import ShotError
-from miscutils import regularizeName
+from formutils import regularizeName
 
 
 T.force('de')
@@ -80,12 +80,12 @@ def form():
         # The form shall be displayed for configuration purposes only.
         # Database manipulations are not intended! 
         sale = Sale()
-    elif session.person_id == None:
+    elif session.registration_person_id == None:
         # Something went wrong.
         raise ShotError('Sale form entered without identified person.')
     else:
         # The form is active.
-        sale = Sale(session.person_id)
+        sale = Sale(session.registration_person_id)
             
     # construct the form from the database tables
     formelements = []
@@ -184,9 +184,9 @@ def form():
 
 def confirm():
     # check if there is personal information to be confirmed
-    if (session.sale_vars == None) or (session.person_id == None):
-        raise ShotError('Sale confirm page entered without identified person.')
-    sale = Sale(session.person_id)
+    if (session.sale_vars == None) or (session.registration_person_id == None):
+        redirect(URL('main','index'))
+    sale = Sale(session.registration_person_id)
     
     # construct display of data to be confirmed
     de = [] # de: data elements
@@ -219,7 +219,7 @@ def confirm():
         de.append(TR('Meine Nachricht:', session.sale_vars[config.formname.person_message]))
 
     
-    data = TABLE(*de, _id = config.cssid.tblconfirmdata)
+    data = TABLE(*de, _class = config.cssclass.tblconfirmdata)
         
     
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
