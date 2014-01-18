@@ -122,12 +122,14 @@ def form():
                 groups[d].append(ce)
             else:
                 groups[d] = [ce]
+                
+            if(shift.comment != None and shift.comment != ''):
+                groups[d].append(['', TD(shift.comment, _class = config.cssclass.shiftcomment)])
         
         stblgroups = []
         display = groups.keys()
         display.sort()
         for d in display:
-            
             stblgroups.append(DIV(DIV(groupheads[d], _class = config.cssclass.shiftgrouphead), TABLE(*[TR(*se) for se in groups[d]]), _class = config.cssclass.shiftgrouptbl))
             
         if len(stblgroups) & 1:

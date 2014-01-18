@@ -70,11 +70,16 @@
     padding-bottom: 20px; 
 }
 
+.csftcomment {
+    padding-bottom: 0px;
+    padding-top: 0px;
+}
+
 .csfttblrow > td{ 
     /*border:thin solid blue;*/
     vertical-align:top;   
 }
-#itbldons td, .csftgrptbl td {
+#itbldons td, .csftgrptbl td:not(.csftcomment){
 	/*border:thin solid green;*/
 	padding-top: 5px;
     padding-bottom: 5px;
@@ -83,7 +88,6 @@
 .csfttblrow + .csfttblrow > td{
 	  padding-top: 25px;
 }
-
 
 #inoctrb{
 	margin-left:5%;

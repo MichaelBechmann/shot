@@ -119,6 +119,9 @@ shotdb.define_table('shift',
     # a short description of the activity which will appear in the registration form
     Field('activity',   'string'),
     
+    # a comment on the activity which will appear in the registration form
+    Field('comment',   'text'),
+    
     # time and duration of the shift
     Field('day',        'string'),
     Field('time',       'string'),

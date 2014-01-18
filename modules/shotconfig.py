@@ -117,6 +117,7 @@ config.cssclass.contribnote     = 'ccrtbnote'
 config.cssclass.shiftgrouphead  = 'csftgrphead'
 config.cssclass.shiftgrouptbl   = 'csftgrptbl'
 config.cssclass.shifttblrow     = 'csfttblrow'
+config.cssclass.shiftcomment    = 'csftcomment'
 config.cssclass.configwarn      = 'ccnfwarn'
 
 config.cssclass.tggl            = 'ctggl'
