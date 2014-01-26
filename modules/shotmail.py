@@ -199,7 +199,9 @@ class ShotMail(EMail):
         query &= (self.db.help.shift == self.db.shift.id)
         query &= (self.db.help.person == self.pid)
         
-        elem = [TR(r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity) for r in self.db(query).select()]
+        elem = [TR(TD(r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity),
+                   TD('('+r.shift.comment+')') if r.shift.comment != None else '')
+                    for r in self.db(query).select()]
         if len(elem) > 0:
             helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
         else:

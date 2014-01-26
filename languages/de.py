@@ -72,6 +72,7 @@
 'Privacy': 'Datenschutz',
 'proceed to the sale numbers': 'weiter zu den Kommissionsnummern',
 'Record %(id)s updated': 'Record %(id)s updated',
+'Record Created': 'Record Created',
 'Record Deleted': 'Record Deleted',
 'Record Updated': 'Record Updated',
 'regards other matters.': 'betrifft sonstiges.',

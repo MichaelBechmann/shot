@@ -119,18 +119,18 @@ def form():
                 ce.append(SPAN(T('check times!!'), _class = config.cssclass.configwarn))
 
             if d in groups:
-                groups[d].append(ce)
+                groups[d].append(TR(ce))
             else:
-                groups[d] = [ce]
+                groups[d] = [TR(ce)]
                 
             if(shift.comment != None and shift.comment != ''):
-                groups[d].append(['', TD(shift.comment, _class = config.cssclass.shiftcomment)])
+                groups[d].append(TR('', TD(shift.comment, _class = config.cssclass.shiftcomment), _class = config.cssclass.tggl))
         
         stblgroups = []
         display = groups.keys()
         display.sort()
         for d in display:
-            stblgroups.append(DIV(DIV(groupheads[d], _class = config.cssclass.shiftgrouphead), TABLE(*[TR(*se) for se in groups[d]]), _class = config.cssclass.shiftgrouptbl))
+            stblgroups.append(DIV(DIV(groupheads[d], _class = config.cssclass.shiftgrouphead), TABLE(*groups[d]), _class = config.cssclass.shiftgrouptbl))
             
         if len(stblgroups) & 1:
             stblgroups.append('')
@@ -202,7 +202,9 @@ def confirm():
         de.append(TR('', TD('Ich möchte ', STRONG('keine'), ' Kommissionsnummer haben.')))
     
     for s in sale.getcheckedshifts():
-        de.append(TR('Hier helfe ich:', s.day + ', ' + s.time + ', ' + s.activity))
+        de.append(TR(TD('Hier helfe ich:'), TD(s.day + ', ' + s.time + ', ' + s.activity)))
+        if(s.comment != None and s.comment != ''):
+            de.append(TR('', TD('('+s.comment+')', _class = config.cssclass.shiftcomment)))
     
     if sale.b_cannot_help:
         de.append(TR('', TD('Ich kann leider keine Helferschicht übernehmen.')))        

@@ -29,7 +29,7 @@ try:
         if Numbers(shotdb, wl.eid).b_numbers_available():
             if count > 0:
                 # wait before sending next mail
-                sleep(60)
+                sleep(5)
             
             count += 1
             msg = '#%d, id: %d\t%s, %s' % (count, row.id, row.person.name, row.person.forename)
