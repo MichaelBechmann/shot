@@ -6,18 +6,9 @@ p, #iwaitmsg  {
 
 .mark {
 font-weight: bold;
-color: #CF3822;
+color: #20C020;
 }
 
-a.intext {
-text-decoration: none;
-border-bottom:2px dotted; 
-color: #000000;
-}
-
-a:hover {
-    color: #FF5134;
-}
 
 #next_event_date {
 font-weight: bold;
@@ -38,14 +29,14 @@ color: #000000;
 font-weight: bold;
 font-size: 2em;
 text-decoration: blink;
-color: #CF3822;
+color: #20C020;
 padding: 8px;
 }
 
 #error_alarm {
 	text-decoration: blink;
 	font-size: 1.4em;
-	color: #FF0000;
+	color: #00FF00;
 }
 
 .error {

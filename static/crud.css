@@ -14,7 +14,7 @@ table th {
 	padding: 8px;
 	border-style: solid;
 	border-color: #a0a0a0;
-	background-color: #f4c995;
+	background-color: #A0F0A0;
 }
 table td {
 	border-width: 1px;
@@ -23,7 +23,7 @@ table td {
 	border-color: #a0a0a0;
 }
 table tr.odd{
-	background-color: #fcf1e4;
+	background-color: #ecffec;
 }
 table tr.even{
 	background-color:#ffffff;

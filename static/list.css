@@ -11,7 +11,7 @@ table.list th {
 	padding: 8px;
 	border-style: solid;
 	border-color: #a0a0a0;
-	background-color: #f4c995;
+	background-color: #A0F0A0;
 }
 table.list td {
 	border-width: 1px;
@@ -20,7 +20,7 @@ table.list td {
 	border-color: #a0a0a0;
 }
 table.list tr.odd{
-	background-color: #fcf1e4;
+	background-color: #ecffec;
 }
 table.list tr.even{
 	background-color:#ffffff;

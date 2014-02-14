@@ -3,13 +3,13 @@ table.caution {
 	font-size:12px;
 	border-style: double;
 	border-width: 2px;
-    border-color: #ff4040;
+    border-color: #40ff40;
 }
 table.caution td {
 	padding: 5px;
 	border-width: 1px;
 	border-style: solid;
-    border-color: #ff4040;
+    border-color: #40ff40;
 }
 
 #task_status {
@@ -19,11 +19,11 @@ table.caution td {
 
 #task_status .active{
 	font-weight: bold;
-	color: #EE5555;
+	color: #55EE55;
 }
 #task_status .inactive{
     font-weight: normal;
-    color: #33AA33;
+    color: #AA3333;
 }
 
 /* person summary */
@@ -33,10 +33,10 @@ table.caution td {
 }
 
 .ps_email_active {
-    color: #33AA33;	
+    color: #AA3333;	
 }
 .ps_email_inactive {
-    color: #EE5555; 
+    color: #55EE55; 
 }
 
 #ps_info_table > tbody > tr > td{
@@ -56,7 +56,7 @@ table.caution td {
 .ps_add_link {
     font-weight: bold;
     font-size: 1.2em;
-    color: #33AA33;
+    color: #AA3333;
     position: absolute;
     right: -6px;
     bottom: -10px;
