@@ -82,7 +82,8 @@ def form():
         sale = Sale()
     elif session.registration_person_id == None:
         # Something went wrong.
-        raise ShotError('Sale form entered without identified person.')
+        redirect(URL('main','index'))
+        #raise ShotError('Sale form entered without identified person.') # see issue #43
     else:
         # The form is active.
         sale = Sale(session.registration_person_id)

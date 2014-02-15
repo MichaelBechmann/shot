@@ -36,7 +36,7 @@ padding: 8px;
 #error_alarm {
 	text-decoration: blink;
 	font-size: 1.4em;
-	color: #00FF00;
+	color: #FF0000;
 }
 
 .error {

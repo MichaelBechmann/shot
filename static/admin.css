@@ -18,12 +18,12 @@ table.caution td {
 }
 
 #task_status .active{
-	font-weight: bold;
-	color: #55EE55;
+    font-weight: bold;
+    color: #EE5555;
 }
 #task_status .inactive{
     font-weight: normal;
-    color: #AA3333;
+    color: #33AA33;
 }
 
 /* person summary */
@@ -33,10 +33,10 @@ table.caution td {
 }
 
 .ps_email_active {
-    color: #AA3333;	
+    color: #33AA33; 
 }
 .ps_email_inactive {
-    color: #55EE55; 
+    color: #EE5555;
 }
 
 #ps_info_table > tbody > tr > td{
