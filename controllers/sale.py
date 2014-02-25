@@ -111,7 +111,9 @@ def form():
         groups = {}
         groupheads = {}
         for shift in sale.getshifts():
-            ce =_contribelement(shift.activity, shift.name, shift.actual_number, shift.target_number)
+            a = shift.actual_number
+            t = shift.target_number
+            ce =_contribelement(shift.activity, shift.name, a, t)
             d = shift.display
             if d not in groupheads:
                 groupheads[d] = shift.timelabel
@@ -124,7 +126,7 @@ def form():
             else:
                 groups[d] = [TR(ce)]
                 
-            if(shift.comment != None and shift.comment != ''):
+            if(a < t and shift.comment != None and shift.comment != ''):
                 groups[d].append(TR('', TD(shift.comment, _class = config.cssclass.shiftcomment), _class = config.cssclass.tggl))
         
         stblgroups = []
@@ -148,7 +150,7 @@ def form():
         de.append(TR(*_contribelement(donation.label, donation.name, a, t)))
         
         # check for a < t here because if one has NoScript active and target number is reached the notes shall not be visible
-        if a < t and donation.enable_notes:
+        if (a < t and donation.enable_notes):
             de.append(TR('', TABLE(TR(T('I bring this:'),      INPUT(_type = 'text', _name = donation.name_note)),
                                    TR(T('Others bring this:'), SPAN(*map(LI,donation.notes))                    ),
                         _class = config.cssclass.contribnote),     _class = config.cssclass.tggl)    )
