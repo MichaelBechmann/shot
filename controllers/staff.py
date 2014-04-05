@@ -257,7 +257,9 @@ def waitlist():
     __login(role = 'staff', frompage = 'waitlist')   
     
     query = (shotdb.wait.person == shotdb.person.id)
-    f = Filter('wait', query = query)
+    left  = shotdb.sale.on((shotdb.wait.person == shotdb.sale.person) & (shotdb.wait.event == shotdb.sale.event))
+    #left = shotdb.sale.on(shotdb.wait.event == shotdb.sale.event)
+    f = Filter('wait', query = query, left = left)
     return dict(form = f.form, sqltab = f.sqltab)
 
 def requestlist():
@@ -301,10 +303,8 @@ def crud():
                 shotdb[tablename].event.default = Events(shotdb).current.id
                 shotdb[tablename].event.writable = False
                 
-        if tablename == 'wait':
-            shotdb.wait.sale.writable = False
-                
         crud_response = crud.create(tablename)
+        
     elif(action == 'edit' and id != None):
         if shotdb[tablename].has_key('person'):
             shotdb[tablename].person.writable = False
@@ -319,7 +319,7 @@ class Filter():
     This class provides everything to add filter functions for all tables.
     '''
     
-    def __init__(self, tablename, query, displayeventfilter = True, eventtable = None):
+    def __init__(self, tablename, query, left = None, displayeventfilter = True, eventtable = None):
         '''
         The argument eventtable must only be given if the main table 'table' does not contain the event-id itself.
         '''
@@ -332,6 +332,7 @@ class Filter():
             self.eventtable = self.table
         
         self.query = query
+        self.left  = left
         
         label_all = 'all events'
         name_event  = 'selev'
@@ -412,7 +413,7 @@ class Filter():
             
             
         # construct table
-        self.sqltab = SQLTABLE(shotdb(self.query).select(orderby = self.orderby),
+        self.sqltab = SQLTABLE(shotdb(self.query).select(left = self.left, orderby = self.orderby),
                                columns = self.colset,
                                headers = 'fieldname:capitalize', orderby = 'dummy', _class = 'list')
 

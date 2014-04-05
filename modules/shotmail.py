@@ -12,7 +12,7 @@ from email.mime.text import MIMEText
 from email.mime.application import MIMEApplication
 from shotconfig import *
 from gluon.dal import DAL
-from shotdbutil import Events, NumberAssignment, WaitListPos
+from shotdbutil import Events, NumberAssignment, WaitList
 from formutils import getAppRequestDataTale
 from gluon.html import *
 from gluon import current
@@ -200,7 +200,7 @@ class ShotMail(EMail):
         query &= (self.db.help.person == self.pid)
         
         elem = [TR(TD(r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity),
-                   TD('('+r.shift.comment+')') if r.shift.comment != None else '')
+                   TD('('+r.shift.comment+')') if r.shift.comment not in [None, ''] else '')
                     for r in self.db(query).select()]
         if len(elem) > 0:
             helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
@@ -243,7 +243,7 @@ class ShotMail(EMail):
         '''
         This method calculates the current position of the person on the wait list and adds it to the mail.
         '''
-        pos = WaitListPos(self.db, self.pid).pos
+        pos = WaitList(self.db).get_pos_current(self.pid)
         if pos == 0:
             pos = '???'
 

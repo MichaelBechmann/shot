@@ -37,11 +37,11 @@ def start():
 
     rows_out = None
     if 'test_1' in request.vars.iterkeys():
-        rows_out = WaitList(shotdb).rows_sorted
+        rows_out = WaitList(shotdb).get_sorted()
         columns = ['wait.id', 'wait.person']
 
     elif 'test_2' in request.vars.iterkeys():
-        rows_out = WaitList(shotdb).rows_denial
+        rows_out = WaitList(shotdb).get_denials()
         columns = ['wait.id', 'wait.person']
         
     elif 'test_3' in request.vars.iterkeys():

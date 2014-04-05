@@ -134,7 +134,7 @@ config.colsets['sale'] = { 'sets':{'details' : ['sale.id', 'sale.event', 'person
                                    },
                            'default': 'default'
                          }
-config.colsets['wait'] = { 'sets':{'details' : ['wait.id', 'wait.event', 'person.name', 'person.forename', 'wait.sale', 'wait.denial_sent'],
+config.colsets['wait'] = { 'sets':{'details' : ['wait.id', 'wait.event', 'person.name', 'person.forename', 'sale.number', 'wait.denial_sent'],
                                    },
                            'default': 'details'
                          }

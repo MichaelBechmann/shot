@@ -25,7 +25,7 @@ b_log_account_number_mail_succ  = True
 try:
     wl = WaitList(shotdb)
     count = 0
-    for row in wl.rows_sorted:
+    for row in wl.get_sorted():
         if Numbers(shotdb, wl.eid).b_numbers_available():
             if count > 0:
                 # wait before sending next mail
@@ -33,38 +33,34 @@ try:
             
             count += 1
             msg = '#%d, id: %d\t%s, %s' % (count, row.id, row.person.name, row.person.forename)
-            if row.sale == None or not row.sale > 0:
-                sid = NumberAssignment(shotdb, row.person).assign_number()
-                if sid > 0:
-                    shotdb(shotdb.wait.id == row.id).update(sale = sid)
-                    shotdb.commit()
+            sid = NumberAssignment(shotdb, row.person).assign_number()
+            if sid > 0:
+                shotdb.commit()
+
+                msg = msg + ', sale id: ' + str(sid)
+                
+                if row.denial_sent:
+                    m = NumberFromWaitlistMailSuccession(shotdb, row.person)
+                    m.send()
+                    if b_log_account_number_mail_succ:
+                        # output account settings
+                        logger_bg.info('The following account settings are used (succession from wait list):')
+                        logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
+                        b_log_account_number_mail_succ = False
                     
-                    msg = msg + ', sale id: ' + str(sid)
-                    
-                    if row.denial_sent:
-                        m = NumberFromWaitlistMailSuccession(shotdb, row.person)
-                        m.send()
-                        if b_log_account_number_mail_succ:
-                            # output account settings
-                            logger_bg.info('The following account settings are used (succession from wait list):')
-                            logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
-                            b_log_account_number_mail_succ = False
-                        
-                        msg = msg + ' (succession)'
-                    else:
-                        m = NumberFromWaitlistMail(shotdb, row.person)
-                        m.send()
-                        if b_log_account_number_mail:
-                            # output account settings
-                            logger_bg.info('The following account settings are used (number from wait list):')
-                            logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
-                            b_log_account_number_mail = False
-                    
-                    logger_bg.info(msg)
+                    msg = msg + ' (succession)'
                 else:
-                    logger_bg.info(msg + 'Something is wrong! Sale number could not be assigned!')
+                    m = NumberFromWaitlistMail(shotdb, row.person)
+                    m.send()
+                    if b_log_account_number_mail:
+                        # output account settings
+                        logger_bg.info('The following account settings are used (number from wait list):')
+                        logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
+                        b_log_account_number_mail = False
+                
+                logger_bg.info(msg)
             else:
-                logger_bg.info(msg + ' has sale number already.')
+                logger_bg.info(msg + 'Something is wrong! Sale number could not be assigned!')
         else:
             logger_bg.info('There are no numbers available any more. No further actions are done.') 
             break

@@ -91,7 +91,7 @@ shotdb.define_table('sale',
 ) # end of 'sale'
 
 
-# The table 'wait' collects all persons who are waitlisted for a given event and contains all related information.
+# The table 'wait' collects information necessary to manage the wait list for a given event.
 shotdb.define_table('wait',
                     
     # relation to the sale event
@@ -99,9 +99,6 @@ shotdb.define_table('wait',
                         
     # relation to the person
     Field('person', shotdb.person),
-    
-    # relation to the sale (if a person on the wait list finally gets a sale number)
-    Field('sale', shotdb.sale),
     
     # information whether or not a denial mail has been sent
     Field('denial_sent',    'boolean'),

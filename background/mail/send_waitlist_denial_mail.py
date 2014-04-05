@@ -26,7 +26,7 @@ try:
         
     else:
         count = 0
-        for row in wl.rows_denial:
+        for row in wl.get_denials():
             
             shotdb(shotdb.wait.id == row.id).update(denial_sent = True)
             shotdb.commit()

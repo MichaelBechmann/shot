@@ -446,10 +446,9 @@ class NumberAssignment():
                     else:
                         log = 'no sale added: no more sale numbers available'
                 except IntegrityError:
-                    # Apparently the determined sale number has just been by somebody else.
+                    # Apparently the determined sale number has just been taken by somebody else.
                     # The database connection must be refreshed in order to get updated information about the already assigned sale numbers.
                     self.db.commit()
-                    pass
                 else:
                     break
         else:
@@ -466,44 +465,82 @@ class WaitList():
     This class collects code for the resolution of the wait list.
     '''
     def __init__(self, db):
+        self.db = db
         self.eid = Events(db).current.id
     
-        # get all wait list entries from the current event with no sale linked to it yet
-        query  = (db.wait.event == self.eid)
-        query &= (db.wait.person == db.person.id)
-        query &= (db.wait.sale == None)
+        # get all wait list entries from the current event
+        self.query_wait  = (db.wait.event == self.eid)
+        self.query_wait &= (db.wait.person == db.person.id)
+
+        self.rows_all = db(self.query_wait).select(db.wait.id, db.wait.person, db.wait.denial_sent)
         
-        self.rows_all = db(query).select(db.wait.id, db.wait.person, db.wait.sale, db.wait.denial_sent)
-    
+        # get all wait list entries which already have a sale assigned
+        query_sale  = self.query_wait
+        query_sale &= (db.person.id == db.wait.person)
+        query_sale &= (db.person.id == db.sale.person)
+        query_sale &= (db.sale.event == self.eid)
+        
+        lsale = []
+        for row in db(query_sale).select(db.wait.id):
+            lsale.append(row.id)
+            
+        # create auxiliary rows object containing all wait list entries without sale
+        self.rows_wait = self.rows_all.find(lambda row: row.id not in lsale)
+        
+        
+    def _get_sorted_all(self):
+        '''
+        This method returns a rows object containing all persons who have no sale yet for the current event.
+        All persons who help at the current event are sorted at the beginning of the list.
+        '''
         # get all wait list entries which additionally are linked to shifts
-        query_help  = query
-        query_help &= (db.person.id == db.wait.person)
-        query_help &= (db.person.id == db.help.person)
-        query_help &= (db.shift.id == db.help.shift)
-        query_help &= (db.shift.event == self.eid)
+        query_help  = self.query_wait
+        query_help &= (self.db.person.id == self.db.wait.person)
+        query_help &= (self.db.person.id == self.db.help.person)
+        query_help &= (self.db.shift.id  == self.db.help.shift)
+        query_help &= (self.db.shift.event == self.eid)
         
         
         lhelp = []
-        for row in db(query_help).select(db.wait.id):
+        for row in self.db(query_help).select(self.db.wait.id):
             lhelp.append(row.id)
         
         if len(lhelp) > 0:
             offset = max(lhelp)
         else:
-            offset = 0                
-        
+            offset = 0
+
         # sort helpers in front
         # Note: sort method of rows object does not operate in place!
-        aux = self.rows_all.sort(lambda row: row.id if row.id in lhelp else row.id + offset)
+        return(self.rows_wait.sort(lambda row: row.id if row.id in lhelp else row.id + offset))
+        
+
+    def get_sorted(self):
+        
+        rows = self._get_sorted_all()
         
         # return only as many rows as numbers are available
         # negative numbers in slices do not work
-        self.rows_sorted = aux[:max([0, Numbers(db, self.eid).number_of_available()])]
+        return rows[:max([0, Numbers(self.db, self.eid).number_of_available()])]
         
+    def get_denials(self):
+        '''
+        This method returns a rows object containing all persons who have no sale yet for the current event
+        and have got no denial mail so far.
+        '''
+        return self.rows_wait.find(lambda row: row.denial_sent != True)
+    
+    def get_pos_current(self, pid):
+        '''
+        Returns the current position on the wait list for person pid (all sale s and helps taken into account).
+        '''
+        pos = 0
+        for row in self._get_sorted_all():
+            pos += 1
+            if row.person.id == pid:
+                break
+        return pos
         
-        # query like != True doesn't work
-        query_denial = query & ((db.wait.denial_sent == False) | (db.wait.denial_sent == None))
-        self.rows_denial = db(query_denial).select(db.wait.id, db.wait.person)
             
 class WaitListPos():
     '''
@@ -580,15 +617,17 @@ class Person():
         query &= (db.person.id == pid)
         
         for row in db(query).select():
-            if row.wait.sale != None:
-                s = 'closed'
-            elif row.wait.denial_sent:
-                s = 'open, denial sent'
-            else:
-                s = 'open'
-                
-            self.data[row.event.id]['wait entries'].append((row.wait.id, 'pos: %d (%s)' %(WaitListPos(db, pid, row.event.id).pos, s)))
-        
+            self.data[row.event.id]['wait entries'].append((row.wait.id, 'enrollment position: %d' %(WaitListPos(db, pid, row.event.id).pos)))
+            
+            if row.event.id ==e.current.id:
+                current_pos = WaitList(db).get_pos_current(pid)
+                if current_pos >= 0:
+                    self.data[e.current.id]['wait entries'].append((row.wait.id, 'current wait position: %d' % current_pos))
+                    
+            if row.wait.denial_sent:
+                self.data[e.current.id]['wait entries'].append((row.wait.id, 'denial mail sent'))
+
+
         # retrieve all helps
         query =  (db.event.id == db.shift.event)
         query &= (db.help.shift == db.shift.id)

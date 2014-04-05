@@ -1,5 +1,6 @@
 # coding: utf8
 {
+'Achtung: Es sind bereits alle Kommissionsnummern vergeben!': 'Achtung: Es sind bereits alle Kommissionsnummern vergeben!',
 'active': 'active',
 'Add vendor': 'Add vendor',
 'Appropriation requests': 'Fördermittel beantragen',
@@ -58,7 +59,10 @@
 'place': 'Ort',
 'Please check and confirm your data.': 'Bitte prüfen und bestätigen Sie Ihre Angaben.',
 'Please choose.': 'Bitte wählen Sie',
+'Please enter a date string, e.g., "Samstag, den 24. August 2013".': 'Please enter a date string, e.g., "Samstag, den 24. August 2013".',
+'Please enter a date string, e.g., "Samstag, den 28. September 2013".': 'Please enter a date string, e.g., "Samstag, den 28. September 2013".',
 'Please enter a valid zip code.': 'Bitte geben Sie eine gültige Postleitzahl ein.',
+'Please enter pairs of numbers, like 200-250; 300-350.': 'Please enter pairs of numbers, like 200-250; 300-350.',
 'Please enter the street name.': 'Bitte geben Sie den Straßennamen an.',
 'Please enter your forename.': 'Bitte geben Sie Ihren Vornamen an.',
 'Please enter your house number.': 'Bitte geben Sie Ihre Hausnummer an.',

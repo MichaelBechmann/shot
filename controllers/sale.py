@@ -424,7 +424,9 @@ class Sale():
         
         # sale numbers
         self.b_sale_number_assigned = False
-        if self.b_wants_sale_number: 
+        if self.b_wants_sale_number:
+            # set person on wait list
+            shotdb.wait.update_or_insert(event = self.currentevent, person = self.pid)
             if (self.b_does_help):
                 # person gets sale number
                 if NumberAssignment(shotdb, self.pid).assign_number() > 0:
@@ -434,8 +436,7 @@ class Sale():
 
             if self.b_sale_number_assigned == False:
                 # person shall not be assigned a sale number or assignment failed (no free numbers left)
-                # set person on wait list and send mail
-                shotdb.wait.update_or_insert(event = self.currentevent, person = self.pid)
+                # send wait list mail
                 WaitMail(shotdb, self.pid).send()
         else:
             NumberMail(shotdb, self.pid).send()
