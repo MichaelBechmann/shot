@@ -14,6 +14,11 @@ $(document).ready(function(){
 		}	
 	});
 	
+	$('#isnumform input').click( function(){
+		$('#isnumstatus').fadeToggle(600);
+	});
+	
+	
 	$('#shift_descr').hide();
 	$('#plclick').show();
 	

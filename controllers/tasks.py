@@ -45,7 +45,7 @@ def start():
         columns = ['wait.id', 'wait.person']
         
     elif 'test_3' in request.vars.iterkeys():
-        rows_out = HelperList(shotdb).rows_compact
+        rows_out = Help(shotdb).get_helper_list()
         columns = ['person.id', 'help.person']
 
     if rows_out != None:

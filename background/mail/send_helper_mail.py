@@ -7,7 +7,7 @@ if 0:
     global session
     global shotdb
 
-from shotdbutil import HelperList
+from shotdbutil import Help
 from shotmail import HelperMail
 from time import sleep
 from shotlogging import logger_bg
@@ -19,9 +19,8 @@ This function sends a special reminder email to each person which helps at the c
 logger_bg.info('start with script "send_helper_mail" ...')
 
 try:
-    hl = HelperList(shotdb)
     count = 0
-    for row in hl.rows_compact:
+    for row in Help(shotdb).get_helper_list():
         m = HelperMail(shotdb, row.person.id, mass = True)
         if count == 0:
             # output account settings

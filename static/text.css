@@ -56,7 +56,6 @@ table.ctblconfdat{
 
 .ctblconfdat td:first-child{
 	padding: 0em 1em 0em 0em;
-	
 }
 
 .ctblconfdat td.fullrow{
@@ -66,8 +65,14 @@ table.ctblconfdat{
 .ctblconfdat td.csftcomment{
     font-size: 0.8em;
     color: #FF0000;
-    width: 40em;
+    width: 60em;
 }
+
+.ctblconfdat td.ccfrmcomment{
+	font-size: 0.8em;
+	width: 60em;
+}
+
 /* appropriation request form */
 
 #form_request p{

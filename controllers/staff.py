@@ -231,7 +231,9 @@ def helplist():
     query  = (shotdb.help.person == shotdb.person.id)
     query &= (shotdb.help.shift  == shotdb.shift.id)
     f = Filter('help', query, eventtable = 'shift')
-    return dict(form = f.form, sqltab = f.sqltab)
+    h = Help(shotdb, f.event_id)
+    h.determine_number_of_shifts()
+    return dict(form = f.form, sqltab = f.sqltab, n_total = h.n_total, n_taken = h.n_taken, n_open = h.n_open)
 
 def bringlist():
     __login(role = 'staff', frompage = 'bringlist')
@@ -353,7 +355,7 @@ class Filter():
             formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
         formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
         formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
-        formelements.append(DIV(A('Click here to add new entry!',_href=URL('staff/crud', self.tablename, 'add'))))
+        formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('staff/crud', self.tablename, 'add'))))
         self.form = FORM(*formelements)
 
         # extract selections from session object for use in the controller and pre-populate selectors

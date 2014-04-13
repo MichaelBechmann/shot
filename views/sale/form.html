@@ -14,10 +14,6 @@ if form.errors.msg != None:
     response.write(CENTER(form.errors.msg, _class = 'error', _id = 'error_response'))    
     pass
     
-if b_numbers_available == False:
-    response.write(CENTER(T('Achtung: Es sind bereits alle Kommissionsnummern vergeben!'), _id = 'error_alarm'))
-    pass
-    
 response.write(form)
 
 }}

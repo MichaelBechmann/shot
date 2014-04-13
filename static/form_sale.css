@@ -14,16 +14,34 @@
 }
 
 #isnum{
-	width:50%;
-	text-align:center;
+	width:60%;
     margin:auto;
     padding: 8px;
     margin-bottom: 2em;
+    border:2px solid green;
+}
+
+#isnumform{
+	margin: 0 auto; /* puts table in center of div */
     color: green;
     font-size: 1.2em;
     font-weight: bold;
-    border:2px solid green;
 }
+
+#isnumstatus {
+	padding-top: 4px;
+}
+
+#isnumform input {
+    width:20px;
+    height:20px;
+}
+
+#isnumstatus td:first-child{
+    text-align: center;
+    font-weight: bold;
+}
+
 
 .cctrbpasv {
 	color:grey;

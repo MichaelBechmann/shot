@@ -458,13 +458,67 @@ class NumberAssignment():
         Log(self.db).person(self.pid, log)
 
         return sid
+
+            
+class Help():
+    '''
+    This class contains code concerning the Helper lists.
+    '''
+    def __init__(self, db, eid = None):
+        self.db = db
+        if eid == None:
+            self.eid = Events(db).current.id
+        else:
+            self.eid = eid
+        
+    def get_helper_list(self):
+        
+        # get all persons which help
+        query  = (self.db.help.person == self.db.person.id)
+        query &= (self.db.help.shift  == self.db.shift.id)
+        query &= (self.db.shift.event == self.eid)
+        
+        rows = self.db(query).select(self.db.person.id, self.db.help.person, self.db.person.name, self.db.person.forename)  
+        
+        # remove multiple occurrence of helping persons
+        # For some reason the db argument is required for SQLTABLE to work properly.
+        rows_compact = Rows(self.db)
+        # For some reason the records must be cleared (otherwise the helperlist will grow each time this class is called!).
+        rows_compact.records = []
+        
+        person_list = []
+        for row in rows:
+            if row.person.id not in person_list:
+                rows_compact.records.append(row)
+                person_list.append(row.person.id)
+                
+        return rows_compact
     
+    
+    def determine_number_of_shifts(self):
+        '''
+        This method determines the current numbers of shifts:
+            self.n_open  - number of still open shifts, that is, number of still needed helpers
+            self.n_taken - number of shifts already taken by some helper (not equal to the number of helpers as one helper may have taken more than one shift)
+            self.n_total - total number of configured shifts
+        '''
+        query = self.db.shift.event == self.eid
+        rows = self.db(query).select()
+        self.n_total = 0
+        self.n_taken = 0
+        self.n_open  = 0
+        for row in rows:
+            self.n_total += row.target_number
+            self.n_taken += row.actual_number
+        self.n_open = self.n_total - self.n_taken
+        
         
 class WaitList():
     '''
     This class collects code for the resolution of the wait list.
     '''
     def __init__(self, db):
+        self._current_pos = {}
         self.db = db
         self.eid = Events(db).current.id
     
@@ -532,15 +586,60 @@ class WaitList():
     
     def get_pos_current(self, pid):
         '''
-        Returns the current position on the wait list for person pid (all sale s and helps taken into account).
+        Returns the current position on the wait list for person pid (all sales and helps taken into account).
         '''
-        pos = 0
-        for row in self._get_sorted_all():
-            pos += 1
-            if row.person.id == pid:
-                break
-        return pos
+        # check if position has been determined already
+        if self._current_pos.has_key(pid):
+            return self._current_pos[pid]
         
+        pos = 0
+        count = 0
+        if pid != None:
+            for row in self._get_sorted_all():
+                count += 1
+                if row.person.id == pid:
+                    pos = count
+                    break
+        
+        self._current_pos[pid] = pos
+        return pos
+    
+    def length(self):
+        '''
+        This method returns the current length of the real wait list,
+        that is, the number of persons on the wait list with no sale number yet.
+        '''
+        return len(self.rows_wait)
+    
+    def status_text(self, pid):
+        '''
+        This method analyses the current position of a person on the wait list and the still open shifts.
+        It returns a status corresponding message for the sale form and e-mails.
+        '''
+        if pid != None and NumberAssignment(self.db, pid).get_number(self.eid) > 0:
+            return 'Sie haben bereits eine Kommissionsnummer für den kommenden Markt.'
+        
+        h = Help(self.db, self.eid)
+        h.determine_number_of_shifts()
+        
+        # determine or prognost position on the wait list
+        pos = self.get_pos_current(pid)
+        if pos == 0:
+            pos = self.length() + 1
+        
+        x  = Numbers(self.db, self.eid).number_of_available() - pos - h.n_open
+        
+        if x > 20:
+            msg = 'Es sind noch genügend Kommissionsnummern frei. Sie werden sicher eine Nummer erhalten, sobald unsere Warteliste aufgelöst wird.'
+        elif x >= 0:
+            msg = 'Es sind nur noch wenige Kommissionsnummern frei. Da wir Helfer bevorzugt behandeln, ist unsicher, ob Sie über die Warteliste eine Nummer erhalten werden.'
+        elif x >= -15:
+            msg = 'Es sind derzeit leider keine Kommissionsnummern mehr frei. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine über die Warteliste erhalten.'
+        else:
+            msg = 'Es sind leider keine Kommissionsnummern mehr frei. Unsere Warteliste ist auch schon so lang, daß Sie sicher keine Nummer mehr erhalten werden.'
+        
+        return msg
+    
             
 class WaitListPos():
     '''
@@ -561,33 +660,7 @@ class WaitListPos():
             if prow != None:
                 # determine how many ids are lower
                 self.pos = len([r for r in rows if prow.id >= r.id])
-                
-            
-class HelperList():
-    '''
-    This class contains code concerning the Helper lists.
-    '''
-    def __init__(self, db):
-        self.eid = Events(db).current.id
-        
-        # get all persons which help
-        query  = (db.help.person == db.person.id)
-        query &= (db.help.shift  == db.shift.id)
-        query &= (db.shift.event == self.eid)
-        
-        self.rows = db(query).select(db.person.id, db.help.person, db.person.name, db.person.forename)        
-        
-        # remove multiple occurrence of helping persons
-        # For some reason the db argument is required for SQLTABLE to work properly.
-        self.rows_compact = Rows(db)
-        # For some reason the records must be cleared (otherwise the helperlist will grow each time this class is called!).
-        self.rows_compact.records = []
-        
-        person_list = []
-        for row in self.rows:
-            if row.person.id not in person_list:
-                self.rows_compact.records.append(row)
-                person_list.append(row.person.id)
+
             
 class Person():
     '''
@@ -621,11 +694,11 @@ class Person():
             
             if row.event.id ==e.current.id:
                 current_pos = WaitList(db).get_pos_current(pid)
-                if current_pos >= 0:
+                if current_pos > 0:
                     self.data[e.current.id]['wait entries'].append((row.wait.id, 'current wait position: %d' % current_pos))
                     
-            if row.wait.denial_sent:
-                self.data[e.current.id]['wait entries'].append((row.wait.id, 'denial mail sent'))
+                if row.wait.denial_sent:
+                    self.data[e.current.id]['wait entries'].append((row.wait.id, 'denial mail sent'))
 
 
         # retrieve all helps

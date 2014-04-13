@@ -38,7 +38,7 @@ def __validateform(form):
         if donation.name_note in form.vars:
             form.vars[donation.name_note] = regularizeName(form.vars[donation.name_note])
         
-def _contribelement(label, formname, a, t):
+def __contribelement(label, formname, a, t):
     '''
     This function returns a list containing the complete contribution form elements (shift or donation).
     format: [ checkbox or dummy, SPAN element with the complete label]
@@ -90,55 +90,48 @@ def form():
             
     # construct the form from the database tables
     formelements = []
-    formelements.append(DIV(INPUT(_type = 'checkbox', _name = config.formname.sale_number, _checked = 'checked',_value = 'on'), ' Ich möchte eine Kommissionsnummer haben.', _id = config.cssid.salenumber))
+    
+    elem_sale_number = TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.sale_number, _checked = 'checked',_value = 'on'), 'Ich möchte eine Kommissionsnummer haben.'), _id = config.cssid.salenumberform)
+    elem_status = TABLE(TR('Aktueller Status:', WaitList(shotdb).status_text(session.registration_person_id)), _id = config.cssid.salenumberstatus)
+    formelements.append(DIV(elem_sale_number, elem_status,  _id = config.cssid.salenumber))
     
     formelements.append(TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.no_contrib), 'Ich kann leider keine Helferschicht übernehmen.'), _id = config.cssid.nocontrib))
     formelements.extend([BR(), BR()])
     # all shifts related to the current event
     formelements.append(DIV('Ich kann folgende Helferschicht(en) übernehmen:', _class = config.cssclass.contribheading))
+
+    # display shifts arranged in groups
+    groups = {}
+    groupheads = {}
+    for shift in sale.getshifts():
+        a = shift.actual_number
+        t = shift.target_number
+        ce =__contribelement(shift.activity, shift.name, a, t)
+        d = shift.display
+        if d not in groupheads:
+            groupheads[d] = shift.timelabel
+        elif session.form_passive and (groupheads[d] != shift.timelabel):
+            # The shift grouped together have different times => notify admin
+            ce.append(SPAN(T('check times!!'), _class = config.cssclass.configwarn))
+
+        if d in groups:
+            groups[d].append(TR(ce))
+        else:
+            groups[d] = [TR(ce)]
+            
+        if(a < t and shift.comment != None and shift.comment != ''):
+            groups[d].append(TR('', TD(shift.comment, _class = config.cssclass.shiftcomment), _class = config.cssclass.tggl))
     
-    # construct two column table of the shift elements
-    # correct odd number of shifts
-    if False:
-        # plain table display
-        se =[_contribelement(shift.label, shift.name, shift.actual_number, shift.target_number) for shift in sale.getshifts()]
-        if len(se) & 1:
-            se.append(['', ''])   
-        formelements.append(TABLE(*[TR(se[i][0], se[i][1], se[i+1][0], se[i+1][1], _class = config.cssclass.shiftgrouptbl) for i in range(0,len(se), 2)], _id = config.cssid.contribtblshifts))
-
-    else:
-        # display shifts arranged in groups
-        groups = {}
-        groupheads = {}
-        for shift in sale.getshifts():
-            a = shift.actual_number
-            t = shift.target_number
-            ce =_contribelement(shift.activity, shift.name, a, t)
-            d = shift.display
-            if d not in groupheads:
-                groupheads[d] = shift.timelabel
-            elif session.form_passive and (groupheads[d] != shift.timelabel):
-                # The shift grouped together have different times => notify admin
-                ce.append(SPAN(T('check times!!'), _class = config.cssclass.configwarn))
-
-            if d in groups:
-                groups[d].append(TR(ce))
-            else:
-                groups[d] = [TR(ce)]
-                
-            if(a < t and shift.comment != None and shift.comment != ''):
-                groups[d].append(TR('', TD(shift.comment, _class = config.cssclass.shiftcomment), _class = config.cssclass.tggl))
+    stblgroups = []
+    display = groups.keys()
+    display.sort()
+    for d in display:
+        stblgroups.append(DIV(DIV(groupheads[d], _class = config.cssclass.shiftgrouphead), TABLE(*groups[d]), _class = config.cssclass.shiftgrouptbl))
         
-        stblgroups = []
-        display = groups.keys()
-        display.sort()
-        for d in display:
-            stblgroups.append(DIV(DIV(groupheads[d], _class = config.cssclass.shiftgrouphead), TABLE(*groups[d]), _class = config.cssclass.shiftgrouptbl))
-            
-        if len(stblgroups) & 1:
-            stblgroups.append('')
-            
-        formelements.append(TABLE(*[TR(stblgroups[i], stblgroups[i+1], _class = config.cssclass.shifttblrow) for i in range(0, len(stblgroups), 2)], _id = config.cssid.contribtblshifts))
+    if len(stblgroups) & 1:
+        stblgroups.append('')
+        
+    formelements.append(TABLE(*[TR(stblgroups[i], stblgroups[i+1], _class = config.cssclass.shifttblrow) for i in range(0, len(stblgroups), 2)], _id = config.cssid.contribtblshifts))
 
     # all donations related to the current event
     formelements.append(DIV('Für das Café bringe ich folgendes mit (sofern ich eine Kommissionsnummer erhalte):', _class = config.cssclass.contribheading))
@@ -147,7 +140,7 @@ def form():
         a = donation.actual_number
         t = donation.target_number
         
-        de.append(TR(*_contribelement(donation.label, donation.name, a, t)))
+        de.append(TR(*__contribelement(donation.label, donation.name, a, t)))
         
         # check for a < t here because if one has NoScript active and target number is reached the notes shall not be visible
         if (a < t and donation.enable_notes):
@@ -183,8 +176,8 @@ def form():
         if session.sale_error_msg:
             form.errors.msg = session.sale_error_msg
             session.sale_error_msg = None
-     
-    return dict(form = form, b_numbers_available = sale.b_numbers_available)
+
+    return dict(form = form)
 
 
 def confirm():
@@ -201,6 +194,8 @@ def confirm():
     
     if sale.b_wants_sale_number:
         de.append(TR('', 'Ich möchte eine Kommissionsnummer haben.'))
+        if sale.b_cannot_help:
+            de.append(TR('', TD('(Hinweis: %s)' % WaitList(shotdb).status_text(session.registration_person_id), _class = config.cssclass.confirmcomment)))
     else:
         de.append(TR('', TD('Ich möchte ', STRONG('keine'), ' Kommissionsnummer haben.')))
     
@@ -278,15 +273,12 @@ class Sale():
         self.currentevent = Events(shotdb).current.id
         
         self.person_name = 'anonymous'
-        self.b_has_number = False
+        
         rows = shotdb(shotdb.person.id == self.pid).select()
         if len(rows) > 0:
             person = rows.last()
             # get name of the person
             self.person_name = person.forename + ' ' + person.name
-                
-        # Are there free numbers?
-        self.b_numbers_available = Numbers(shotdb, self.currentevent).b_numbers_available()
               
     def getshifts(self):
         '''

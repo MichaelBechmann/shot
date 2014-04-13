@@ -243,11 +243,13 @@ class ShotMail(EMail):
         '''
         This method calculates the current position of the person on the wait list and adds it to the mail.
         '''
-        pos = WaitList(self.db).get_pos_current(self.pid)
+        wl = WaitList(self.db)
+        pos = wl.get_pos_current(self.pid)
         if pos == 0:
             pos = '???'
 
-        self.subs['PLACEHOLDER_WAIT_POSITION']  = str(pos)
+        self.subs['PLACEHOLDER_WAIT_POSITION'] = str(pos)
+        self.subs['PLACEHOLDER_WAIT_STATUS'] = wl.status_text(self.pid)
         
 
 class  RegistrationMail(ShotMail):

@@ -95,6 +95,8 @@ config.formname.sale_number     = 'fnsnum'
 # strings used as ids and classes of html elements
 # These must fit the CSS selectors in style sheets and jQuery functions!
 config.cssid.salenumber         = 'isnum'
+config.cssid.salenumberform     = 'isnumform'
+config.cssid.salenumberstatus   = 'isnumstatus'
 config.cssid.nocontrib          = 'inoctrb'
 config.cssid.contribtblshifts   = 'itblshifts'
 config.cssid.contribtbldons     = 'itbldons'
@@ -118,6 +120,7 @@ config.cssclass.shiftgrouphead  = 'csftgrphead'
 config.cssclass.shiftgrouptbl   = 'csftgrptbl'
 config.cssclass.shifttblrow     = 'csfttblrow'
 config.cssclass.shiftcomment    = 'csftcomment'
+config.cssclass.confirmcomment  = 'ccfrmcomment'
 config.cssclass.configwarn      = 'ccnfwarn'
 
 config.cssclass.tggl            = 'ctggl'
