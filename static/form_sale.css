@@ -51,9 +51,19 @@
 	font-size: 1.2em;  
 }
 
-.cctrbactv .cactnl {color:red; font-size:0.8333em;}
-.cctrbactv .cactnm {color:black; font-size:0.8333em;}
-.cctrbactv .cactnh {color:green; font-size:0.8333em;}
+.cactnl, .cactnm, .cactnh{
+	font-size:0.75em;
+}
+
+.cctrbactv .cactnl {
+	color:red;
+}
+.cctrbactv .cactnm {
+	color:black;
+}
+.cctrbactv .cactnh {
+	color:green;
+}
 
 
 .cctrbhead {

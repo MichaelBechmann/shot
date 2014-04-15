@@ -43,17 +43,17 @@ def __contribelement(label, formname, a, t):
     This function returns a list containing the complete contribution form elements (shift or donation).
     format: [ checkbox or dummy, SPAN element with the complete label]
     '''
-    try:
-        r = 1.0*a/t #cast to float required
-    except:
-        # database may contain None for the target (during configuration)
-        r =1.0   
+    # database may contain None for the target (during configuration)
+    if t != None and t > a:
+        r = round(1.0*a/t*100)
+    else:
+        r =100  
         
-    if r < 1.0:
+    if r < 100:
         cl = config.cssclass.contribactive
-        if r < 0.5:
+        if r < 50:
             c = config.cssclass.actnumberlow
-        elif r < 0.9:
+        elif r < 90:
             c = config.cssclass.actnumbermed
         else:
             c = config.cssclass.actnumberhigh
@@ -68,7 +68,7 @@ def __contribelement(label, formname, a, t):
         fe.append(INPUT(_type = 'checkbox', _name = formname, _class = config.cssclass.tggltrig))
     else:
         fe.append('')
-    s = ' ({a}/{t}) '.format(a = a, t = t)   
+    s = ' (%d%% belegt) ' % r   
     fe.append(SPAN(label, SPAN(s, _class = c), _class = cl))
     
     return fe
