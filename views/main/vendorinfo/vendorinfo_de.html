@@ -1,10 +1,16 @@
 <h3>Liebe Verkäufer,</h3>
 <p>
-Die Kommissionsnummern für den kommenden Markt werden auf diesen Seiten vergeben ab
+Die Kommissionsnummern für die kommenden Märkte werden auf diesen Seiten vergeben
 </p>
-<center id="enrol_date">
-{{response.write(enrol_date)}}
-</center>
+{{
+if enrol_dates:
+    response.write(TABLE([TD('ab ', SPAN(r.enrol_date, _id = 'enrol_date'), ' für den %s  am %s' % (r.label, r.date)) for r in enrol_dates], _id = 'tbl_enrol_dates'))
+    pass
+else:
+    response.write('Die Anmeldetermine für die nächsten Märkte stehen noch nicht fest.')
+    pass
+
+}}
 
 <h4>Der Markt</h4>
 <p>

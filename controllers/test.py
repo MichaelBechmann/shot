@@ -43,7 +43,7 @@ def _number_assignment():
               'old number: ' + str(na.on),
               'determined sale number: ' + str(n), 
               'person helped at previous event: ' + str(na.b_helped_previous_event),
-              'current event: ' + str(na.e.current.id),
+              'current event: ' + str(na.e.current.event.id),
               'previous event: ' + str(na.previousevent)
               
               )

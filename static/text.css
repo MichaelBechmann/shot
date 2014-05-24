@@ -9,20 +9,27 @@ font-weight: bold;
 color: #20C020;
 }
 
+#tbl_next_event_date, #tbl_enrol_dates{
+    margin-left:auto; 
+    margin-right:auto;
+    margin-bottom: 1em;
+}
 
-#next_event_date {
-font-weight: bold;
-font-size: 1.4em;
-margin:  0 0 1em 0;
-color: #000000;
-line-height:1.8;
+#tbl_next_event_date td{
+    font-weight: bold;
+    font-size: 1.4em;
+    margin:  0 0 1em 0;
+    color: #000000;
+    line-height:1.6;
+}
+
+#tbl_enrol_dates{
+    font-size: 1.2em;
+    line-height:1.6;
 }
 
 #enrol_date {
-font-weight: bold;
-font-size: 1.2em;
-margin:  0 0 1em 0;
-color: #000000;
+    font-weight: bold;
 }
 
 #no_numbers_alarm {

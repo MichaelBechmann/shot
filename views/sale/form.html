@@ -5,8 +5,17 @@
 
 
 
-{{include 'sale/form/form_de.html'}}
+<h3>Anmeldung zum {{response.write(announcement)}}</h3>
+<p>
+Um diesen Markt realisieren zu können, sind wir auf viele ehrenamtliche Helfer angewiesen.
+Wir möchten daher zunächst unsere Helferschichten füllen, bevor wir den Großteil der Kommissionsnummern über die Warteliste vergeben.
+</p>
 
+{{if template_set == 'child':}}
+    {{include 'sale/form/form_explain_child.html'}}
+{{elif template_set == 'toys':}}
+    {{include 'sale/form/form_explain_toys.html'}}
+ {{pass}}
 
 {{
 if form.errors.msg != None:
@@ -15,9 +24,4 @@ if form.errors.msg != None:
     pass
     
 response.write(form)
-
 }}
-
-
-  
-

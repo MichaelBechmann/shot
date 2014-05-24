@@ -208,14 +208,14 @@ def numbers():
     __login(role = 'staff', frompage = 'numbers')
     
     e = Events(shotdb)
-    n = Numbers(shotdb, e.current.id)
+    n = Numbers(shotdb, e.current.event.id)
     
     return dict(
                 assigned    = n.assigned(),
                 free        = n.free(),
                 available   = n.number_of_available(),
                 b_available = n.b_numbers_available(),
-                limit       = e.current.numbers_limit
+                limit       = e.current.event.numbers_limit
                 )
 
 def personlist():
@@ -302,7 +302,7 @@ def crud():
             shotdb[tablename].person.default = pid
             shotdb[tablename].person.writable = False
             if 'event' in shotdb[tablename]:
-                shotdb[tablename].event.default = Events(shotdb).current.id
+                shotdb[tablename].event.default = Events(shotdb).current.event.id
                 shotdb[tablename].event.writable = False
                 
         crud_response = crud.create(tablename)
@@ -368,8 +368,8 @@ class Filter():
             else:
                 self.event_id = self.e.all[selev]
         else:
-            self.form.vars[name_event] = self.e.current.label
-            self.event_id = self.e.current.id 
+            self.form.vars[name_event] = self.e.current.event.label
+            self.event_id = self.e.current.event.id 
         
         # column set selection    
         if session.selected_colsets != None and session.selected_colsets.has_key(self.tablename):

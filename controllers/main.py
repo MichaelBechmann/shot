@@ -15,12 +15,10 @@ from shotmail import ErrorMail
 T.force('de')
 
 def index():
-    return dict(date = Events(shotdb).current.date)
+    return dict(announcements = Events(shotdb).get_visible())
 
 def vendorinfo():
-    date = Events(shotdb).current.date
-    enrol_date = Events(shotdb).current.enrol_date
-    return dict(enrol_date = enrol_date, date = date)
+    return dict(enrol_dates = Events(shotdb).get_visible())
 
 def privacy():
     return dict()

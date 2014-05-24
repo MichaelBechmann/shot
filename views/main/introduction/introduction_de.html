@@ -4,25 +4,31 @@ in Ottersweier findet jeweils im Frühjahr und Herbst ein Kinder-Secondhand-Basa
 Neben saisonaler Kinderkleidung, Schuhen, Kinderwägen und Zubehör werden hier auch Spielsachen und Kinderbücher angeboten.
 Der Erlös aus diesen Veranstaltungen kommt vollständig Kindern und Familien zugute.
 In den letzten Jahren konnten wir so bereits zahlreiche Projekte in den örtlichen Kindergärten unterstützen und zusätzliche Spielgeräte anschaffen.
-<br />
-<br />
-Der nächste Kleidermarkt wird am
 </p>
-<center id="next_event_date">
-{{response.write(date + ', 9-12 Uhr')}}
-<br />
-</center>
 <p>
-im Gemeindezentrum St. Johannes in Ottersweier stattfinden.
-<br />
-<br />
+Hier unsere nächsten Termine:
+</p>
+{{
+if announcements:
+    response.write(TABLE([TD('%s am %s, %s' % (r.label, r.date, r.time)) for r in announcements], _id="tbl_next_event_date"))
+    pass
+else:
+    response.write('Die Termine für die nächsten Märkte stehen noch nicht fest.')
+    pass
+}}
+
+<p>
+Alle Märkte finden im Gemeindezentrum St. Johannes in Ottersweier statt.
+</p>
+<p>
 Für Ihr leibliches Wohl wird mit Kaffee und Kuchen, Waffeln, Brezeln und Erfrischungsgetränken bestens gesorgt sein. Eine kleine Malecke für Kinder werden wir ebenfalls einrichten.
-<br />
+</p>
+<p>
 Bitte beachten Sie, daß vor dem Gemeindezentrum auch während des Marktes absolutes Halteverbot herrscht.
 <strong>Bitte nutzen Sie die Parkplätze am Sonnenplatz</strong>.
-<br />
-<br />
-Einen schönen und erfolgreichen Markt für alle Beteiligten wünscht
+</p>
+<p>
+Schöne und erfolgreiche Märkte für alle Beteiligten wünscht
 </p>
 <center>
 <p>

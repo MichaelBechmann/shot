@@ -6,6 +6,10 @@
 
 response.write(H3('Configure the event!'))
 
+response.write(A('add event type', _href=URL('config', 'config_event/addeventtype'), _class = 'intext'))
+response.write(crudeventtype_response)
+response.write(BR())
+
 response.write(A('add event', _href=URL('config', 'config_event/addevent'), _class = 'intext'))
 response.write(crudevent_response)
 response.write(BR())

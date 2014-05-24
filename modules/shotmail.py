@@ -166,18 +166,21 @@ class ShotMail(EMail):
     recipe = SPAN('Wir möchten Sie bitten, den Waffelteig nach folgendem Rezept zu machen:', BR(), TABLE(*[TR(TD(x[0]), TD(x[1])) for x in config.recipe_list]))
     
     def __init__(self, db, pid, template, account_id = 'team', mass = False):
-        EMail.__init__(self, template, account_id, mass)
         self.pid = pid
         self.db = db
-        
         self.events = Events(self.db)
+        
+        template_final = template.replace('TEMPLATE_SET', 'template_set_' + self.events.current.event.template_set)
+        EMail.__init__(self, template_final, account_id, mass)
         
         self.person = self.db.person(pid)
         self.receiver = self.person['email']
-        self.subs['PLACEHOLDER_DATE'] = self.events.current.date
-        self.subs['PLACEHOLDER_ENROL_DATE'] = self.events.current.enrol_date
-        self.subs['PLACEHOLDER_FULLNAME'] = self.person.forename + ' ' + self.person.name
-        self.subs['PLACEHOLDER_DISABLE_MAIL_URL'] = config.shoturl + 'registration/disable_mail/' + str(self.person.id) + self.person.code
+        self.subs['PLACEHOLDER_LABEL']              = self.events.current.event.label
+        self.subs['PLACEHOLDER_DATE']               = self.events.current.event.date
+        self.subs['PLACEHOLDER_TIME']               = self.events.current.event.time
+        self.subs['PLACEHOLDER_ENROL_DATE']         = self.events.current.event.enrol_date
+        self.subs['PLACEHOLDER_FULLNAME']           = self.person.forename + ' ' + self.person.name
+        self.subs['PLACEHOLDER_DISABLE_MAIL_URL']   = config.shoturl + 'registration/disable_mail/' + str(self.person.id) + self.person.code
 
     def add_sale_number(self):
         '''
@@ -195,7 +198,7 @@ class ShotMail(EMail):
         This methods retrieves all contributions (the persons sale number from the database and adds it to the mail.
         '''        
         # retrieve help information
-        query  = (self.db.shift.event == self.events.current.id)
+        query  = (self.db.shift.event == self.events.current.event.id)
         query &= (self.db.help.shift == self.db.shift.id)
         query &= (self.db.help.person == self.pid)
         
@@ -211,7 +214,7 @@ class ShotMail(EMail):
         
         
         # retrieve bring information
-        query  = (self.db.donation.event == self.events.current.id)        
+        query  = (self.db.donation.event == self.events.current.event.id)        
         query &= (self.db.bring.donation == self.db.donation.id)
         query &= (self.db.bring.person == self.pid)
         
@@ -269,7 +272,7 @@ class  InvitationMail(ShotMail):
     This class defines the invitation email with the personal link to the registration form.
     """
     def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/invitation_de.html', mass = mass)
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/invitation_de.html', mass = mass)
                   
         self.subject = 'Einladung zum Markt'
         self.subs['PLACEHOLDER_FORM_URL'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
@@ -283,7 +286,7 @@ class NumberMail(ShotMail):
     This class defines the email with the person's sale number.
     '''
     def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_de.html')
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/sale_number_de.html')
         
         self.add_sale_number()
         self.add_contributions()
@@ -298,7 +301,7 @@ class NumberFromWaitlistMail(ShotMail):
     This class defines the email with the person's sale number. It is sent when the wait list is resolved.
     '''
     def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist.html', mass = mass)
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/sale_number_from_waitlist.html', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
@@ -313,7 +316,7 @@ class NumberFromWaitlistMailSuccession(ShotMail):
     This class defines the email with the person's sale number. It is sent when the wait list is resolved and the person has got a denial previously.
     '''
     def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/sale_number_from_waitlist_succession.html', mass = mass)
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/sale_number_from_waitlist_succession.html', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
@@ -353,7 +356,7 @@ class HelperMail(ShotMail):
     This class defines the email sent to the helpers as a reminder short time before the event.
     '''
     def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/helper.html', account_id = 'help', mass = mass)
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/helper.html', account_id = 'help', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()

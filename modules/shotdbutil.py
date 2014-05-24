@@ -50,32 +50,55 @@ class Events():
     '''
     def __init__(self, db):
         self.db = db
+        q  = db.event.active == True
+        q &= db.event.type == db.event_type.id
+        self.current = db(q).select().last()
         
-        self.current = db(db.event.active == True).select().last()
+    def get_visible(self):
+        '''
+        This method returns a rows object of all events for which the visible flag is set.
+        '''
+        return self.db(self.db.event.visible == True).select(self.db.event.label, self.db.event.date, self.db.event.time, self.db.event.enrol_date)
+        
         
     def get_all(self):
-        self.all = {r.label:r.id  for r in self.db(self.db.event.id > 0).select()}
+        
+        q  = self.db.event.id > 0
+        q &= self.db.event.type == self.db.event_type.id
+        
+        self.all = {'%s, %s'%(r.event_type.label,r.event.date):r.event.id  for r in self.db(q).select()}
         return self.all
         
-    def previous(self, eid = 0):
+    def previous_id(self, eid = 0):
         '''
-        This method returns the id of the previous event.
+        This method returns the id of the previous event OF THE SAME TYPE.
         The argument is the event id of the event for which the previous event shall be determined.
         If no argument is given, the current event is assumed.
         
         Note: The previous event id is not necessarily (current event id - 1) because intermediate events could have been deleted.
         Empty intermediate events (events without connected sales or helps etc.) are not sorted out and should be removed from the database.
         '''
-        if eid > 0:
-            self.eid = eid
-        else:
-            self.eid = self.current.id
-        self.get_all()
-        old=([i for i in self.all.values() if i < self.eid])
+        if eid == 0:
+            eid = self.current.event.id
+            
+        t = self.db.event[eid].type
+            
+        query  = self.db.event.type == t
+        query &= self.db.event.id < eid
+        old = [e.id for e in self.db(query).select()]
         old.append(0) # always return something
-        old.sort()
-        return old[-1]
-        
+        return max(old)
+    
+    def get_current_announcement(self, b_include_time = False):
+        '''
+        This method returns an announcement string with label, date, and optionally time of the current event.
+        '''
+        s = '%s am %s' % (self.current.event.label, self.current.event.date)
+        if b_include_time:
+            s += ', %s' % self.current.event.time
+            
+        return s
+    
 
 class Ident():
     '''
@@ -123,7 +146,7 @@ class Ident():
         self.person = self.db.person(self.id)
         if(self.person != None):            
             if(c == self.person.code):
-                currentevent = Events(self.db).current.id
+                currentevent = Events(self.db).current.event.id
                 self.db(self.db.person.id == self.id).update(verified = currentevent)
                 self.person['verified'] = currentevent # This dictionary must be consistent with the db, otherwise the old current event will be re-written to the db!
                 self.b_verified = True
@@ -352,11 +375,11 @@ class NumberAssignment():
         4) Assign numbers of helpers at the previous event not before all other free numbers (block previous helper numbers).
         '''
         
-        self.numbers = Numbers(self.db, self.e.current.id)
+        self.numbers = Numbers(self.db, self.e.current.event.id)
         if self.numbers.b_numbers_available() == False:
             return 0
         
-        self.previousevent = self.e.previous()
+        self.previousevent = self.e.previous_id()
         
         # check whether or not the person helped at the previous event
         query  = (self.db.shift.event == self.previousevent)
@@ -398,7 +421,7 @@ class NumberAssignment():
         If the person does not have a number 0 is returned
         '''
         if eid == 0:
-            eid = self.e.current.id
+            eid = self.e.current.event.id
         query  = (self.db.sale.event == eid)
         query &= (self.db.sale.person == self.pid)
         rows = self.db(query).select()
@@ -441,7 +464,7 @@ class NumberAssignment():
                     sn = self.determine_number()
                     if sn > 0:
                         # add sale entry    
-                        sid = self.db.sale.insert(event = self.e.current.id, person = self.pid, number = sn) 
+                        sid = self.db.sale.insert(event = self.e.current.event.id, person = self.pid, number = sn) 
                         log = 'sale # ' + str(sid) + '/ number ' + str(sn) + ' added'
                     else:
                         log = 'no sale added: no more sale numbers available'
@@ -467,7 +490,7 @@ class Help():
     def __init__(self, db, eid = None):
         self.db = db
         if eid == None:
-            self.eid = Events(db).current.id
+            self.eid = Events(db).current.event.id
         else:
             self.eid = eid
         
@@ -520,7 +543,7 @@ class WaitList():
     def __init__(self, db):
         self._current_pos = {}
         self.db = db
-        self.eid = Events(db).current.id
+        self.eid = Events(db).current.event.id
     
         # get all wait list entries from the current event
         self.query_wait  = (db.wait.event == self.eid)
@@ -648,7 +671,7 @@ class WaitListPos():
     def __init__(self, db, pid, eid = None):
         
         if eid == None:
-            eid = Events(db).current.id
+            eid = Events(db).current.event.id
             
         query = (db.wait.event == eid)
         rows = db(query).select()
@@ -673,7 +696,7 @@ class Person():
         e = Events(db)
         for label, eid in e.get_all().iteritems():
             self.data[eid] = {'label': label, 'current': False, 'numbers': [], 'wait entries': [], 'shifts': [], 'donations': [], 'messages': []}
-            if eid == e.current.id:
+            if eid == e.current.event.id:
                 self.data[eid]['current'] = True 
         
         # retrieve all sale numbers
@@ -692,13 +715,13 @@ class Person():
         for row in db(query).select():
             self.data[row.event.id]['wait entries'].append((row.wait.id, 'enrollment position: %d' %(WaitListPos(db, pid, row.event.id).pos)))
             
-            if row.event.id ==e.current.id:
+            if row.event.id ==e.current.event.id:
                 current_pos = WaitList(db).get_pos_current(pid)
                 if current_pos > 0:
-                    self.data[e.current.id]['wait entries'].append((row.wait.id, 'current wait position: %d' % current_pos))
+                    self.data[e.current.event.id]['wait entries'].append((row.wait.id, 'current wait position: %d' % current_pos))
                     
                 if row.wait.denial_sent:
-                    self.data[e.current.id]['wait entries'].append((row.wait.id, 'denial mail sent'))
+                    self.data[e.current.event.id]['wait entries'].append((row.wait.id, 'denial mail sent'))
 
 
         # retrieve all helps

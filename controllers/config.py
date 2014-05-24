@@ -13,6 +13,13 @@ from gluon.tools import Crud
 
 def config_event():
     
+    crudeventtype = Crud(shotdb)
+    crudeventtype.settings.controller = 'config'
+    crudeventtype.settings.create_next = URL('config_event')
+    crudeventtype.settings.update_next = URL('config_event')
+    crudeventtype.settings.update_deletable = True
+    crudeventtype.settings.showid = True  
+    
     crudevent = Crud(shotdb)
     crudevent.settings.controller = 'config'
     crudevent.settings.create_next = URL('config_event')
@@ -34,22 +41,27 @@ def config_event():
     cruddonation.settings.update_deletable = True
     cruddonation.settings.showid = True    
     
-    tableevent    = shotdb['event']
-    tableshift    = shotdb['shift']
-    tabledonation = shotdb['donation']
+    tableeventtype = shotdb['event_type']
+    tableevent     = shotdb['event']
+    tableshift     = shotdb['shift']
+    tabledonation  = shotdb['donation']
     
-    crudevent_response    = None
-    crudshift_response    = None
-    cruddonation_response = None
+    crudeventtype_response = None
+    crudevent_response     = None
+    crudshift_response     = None
+    cruddonation_response  = None
     
     
-    if(request.args(0) == 'addevent'):
-        crudevent_response = crudevent.create(tableevent)  
+    if(request.args(0) == 'addeventtype'):
+        crudeventtype_response = crudevent.create(tableeventtype)
+    elif(request.args(0) == 'addevent'):
+        crudevent_response = crudevent.create(tableevent)
     elif(request.args(0) == 'addshift'):
         crudshift_response = crudshift.create(tableshift)     
     elif(request.args(0) == 'adddonation'):
-        cruddonation_response = cruddonation.create(tabledonation)        
-
+        cruddonation_response = cruddonation.create(tabledonation)
+    elif(request.args(0) == 'editeventtype' and request.args(1) != None):
+        crudeventtype_response = crudeventtype.update(tableeventtype, request.args(1)) 
     elif(request.args(0) == 'editevent' and request.args(1) != None):
         crudevent_response = crudevent.update(tableevent, request.args(1))          
     elif(request.args(0) == 'editshift' and request.args(1) != None):
@@ -57,8 +69,10 @@ def config_event():
     elif(request.args(0) == 'editdonation' and request.args(1) != None):
         cruddonation_response = cruddonation.update(tabledonation, request.args(1))        
         
+    else:
+        tableeventtype.id.represent = lambda id, row: A(id,_href=URL('config_event/editeventtype', args=(id)))
+        crudeventtype_response = crudeventtype.select(tableeventtype)
         
-    else: 
         tableevent.id.represent = lambda id, row: A(id,_href=URL('config_event/editevent', args=(id)))
         crudevent_response = crudevent.select(tableevent)
         
@@ -76,7 +90,7 @@ def config_event():
         session.form_passive = True
         redirect(URL('sale', 'form'))    
 
-    return dict(crudshift_response = crudshift_response, cruddonation_response = cruddonation_response, crudevent_response = crudevent_response, button = button)
+    return dict(crudeventtype_response = crudeventtype_response, crudevent_response = crudevent_response, crudshift_response = crudshift_response, cruddonation_response = cruddonation_response, button = button)
 
 
  

@@ -47,7 +47,7 @@ def __contribelement(label, formname, a, t):
     if t != None and t > a:
         r = round(1.0*a/t*100)
     else:
-        r =100  
+        r =100
         
     if r < 100:
         cl = config.cssclass.contribactive
@@ -176,8 +176,8 @@ def form():
         if session.sale_error_msg:
             form.errors.msg = session.sale_error_msg
             session.sale_error_msg = None
-
-    return dict(form = form)
+    
+    return dict(announcement = sale.announcement, form = form, template_set = sale.template_set)
 
 
 def confirm():
@@ -193,7 +193,7 @@ def confirm():
     sale.analyzecheckboxes(session.sale_vars)
     
     if sale.b_wants_sale_number:
-        de.append(TR('', 'Ich möchte eine Kommissionsnummer haben.'))
+        de.append(TR('', 'Ich möchte eine Kommissionsnummer haben für den %s.' % sale.announcement))
         if sale.b_cannot_help:
             de.append(TR('', TD('(Hinweis: %s)' % WaitList(shotdb).status_text(session.registration_person_id), _class = config.cssclass.confirmcomment)))
     else:
@@ -269,8 +269,12 @@ class Sale():
     argument: pid - person id
     '''
     def __init__(self, pid = 0): 
-        self.pid = pid         
-        self.currentevent = Events(shotdb).current.id
+        self.pid = pid
+        
+        e = Events(shotdb)
+        self.announcement = e.get_current_announcement(b_include_time = False)
+        self.currentevent_id = e.current.event.id
+        self.template_set = e.current.event.template_set
         
         self.person_name = 'anonymous'
         
@@ -284,7 +288,7 @@ class Sale():
         '''
         This function retrieves all shifts belonging to the current event and adds some evaluated properties.
         '''
-        self.rows = shotdb(shotdb.shift.event == self.currentevent).select()
+        self.rows = shotdb(shotdb.shift.event == self.currentevent_id).select()
         for r in self.rows:
             r.timelabel = r.day + ', ' + r.time
             r.label     = r.day + ', ' + r.time + ', ' + r.activity
@@ -298,7 +302,7 @@ class Sale():
         '''
         This function retrieves all donations belonging to the current event and adds some evaluated properties.
         '''
-        self.rows = shotdb(shotdb.donation.event == self.currentevent).select()
+        self.rows = shotdb(shotdb.donation.event == self.currentevent_id).select()
         for r in self.rows:
             r.label = r.item
             
@@ -411,14 +415,14 @@ class Sale():
             
         # message
         if self.vars[config.formname.person_message] != '':
-            shotdb.message.insert(event = self.currentevent, person = self.pid, text = self.vars[config.formname.person_message])
+            shotdb.message.insert(event = self.currentevent_id, person = self.pid, text = self.vars[config.formname.person_message])
         
         
         # sale numbers
         self.b_sale_number_assigned = False
         if self.b_wants_sale_number:
             # set person on wait list
-            shotdb.wait.update_or_insert(event = self.currentevent, person = self.pid)
+            shotdb.wait.update_or_insert(event = self.currentevent_id, person = self.pid)
             if (self.b_does_help):
                 # person gets sale number
                 if NumberAssignment(shotdb, self.pid).assign_number() > 0:
