@@ -5,12 +5,13 @@ if 0:
     global request
     global response
     global session
-    global shotdb   
+    global shotdb
+    global auth
 
 from gluon.tools import Crud
 
 
-
+@auth.requires_membership('configurator')
 def config_event():
     
     crudeventtype = Crud(shotdb)

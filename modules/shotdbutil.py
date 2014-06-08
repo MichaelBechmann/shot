@@ -53,21 +53,27 @@ class Events():
         q  = db.event.active == True
         q &= db.event.type == db.event_type.id
         self.current = db(q).select().last()
+        self.current.form_label = self._form_label(self.current)
+
+    def get_all(self):
+        '''
+        This method is used for the event filter form in the view table pages
+        '''
+        q  = self.db.event.id > 0
+        q &= self.db.event.type == self.db.event_type.id
+        
+        self.all = {self._form_label(r):r.event.id  for r in self.db(q).select()}
+        return self.all
+    
+    def _form_label(self, e):
+        return '%s, %s' % (e.event_type.label,e.event.date)
+    
         
     def get_visible(self):
         '''
         This method returns a rows object of all events for which the visible flag is set.
         '''
         return self.db(self.db.event.visible == True).select(self.db.event.label, self.db.event.date, self.db.event.time, self.db.event.enrol_date)
-        
-        
-    def get_all(self):
-        
-        q  = self.db.event.id > 0
-        q &= self.db.event.type == self.db.event_type.id
-        
-        self.all = {'%s, %s'%(r.event_type.label,r.event.date):r.event.id  for r in self.db(q).select()}
-        return self.all
         
     def previous_id(self, eid = 0):
         '''
@@ -782,3 +788,20 @@ class  AppropriationRequestEntry():
         # insert record
         self.aid = db.request.insert(**self.data)
         Log(db).person(pid, 'appropriation request added')
+
+
+class User():
+    '''
+    This class provides methods related to the team member user accounts.
+    '''
+    def __init__(self, db, uid):
+        self.db = db
+        self.uid = uid
+        
+    def get_groups(self):
+        query  = self.db.auth_membership.user_id == self.uid
+        query &= self.db.auth_membership.group_id == self.db.auth_group.id
+        
+        return self.db(query).select()
+        
+        

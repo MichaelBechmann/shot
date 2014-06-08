@@ -7,6 +7,7 @@ if 0:
     global session
     global shotdb
     global SQLField
+    global auth
 
 from shotdbutil import *
 from gluon.tools import Crud
@@ -15,49 +16,10 @@ from formutils import *
 from shotmail import *
 import re
 
-
 T.force('de')
 
-
-
-def __login(role, frompage):
-    if (role == 'staff' and session.staffmember != True) or (role == 'admin' and session.admin != True):
-        session.frompage = frompage
-        redirect(URL('login'))
-
-def __check_password(form):
-    if form.vars.password == config.staffpassword:
-        session.staffmember = True
-    elif form.vars.password == config.adminpassword:
-        session.staffmember = True
-        session.admin = True
-    else:
-        session.staffmember = None
-        session.admin = None
-        form.errors.msg = 'The password is not correct!'
-
-
-def login():
-    form = FORM(TABLE(TR("Staff password:", 
-                         INPUT(_type = 'password', _name = 'password'), INPUT(_type = 'submit')
-                         )
-                      )
-                )
-
-    if form.validate(onvalidation = __check_password):        
-        nextpage = 'personlist'
-        if session.frompage:
-            nextpage = session.frompage
-            session.frompage = None
-            
-        redirect(URL(nextpage))
-        
-    return dict(form = form)
-
-#################################################################################
+@auth.requires_membership('staff')
 def person_summary():
-    __login(role = 'staff', frompage = 'person_summary')
-
     form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
                            buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')]
                            )
@@ -204,9 +166,8 @@ def person_summary():
 def mail_sent():
     return dict()
 
+@auth.requires_membership('staff')
 def numbers():
-    __login(role = 'staff', frompage = 'numbers')
-    
     e = Events(shotdb)
     n = Numbers(shotdb, e.current.event.id)
     
@@ -217,63 +178,49 @@ def numbers():
                 b_available = n.b_numbers_available(),
                 limit       = e.current.event.numbers_limit
                 )
-
-def personlist():
-    __login(role = 'staff', frompage = 'personlist')
-    query = shotdb.person.id > 0
-    f = Filter('person', query, displayeventfilter = False)
     
-    return dict(form = f.form, sqltab = f.sqltab)
-
-
-def helplist():
-    __login(role = 'staff', frompage = 'helplist')
-    query  = (shotdb.help.person == shotdb.person.id)
-    query &= (shotdb.help.shift  == shotdb.shift.id)
-    f = Filter('help', query, eventtable = 'shift')
-    h = Help(shotdb, f.event_id)
-    h.determine_number_of_shifts()
-    return dict(form = f.form, sqltab = f.sqltab, n_total = h.n_total, n_taken = h.n_taken, n_open = h.n_open)
-
-def bringlist():
-    __login(role = 'staff', frompage = 'bringlist')
-    query =  (shotdb.bring.person   == shotdb.person.id)
-    query &= (shotdb.bring.donation == shotdb.donation.id)
-    f = Filter('bring', query, eventtable = 'donation')
-    return dict(form = f.form, sqltab = f.sqltab)
-
-def messagelist():
-    __login(role = 'staff', frompage = 'messagelist')
-    query = (shotdb.message.person == shotdb.person.id)
-    f = Filter('message', query)
-    return dict(form = f.form, sqltab = f.sqltab)
-   
-def salelist():
-    __login(role = 'staff', frompage = 'salelist')   
-    query = (shotdb.sale.person == shotdb.person.id)
-    f = Filter('sale', query = query)
-    return dict(form = f.form, sqltab = f.sqltab)
-
-   
-def waitlist():
-    __login(role = 'staff', frompage = 'waitlist')   
+@auth.requires_membership('staff')
+def table():
+    options = {}
+    t = request.args(0)
+    if(t == 'person'):
+        query = shotdb.person.id > 0
+        options['displayeventfilter'] = False
+        
+    elif(t == 'help'):
+        query  = (shotdb.help.person == shotdb.person.id)
+        query &= (shotdb.help.shift  == shotdb.shift.id)
+        options['eventtable'] = 'shift'
+        
+    elif(t == 'bring'):
+        query =  (shotdb.bring.person   == shotdb.person.id)
+        query &= (shotdb.bring.donation == shotdb.donation.id)
+        options['eventtable'] = 'donation'
+        
+    elif(t == 'message'):
+        query = (shotdb.message.person == shotdb.person.id)
     
-    query = (shotdb.wait.person == shotdb.person.id)
-    left  = shotdb.sale.on((shotdb.wait.person == shotdb.sale.person) & (shotdb.wait.event == shotdb.sale.event))
-    #left = shotdb.sale.on(shotdb.wait.event == shotdb.sale.event)
-    f = Filter('wait', query = query, left = left)
-    return dict(form = f.form, sqltab = f.sqltab)
-
-def requestlist():
-    __login(role = 'staff', frompage = 'requestlist')
-    query = shotdb.request.id > 0
-    f = Filter('request', query, displayeventfilter = False)
+    elif(t == 'sale'):
+        query = (shotdb.sale.person == shotdb.person.id)
     
-    return dict(form = f.form, sqltab = f.sqltab)
+    elif(t == 'wait'):
+        query = (shotdb.wait.person == shotdb.person.id)
+        options['left'] = shotdb.sale.on((shotdb.wait.person == shotdb.sale.person) & (shotdb.wait.event == shotdb.sale.event))
+    
+    elif(t == 'request'):
+        query = shotdb.request.id > 0
+        options['displayeventfilter'] = False
+    
+    else:
+        return 'Invalid table!'
+    
+    
+    f = Filter(t, query, **options)
+    return dict(table = t, form = f.form, sqltab = f.sqltab)
 
 
+@auth.requires_membership('staff')
 def crud():
-    __login(role = 'staff', frompage = 'personlist')  
     
     tablename = request.args(0)
     action = request.args(1)
@@ -368,8 +315,9 @@ class Filter():
             else:
                 self.event_id = self.e.all[selev]
         else:
-            self.form.vars[name_event] = self.e.current.event.label
+            self.form.vars[name_event] = self.e.current.form_label
             self.event_id = self.e.current.event.id 
+
         
         # column set selection    
         if session.selected_colsets != None and session.selected_colsets.has_key(self.tablename):

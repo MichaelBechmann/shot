@@ -35,62 +35,6 @@ Description: Three-column blog design with the third column allocated for ads. F
     </div>
    </div>
    <!-- end header -->
-
-
-
-   <!-- start menu -->
-    {{
-    menu = [[T('Start'), True, '/'],
-            [T('Information for vendors'), True, '/main/vendorinfo']
-            ]
-    
-    
-    if config.enableregis:
-        menu.extend([['Registrierung', False, '/registration/form']])
-        pass    
-    
-    if config.enablerequest:        
-        menu.extend([[T('Appropriation requests'), True, '/appropriation/introduction']])
-        pass
-        
-    menu.extend([
-                 [T('Privacy'), 'False', '/main/privacy'],
-                 [T('Contact'), False, '/contact/form']
-           		])
-    if config.showadminitems:
-        menu.extend([
-                    [T('Staff'), 'False', '/staff/login']
-                    ])
-        pass
-                      
-    response.write(DIV(MENU(menu), _id='menu'))
-                 
-    if session.staffmember:   
-        menu_staff = ([
-                     [T('Persons'),     'False', '/staff/personlist'],
-                     [T('Person summary'),     'False', '/staff/person_summary'],
-                     [T('Sale'), 'False', '/staff/salelist'],    
-                     [T('Wait'), 'False', '/staff/waitlist'],   
-                     [T('Numbers'),     'False', '/staff/numbers'],
-                     [T('Help'), 'False', '/staff/helplist'],
-                     [T('Bring'), 'False', '/staff/bringlist'],
-                     [T('Messages'), 'False', '/staff/messagelist'],
-                     [T('Requests'), 'False', '/staff/requestlist']
-                     ])
-        
-        if session.admin:
-            menu_staff.extend([
-                         [T('Config Event'), 'False', '/config/config_event'],
-                         [T('Tasks'), 'Fasle', '/tasks/start']          
-                        ])
-            pass
-            
-    response.write(DIV(MENU(menu_staff), _id='menu_staff'))        
-    pass
-
-    }}
-    
-	<!-- end menu -->
 	
 
    <!-- start page -->

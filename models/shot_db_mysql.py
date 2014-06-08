@@ -6,13 +6,17 @@ if 0:
 
 
 from shotconfig import *
-
+from gluon.tools import Auth
 
 T.force('de')
 
 # There is one single database containing the data of all market events.
-
 shotdb = DAL(config.db_connection_string)
+
+# Create all tables required for authentication
+auth = Auth(shotdb, controller = "access", function = "user")
+auth.define_tables(username = True, signature = True)
+auth.settings.create_user_groups = None
 
 # The table 'event_type' allows the admin to add new classes of events.
 shotdb.define_table('event_type',

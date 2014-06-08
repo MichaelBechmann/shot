@@ -14,15 +14,13 @@ if 0:
     global response
     global session
     global shotdb
+    global auth
 
 from shotdbutil import *
 import subprocess
 
-
+@auth.requires_membership('task executor')
 def start():
-    if session.admin != True:
-        return 'You are not authorized to access this page!'
-    
     tasklist = ((0, 'Send invitation mail to all former vendors.',  '/background/mail/send_invitation_mail.py',         False),
                 (1, 'Resolve waitlist and send sale number mail.',  '/background/mail/resolve_waitlist.py',             True),
                 (2, 'Send waitlist denial mail.',                   '/background/mail/send_waitlist_denial_mail.py',    True),
@@ -50,7 +48,6 @@ def start():
 
     if rows_out != None:
         return DIV(SPAN('Number of mails: %d' % len(rows_out)), SQLTABLE(rows_out, columns = columns, headers='fieldname:capitalize'))
-                   
 
     if config.enable_tasks:
         for k in request.vars.iterkeys():
@@ -61,65 +58,55 @@ def start():
     return dict(form = form)
 
 
+@auth.requires_membership('task executor')
 def final():
     return dict()
 
+
+@auth.requires_membership('task executor')
 def send_invitation_mail():
     '''
     There seems to be a problem with subprocess in web2py
     see: https://groups.google.com/forum/?fromgroups=#!topic/web2py/zOB0B1xO93Y
     os.system works fine, but waits for the job to finish.
     '''
-    if session.admin != True:
-        return 'no way!'
-
     subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + '/background/mail/send_invitation_mail.py'])
-    
     return('Sending mail. Please be patient!')
 
 
+@auth.requires_membership('task executor')
 def resolve_waitlist():
     '''
     This function resolves the waitlist, i.e.:
         - assigns sale numbers
         - sends number mails
     '''
-    if session.admin != True:
-        return 'no way!'
-    else:
-        # action is allowed
-        b_go = False
-        if (len(request.args) > 0 and request.args[0] == 'go'):
-            b_go = True
+    b_go = False
+    if (len(request.args) > 0 and request.args[0] == 'go'):
+        b_go = True
 
-        if b_go:
-            subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + '/background/mail/resolve_waitlist.py'])
-            return 'wait list has been resolved, now sending number mail ...'
-        else: 
-            return str(SQLTABLE(WaitList(shotdb).rows_sorted))
-    
+    if b_go:
+        subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + '/background/mail/resolve_waitlist.py'])
+        return 'wait list has been resolved, now sending number mail ...'
+    else: 
+        return str(SQLTABLE(WaitList(shotdb).rows_sorted))
+        
+        
+@auth.requires_membership('task executor')
 def waitlist_denial():
     '''
     This function sends denial mails to persons on the waitlist who got no sale number.
     '''
-    if session.admin != True:
-        return 'no way!'
-    else:
-        # action is allowed
-        subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + '/background/mail/send_waitlist_denial_mail.py'])
-        return('sending mail ...')
-    
+    subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + '/background/mail/send_waitlist_denial_mail.py'])
+    return('sending mail ...')
 
+
+@auth.requires_membership('task executor')
 def send_helper_mail():
     '''
     This sends a reminder to all helpers.
     '''
-    if session.admin != True:
-        return 'no way!'
-    else:
-        # action is allowed
-        subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + '/background/mail/send_helper_mail.py'])
-        return('sending helper mail ...')
-    
-    
+    subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + '/background/mail/send_helper_mail.py'])
+    return('sending helper mail ...')
+
 
