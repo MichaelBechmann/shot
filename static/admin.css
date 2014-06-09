@@ -3,13 +3,13 @@ table.caution {
 	font-size:12px;
 	border-style: double;
 	border-width: 2px;
-    border-color: #40ff40;
+    border-color: #808080;
 }
 table.caution td {
 	padding: 5px;
 	border-width: 1px;
 	border-style: solid;
-    border-color: #40ff40;
+    border-color: #808080;
 }
 
 #task_status {

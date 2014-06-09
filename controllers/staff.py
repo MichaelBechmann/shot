@@ -125,8 +125,8 @@ def person_summary():
 
         rows = [TR(m[1],
                    *[
-                     INPUT(_type = 'submit', _class = 'button', _name = 'p_' + str(m[0]), _value = T('preview')),
-                     INPUT(_type = 'submit', _class = 'button', _name = 's_' + str(m[0]), _value = T('send'))
+                     INPUT(_type = 'submit', _name = 'p_' + str(m[0]), _value = T('preview')),
+                     INPUT(_type = 'submit', _name = 's_' + str(m[0]), _value = T('send'), _class = 'irreversible')
                     ]
                     if m[3] 
                     else [TD('preview', _class = 'ps_inactive'), TD('send', _class = 'ps_inactive')], _class = tu.get_class_evenodd()) 

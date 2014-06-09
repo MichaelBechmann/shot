@@ -4,7 +4,7 @@ http://www.freecsstemplates.org
 Released for free under a Creative Commons Attribution 2.5 License
 */
 
-p, h1, h2, h3, h4 {
+* {
     -moz-text-size-adjust:none;
 }
 
@@ -273,4 +273,15 @@ input[type="submit"] {
     font-weight: bold;
     border-right: 2px solid #108010;
     border-bottom: 1px solid #108010;
+}
+
+input[type="submit"].irreversible {
+    background: #CC0000;
+    border-right: 2px solid #801010;
+    border-bottom: 1px solid #801010;
+}
+
+h2.debug{
+    color: #5555FF;
+    }
 }

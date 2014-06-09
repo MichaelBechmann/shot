@@ -27,9 +27,9 @@ def start():
                 (3, 'Send reminder mail to all helpers.',           '/background/mail/send_helper_mail.py',             True),
                 (4, 'Backup database',                              '/background/backup/backup_db.py',                  False)
                 )
-    rows = [TR(t[1], 
-               INPUT(_type = 'submit', _class = 'button', _name = str(t[0]), _value = T('go!')),
-               INPUT(_type = 'submit', _class = 'button', _name = 'test_' + str(t[0]), _value = T('test')) if t[3] else TD('')
+    rows = [TR(t[1],
+               INPUT(_type = 'submit', _name = 'test_' + str(t[0]), _value = T('test')) if t[3] else TD(''),
+               INPUT(_type = 'submit', _name = str(t[0]), _value = T('go!'), _class = "irreversible")
                ) for t in tasklist]
     form = FORM(TABLE(*rows, _class = 'caution'))
 
