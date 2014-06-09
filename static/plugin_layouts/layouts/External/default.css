@@ -4,6 +4,10 @@ http://www.freecsstemplates.org
 Released for free under a Creative Commons Attribution 2.5 License
 */
 
+p, h1, h2, h3, h4 {
+    -moz-text-size-adjust:none;
+}
+
 body {
 	padding: 0;
 	background: #FFFFFF url(images/img01.jpg) repeat-x left top;
@@ -62,9 +66,10 @@ h4{
     margin-bottom: 0.2em;
 }
 
-p, ol, ul {
-	margin: 0 0 2em 0;
-	line-height: 180%;
+p {
+    font-size: 1.2em;
+    margin: 0 0 1em 0;
+    line-height: 180%;
 }
 
 blockquote {
@@ -268,9 +273,4 @@ input[type="submit"] {
     font-weight: bold;
     border-right: 2px solid #108010;
     border-bottom: 1px solid #108010;
-}
-
-h2.debug{
-	color: #5555FF;
-	}
 }
