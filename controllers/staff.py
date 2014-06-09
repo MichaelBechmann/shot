@@ -116,7 +116,7 @@ def person_summary():
         mail_conf = ((0, 'Invitation mail',                             InvitationMail,                     True), 
                      (1, 'Registration mail',                           RegistrationMail,                   True),
                      (2, 'Sale number and contribution mail',           NumberMail,                         b_person_has_number),
-                     (3, 'Helper reminder mail',                        HelperMail,                         b_person_helps_or_brings),
+                     (3, 'Reminder mail',                               ReminderMail,                       b_person_helps_or_brings or b_person_has_number),
                      (4, 'Wait list mail',                              WaitMail,                           b_person_is_on_waitlist),
                      (5, 'Wait list denial mail',                       WaitDenialMail,                     b_person_is_on_waitlist),
                      (6, 'Sale number from waitlist mail',              NumberFromWaitlistMail,             b_person_is_on_waitlist),

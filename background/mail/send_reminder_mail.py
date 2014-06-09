@@ -7,8 +7,8 @@ if 0:
     global session
     global shotdb
 
-from shotdbutil import Help
-from shotmail import HelperMail
+from shotdbutil import Reminder
+from shotmail import ReminderMail
 from time import sleep
 from shotlogging import logger_bg
 
@@ -16,12 +16,12 @@ from shotlogging import logger_bg
 This function sends a special reminder email to each person which helps at the current event
 '''
 
-logger_bg.info('start with script "send_helper_mail" ...')
+logger_bg.info('start with script "send_reminder_mail" ...')
 
 try:
     count = 0
-    for row in Help(shotdb).get_helper_list():
-        m = HelperMail(shotdb, row.person.id, mass = True)
+    for row in Reminder(shotdb).get_all_persons():
+        m = ReminderMail(shotdb, row.id, mass = True)
         if count == 0:
             # output account settings
             logger_bg.info('The following account settings are used:')
@@ -31,7 +31,7 @@ try:
             
         m.send()
         count += 1 
-        logger_bg.info('#%d, id: %d\t%s, %s   (%s)' % (count, row.person.id, row.person.name, row.person.forename, str(HelperMail)))
+        logger_bg.info('#%d, id: %d\t%s, %s   (%s)' % (count, row.id, row.name, row.forename, str(ReminderMail)))
         
     logger_bg.info('all done.')
 

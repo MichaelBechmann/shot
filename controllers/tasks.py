@@ -24,7 +24,7 @@ def start():
     tasklist = ((0, 'Send invitation mail to all former vendors.',  '/background/mail/send_invitation_mail.py',         False),
                 (1, 'Resolve waitlist and send sale number mail.',  '/background/mail/resolve_waitlist.py',             True),
                 (2, 'Send waitlist denial mail.',                   '/background/mail/send_waitlist_denial_mail.py',    True),
-                (3, 'Send reminder mail to all helpers.',           '/background/mail/send_helper_mail.py',             True),
+                (3, 'Send reminder mail to all participants.',      '/background/mail/send_reminder_mail.py',           True),
                 (4, 'Backup database',                              '/background/backup/backup_db.py',                  False)
                 )
     rows = [TR(t[1],
@@ -43,8 +43,8 @@ def start():
         columns = ['wait.id', 'wait.person']
         
     elif 'test_3' in request.vars.iterkeys():
-        rows_out = Help(shotdb).get_helper_list()
-        columns = ['person.id', 'help.person']
+        rows_out = Reminder(shotdb).get_all_persons()
+        columns = ['person.id', 'person.name', 'person.forename']
 
     if rows_out != None:
         return DIV(SPAN('Number of mails: %d' % len(rows_out)), SQLTABLE(rows_out, columns = columns, headers='fieldname:capitalize'))

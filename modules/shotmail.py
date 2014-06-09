@@ -32,7 +32,7 @@ class EMail:
         self.subject_backup = 'backup'
         self.html           = 'default'
         self.subject        = 'default'
-        self.subs           = {'PLACEHOLDER_APPENDIX': ''}
+        self.subs           = {'<PLACEHOLDER_APPENDIX>': ''}
         self.attachments    = []
         
         file = open(config.shotpath + template, 'r')
@@ -78,7 +78,7 @@ class EMail:
         dd += str(STRONG('request.env\n')) + BEAUTIFY(current.request.env).xml()
         dd += str(STRONG('request.vars\n')) + BEAUTIFY(current.request.vars).xml()
         dd += str(STRONG('request.user_agent()\n')) + BEAUTIFY(current.request.user_agent()).xml()
-        self.subs['PLACEHOLDER_DEBUG_DATA'] = dd
+        self.subs['<PLACEHOLDER_DEBUG_DATA>'] = dd
         
     def do_substitution(self):
         '''
@@ -92,7 +92,7 @@ class EMail:
         This method adds the appendix for the mail actions in the person summary.
         '''
         if s not in ('', None):
-            self.subs['PLACEHOLDER_APPENDIX'] = '-------------------------------------------------------\n<br />\n' + s.replace('\n', '<br />\n')
+            self.subs['<PLACEHOLDER_APPENDIX>'] = '-------------------------------------------------------\n<br />\n' + s.replace('\n', '<br />\n')
         
     def get_preview(self):
         '''
@@ -175,12 +175,12 @@ class ShotMail(EMail):
         
         self.person = self.db.person(pid)
         self.receiver = self.person['email']
-        self.subs['PLACEHOLDER_LABEL']              = self.events.current.event.label
-        self.subs['PLACEHOLDER_DATE']               = self.events.current.event.date
-        self.subs['PLACEHOLDER_TIME']               = self.events.current.event.time
-        self.subs['PLACEHOLDER_ENROL_DATE']         = self.events.current.event.enrol_date
-        self.subs['PLACEHOLDER_FULLNAME']           = self.person.forename + ' ' + self.person.name
-        self.subs['PLACEHOLDER_DISABLE_MAIL_URL']   = config.shoturl + 'registration/disable_mail/' + str(self.person.id) + self.person.code
+        self.subs['<PLACEHOLDER_LABEL>']              = self.events.current.event.label
+        self.subs['<PLACEHOLDER_DATE>']               = self.events.current.event.date
+        self.subs['<PLACEHOLDER_TIME>']               = self.events.current.event.time
+        self.subs['<PLACEHOLDER_ENROL_DATE>']         = self.events.current.event.enrol_date
+        self.subs['<PLACEHOLDER_FULLNAME>']           = self.person.forename + ' ' + self.person.name
+        self.subs['<PLACEHOLDER_DISABLE_MAIL_URL>']   = config.shoturl + 'registration/disable_mail/' + str(self.person.id) + self.person.code
 
     def add_sale_number(self):
         '''
@@ -191,7 +191,7 @@ class ShotMail(EMail):
             self.number = str(n)
         else:
             self.number = '---'
-        self.subs['PLACEHOLDER_SALE_NUMBER'] = self.number 
+        self.subs['<PLACEHOLDER_SALE_NUMBER>'] = self.number 
         
     def add_contributions(self, b_condition = False):
         '''
@@ -207,10 +207,16 @@ class ShotMail(EMail):
                     for r in self.db(query).select()]
         if len(elem) > 0:
             helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
+            helpersaletext = DIV('Wie in jedem Jahr können Sie als Helfer schon vor dem Markt zwischen 8 Und 9 Uhr  bei uns "voreinkaufen".\
+                                  Hierzu wird ab 8 Uhr für die Helfer der Seiteneingang des Gemeindezentrums geöffnet.\
+                                  Der Vordereingang wird bis 9 Uhr geschlossen bleiben.'
+                                )
         else:
             helptext = DIV(SPAN('Sie können keine Helferschicht übernehmen.'))
+            helpersaletext = ''
  
-        self.subs['PLACEHOLDER_HELP']  = str(helptext)           
+        self.subs['<PLACEHOLDER_HELP>']  = str(helptext)
+        self.subs['<PLACEHOLDER_HELPER_SALE>'] = str(helpersaletext)
         
         
         # retrieve bring information
@@ -240,7 +246,7 @@ class ShotMail(EMail):
         if b_add_recipe:
             bringtext = DIV(bringtext, BR(), self.recipe)
 
-        self.subs['PLACEHOLDER_BRING']  = str(bringtext) 
+        self.subs['<PLACEHOLDER_BRING>']  = str(bringtext) 
 
     def add_waitlist_position(self):
         '''
@@ -251,8 +257,8 @@ class ShotMail(EMail):
         if pos == 0:
             pos = '???'
 
-        self.subs['PLACEHOLDER_WAIT_POSITION'] = str(pos)
-        self.subs['PLACEHOLDER_WAIT_STATUS'] = wl.status_text(self.pid)
+        self.subs['<PLACEHOLDER_WAIT_POSITION>'] = str(pos)
+        self.subs['<PLACEHOLDER_WAIT_STATUS>'] = wl.status_text(self.pid)
         
 
 class  RegistrationMail(ShotMail):
@@ -263,7 +269,7 @@ class  RegistrationMail(ShotMail):
         ShotMail.__init__(self, db, pid, 'static/mail_templates/registration_de.html')
                     
         self.subject = 'Registrierung als Verkäufer'
-        self.subs['PLACEHOLDER_REGISTRATION_URL'] = config.shoturl + 'registration/check/' + str(self.person.id) + self.person.code     
+        self.subs['<PLACEHOLDER_REGISTRATION_URL>'] = config.shoturl + 'registration/check/' + str(self.person.id) + self.person.code     
 
 
 
@@ -275,7 +281,7 @@ class  InvitationMail(ShotMail):
         ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/invitation_de.html', mass = mass)
                   
         self.subject = 'Einladung zum Markt'
-        self.subs['PLACEHOLDER_FORM_URL'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
+        self.subs['<PLACEHOLDER_FORM_URL>'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
         
         self.send_backup    = False
         self.subject_backup = 'backup invitation: ' + self.person.name + ', ' + self.person.forename
@@ -351,19 +357,19 @@ class WaitDenialMail(ShotMail):
         self.send_backup    = False
         self.subject_backup = 'backup waitlist no number: ' + self.person.name + ', ' + self.person.forename
          
-class HelperMail(ShotMail):
+class ReminderMail(ShotMail):
     '''
-    This class defines the email sent to the helpers as a reminder short time before the event.
+    This class defines the email sent to all participants as a reminder short time before the event.
     '''
     def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/helper.html', account_id = 'help', mass = mass)
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/reminder.html', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
-             
-        self.subject = 'Erinnerung: Sie helfen!'       
+        
+        self.subject = 'Erinnerung'       
         self.send_backup    = False
-        self.subject_backup = 'helper: ' + self.person.name + ', ' + self.person.forename
+        self.subject_backup = 'person: ' + self.person.name + ', ' + self.person.forename
         
 class AppropriationRequestMail(ShotMail):
     '''
@@ -377,7 +383,7 @@ class AppropriationRequestMail(ShotMail):
         self.send_backup    = True
         self.subject_backup = 'Appropriation: ' + self.person.name + ', ' + self.person.forename
         
-        self.subs['PLACEHOLDER_APPROPRIATION_REQUEST']  = getAppRequestDataTale(ar_row)
+        self.subs['<PLACEHOLDER_APPROPRIATION_REQUEST>']  = getAppRequestDataTale(ar_row)
         
           
 class ContactMail(EMail):
@@ -389,13 +395,13 @@ class ContactMail(EMail):
         self.receiver = config.mail.contactmail_to[category]
         
         self.subject = 'Kontaktanfrage von ' + name
-        self.subs['PLACEHOLDER_MSG']    = msg   
-        self.subs['PLACEHOLDER_NAME']   = name
-        self.subs['PLACEHOLDER_EMAIL']  = email
+        self.subs['<PLACEHOLDER_MSG>']    = msg   
+        self.subs['<PLACEHOLDER_NAME>']   = name
+        self.subs['<PLACEHOLDER_EMAIL>']  = email
         if category == 'tech':
             self.add_debug_data()
         else:
-            self.subs['PLACEHOLDER_DEBUG_DATA'] = ''
+            self.subs['<PLACEHOLDER_DEBUG_DATA>'] = ''
         
 class ErrorMail(EMail):
     '''
@@ -406,6 +412,6 @@ class ErrorMail(EMail):
         self.receiver = config.mail.error_to
         self.subject  = 'Error (%s)' % config.shoturl
         self.add_debug_data()
-        self.subs['PLACEHOLDER_MSG'] = msg   
+        self.subs['<PLACEHOLDER_MSG>'] = msg   
         
         

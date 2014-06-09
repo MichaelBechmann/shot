@@ -211,8 +211,8 @@ img.left {
 }
 #menu_staff li li{
 	float:none;
-	padding:2px 0px 2px 10px;
-	background-color:rgba(255,255,255,0.88);
+	padding:8px 0px 8px 10px;
+	background-color:rgba(255,255,255,0.9);
 }
 #menu_staff .default_expand li:active ul{
 	display:block;

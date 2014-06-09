@@ -23,6 +23,22 @@ def extractTableFields(table, data):
     return data_red
 
 
+def removeDuplicates(db, rows):
+    '''
+    This function removes duplicate ids from the rows objects.
+    '''
+    # For some reason the db argument is required for SQLTABLE to work properly.
+    rows_compact = Rows(db)
+    rows_compact.records = []
+    id_list = []
+    for row in rows:
+        if row.id not in id_list:
+            rows_compact.records.append(row)
+            id_list.append(row.id)
+                    
+    return rows_compact
+
+
 class Log:
     """
     This class provides auxiliary functions for the logging of database modifications
@@ -489,7 +505,7 @@ class NumberAssignment():
         return sid
 
             
-class Help():
+class Contributions():
     '''
     This class contains code concerning the Helper lists.
     '''
@@ -499,31 +515,32 @@ class Help():
             self.eid = Events(db).current.event.id
         else:
             self.eid = eid
-        
+
+
     def get_helper_list(self):
         
-        # get all persons which help
+        # get all persons who help
         query  = (self.db.help.person == self.db.person.id)
         query &= (self.db.help.shift  == self.db.shift.id)
         query &= (self.db.shift.event == self.eid)
         
-        rows = self.db(query).select(self.db.person.id, self.db.help.person, self.db.person.name, self.db.person.forename)  
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
+
+        return removeDuplicates(self.db, rows)
+
+
+    def get_bringer_list(self):
         
-        # remove multiple occurrence of helping persons
-        # For some reason the db argument is required for SQLTABLE to work properly.
-        rows_compact = Rows(self.db)
-        # For some reason the records must be cleared (otherwise the helperlist will grow each time this class is called!).
-        rows_compact.records = []
+        # get all persons who bring something
+        query  = (self.db.bring.person   == self.db.person.id)
+        query &= (self.db.bring.donation == self.db.donation.id)
+        query &= (self.db.donation.event == self.eid)
         
-        person_list = []
-        for row in rows:
-            if row.person.id not in person_list:
-                rows_compact.records.append(row)
-                person_list.append(row.person.id)
-                
-        return rows_compact
-    
-    
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
+
+        return removeDuplicates(self.db, rows)
+
+
     def determine_number_of_shifts(self):
         '''
         This method determines the current numbers of shifts:
@@ -648,7 +665,7 @@ class WaitList():
         if pid != None and NumberAssignment(self.db, pid).get_number(self.eid) > 0:
             return 'Sie haben bereits eine Kommissionsnummer für den kommenden Markt.'
         
-        h = Help(self.db, self.eid)
+        h = Contributions(self.db, self.eid)
         h.determine_number_of_shifts()
         
         # determine or prognost position on the wait list
@@ -803,5 +820,33 @@ class User():
         query &= self.db.auth_membership.group_id == self.db.auth_group.id
         
         return self.db(query).select()
+
+
+class Reminder():
+    '''
+    This class provides methods related to the riminder mails.
+    Only the current event is considered.
+    '''
+    def __init__(self, db):
+        self.db = db
+
+
+    def get_all_persons(self):
+        '''
+        This method constructs the list of persons (vendors, helpers, bringers) who shall be reminded.
+        '''
+        # get a list of all helpers and bringers
+        c = Contributions(self.db)
         
+        rows_h = c.get_helper_list()
+        rows_b = c.get_bringer_list()
         
+        # create list of all persons with a sale
+        query  = (self.db.sale.person == self.db.person.id)
+        query &= (self.db.sale.event == c.eid)
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
+        rows_s = removeDuplicates(self.db, rows)
+        
+        rows_compact = rows_h | rows_b | rows_s# | removes duplicates!
+        
+        return rows_compact
