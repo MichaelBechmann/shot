@@ -51,7 +51,8 @@ def person_summary():
         b_person_helps_or_brings = False       
         
         # person information
-        name = DIV(DIV('%s, %s'% (p.record.name, p.record.forename), _id = 'ps_name'), DIV(CENTER('(#%d)'%( p.record.id), _id = 'ps_id')))
+        name = A(DIV(DIV('%s, %s'% (p.record.name, p.record.forename), _id = 'ps_name'), DIV(CENTER('(#%d)'%( p.record.id), _id = 'ps_id'))),
+                 _href = URL('staff', 'crud/person/edit/%d/ps'%( p.record.id)))
         if p.record.verified != None and p.record.verified > 0:
             email_verify_note = SPAN('verified', _class = 'ps_email_active')
         else:
@@ -232,7 +233,7 @@ def crud():
         pid = session.selected_pid
         
     else:
-        return_page = URL(tablename + 'list')
+        return_page = URL('table/' + tablename)
         pid = None
     
     table = shotdb[tablename]

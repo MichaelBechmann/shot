@@ -59,6 +59,8 @@ def _config_event_5():
     This function adds the configuration for the second event.
     Shall be removed with issue #41!
     '''
+    if session.admin != True:
+        return 'no way!'
     # add event
     shotdb.event.update_or_insert(label = 'Frühjahr 2014', active = True, number_ranges = '200-250, 300-350, 400-450, 500-550')
     
