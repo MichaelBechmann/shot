@@ -117,9 +117,8 @@ def confirm():
         session.appropriation_request = None
         
         # send email
+        shotdb.commit()
         AppropriationRequestMail(shotdb, ar.aid).send()
-        
-        # backup database
         
         redirect(URL('final'))
 

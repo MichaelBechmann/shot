@@ -103,12 +103,14 @@ def confirm():
         elif (pe.exists):
             # The person is known but the email is to be verified.
             pe.update()
+            shotdb.commit()
             RegistrationMail(shotdb, pe.id).send() 
             nextpage = URL('final')  
             
         else:
             # person is not known yet.
             pe.insert()
+            shotdb.commit()
             RegistrationMail(shotdb, pe.id).send()
             nextpage = URL('final')  
         

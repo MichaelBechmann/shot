@@ -427,13 +427,16 @@ class Sale():
                 # person gets sale number
                 if NumberAssignment(shotdb, self.pid).assign_number() > 0:
                     # sale number has been assigned successfully or person already has a sale number
+                    shotdb.commit()
                     NumberMail(shotdb, self.pid).send()
                     self.b_sale_number_assigned = True
 
             if self.b_sale_number_assigned == False:
                 # person shall not be assigned a sale number or assignment failed (no free numbers left)
                 # send wait list mail
+                shotdb.commit()
                 WaitMail(shotdb, self.pid).send()
         else:
+            shotdb.commit()
             NumberMail(shotdb, self.pid).send()
         
