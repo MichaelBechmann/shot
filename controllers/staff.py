@@ -36,7 +36,7 @@ def person_summary():
     if form.process().accepted:
         pid = int(form.vars['person'])
         session.selected_pid = pid
-        session.mailform_appendix = None
+        session.mailform_message = None
         # redirect is necessary to pre-populate the form; didn't find another way
         redirect(request.env.request_uri.split('/')[-1])
     
@@ -114,14 +114,15 @@ def person_summary():
 
         # mail actions
         tu.reset()
-        mail_conf = ((0, 'Invitation mail',                             InvitationMail,                     True), 
-                     (1, 'Registration mail',                           RegistrationMail,                   True),
-                     (2, 'Sale number and contribution mail',           NumberMail,                         b_person_has_number),
-                     (3, 'Reminder mail',                               ReminderMail,                       b_person_helps_or_brings or b_person_has_number),
-                     (4, 'Wait list mail',                              WaitMail,                           b_person_is_on_waitlist),
-                     (5, 'Wait list denial mail',                       WaitDenialMail,                     b_person_is_on_waitlist),
-                     (6, 'Sale number from waitlist mail',              NumberFromWaitlistMail,             b_person_is_on_waitlist),
-                     (7, 'Sale number from waitlist as successor mail', NumberFromWaitlistMailSuccession,   b_person_is_on_waitlist)
+        mail_conf = ((0, 'Free text mail',                              PlainMail,                          True), 
+                     (1, 'Invitation mail',                             InvitationMail,                     True), 
+                     (2, 'Registration mail',                           RegistrationMail,                   True),
+                     (3, 'Sale number and contribution mail',           NumberMail,                         b_person_has_number),
+                     (4, 'Reminder mail',                               ReminderMail,                       b_person_helps_or_brings or b_person_has_number),
+                     (5, 'Wait list mail',                              WaitMail,                           b_person_is_on_waitlist),
+                     (6, 'Wait list denial mail',                       WaitDenialMail,                     b_person_is_on_waitlist),
+                     (7, 'Sale number from waitlist mail',              NumberFromWaitlistMail,             b_person_is_on_waitlist),
+                     (8, 'Sale number from waitlist as successor mail', NumberFromWaitlistMailSuccession,   b_person_is_on_waitlist),
                      )
 
         rows = [TR(m[1],
@@ -134,25 +135,29 @@ def person_summary():
                     for m in mail_conf]
 
         mailform = FORM(TABLE(TR(TD(TABLE(*rows, _class = 'list')),
-                        TD('Appendix:', BR(), TEXTAREA(_type = 'text', _name = 'appendix', _cols = 20, _rows = 10))), _id = 'ps_mail_table'))
+                        TD('Append a message:', BR(), TEXTAREA(_type = 'text', _name = 'message', _cols = 20, _rows = 10))), _id = 'ps_mail_table'))
 
-        # restore appendix text
-        if session.mailform_appendix != None:
-            mailform.vars['appendix'] = session.mailform_appendix
+        # restore message text
+        if session.mailform_message != None:
+            mailform.vars['message'] = session.mailform_message
 
         if mailform.validate():
             for p in request.vars.iterkeys():
                 m = re.match('([ps])_(\d+)', p)
                 if m:
-                    mail = mail_conf[int(m.group(2))][2](shotdb, pid)
-                    mail.add_appendix(request.vars['appendix'])
+                    idx = int(m.group(2))
+                    mail = mail_conf[idx][2](shotdb, pid)
+                    if idx == 0:
+                        mail.add_body(request.vars['message'])
+                    else:
+                        mail.add_appendix(request.vars['message'])
                     if m.group(1) == 'p':
-                        session.mailform_appendix = request.vars['appendix']
+                        session.mailform_message = request.vars['message']
                         return mail.get_preview()
 
                     else:
                         mail.send()
-                        session.mailform_appendix = None
+                        session.mailform_message = None
                         redirect(URL('mail_sent'))
 
     else:

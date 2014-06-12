@@ -87,6 +87,12 @@ class EMail:
         for k,s in self.subs.iteritems():
             self.html = re.compile(k).sub(str(s), self.html)        
         
+    def add_body(self, s):
+        '''
+        This method adds the message body for the mail actions in the person summary.
+        '''
+        self.subs['<PLACEHOLDER_BODY>'] = s.replace('\n', '<br />\n')
+
     def add_appendix(self, s):
         '''
         This method adds the appendix for the mail actions in the person summary.
@@ -259,7 +265,16 @@ class ShotMail(EMail):
 
         self.subs['<PLACEHOLDER_WAIT_POSITION>'] = str(pos)
         self.subs['<PLACEHOLDER_WAIT_STATUS>'] = wl.status_text(self.pid)
-        
+
+
+class  PlainMail(ShotMail):
+    """
+    This class defines a free text email for the person summary page.
+    """
+    def __init__(self, db, pid):
+        ShotMail.__init__(self, db, pid, 'static/mail_templates/plain_de.html')
+        self.subject = 'Info'
+
 
 class  RegistrationMail(ShotMail):
     """
