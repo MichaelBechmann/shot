@@ -281,6 +281,11 @@ class Numbers():
         l.sort()
         return l
     
+    def number_of_assigned(self):
+        '''
+        This method returns the number of sale numbers still already assigned.
+        '''
+        return len(self.assigned())
 
     def _decode(self, s):
         '''
@@ -507,7 +512,7 @@ class NumberAssignment():
             
 class Contributions():
     '''
-    This class contains code concerning the Helper lists.
+    This class contains code concerning the helpers and bringers.
     '''
     def __init__(self, db, eid = None):
         self.db = db
@@ -515,6 +520,25 @@ class Contributions():
             self.eid = Events(db).current.event.id
         else:
             self.eid = eid
+            
+        self.rows_shifts = None
+        self.rows_donations = None
+            
+    def get_shifts(self):
+        '''
+        This method returns a rows object off all shifts for the selected event.
+        '''
+        if self.rows_shifts == None:
+            self.rows_shifts = self.db(self.db.shift.event == self.eid).select()
+        return self.rows_shifts
+    
+    def get_donations(self):
+        '''
+        This method returns a rows object off all donations for the selected event.
+        '''
+        if self.rows_donations == None:
+            self.rows_donations = self.db(self.db.donation.event == self.eid).select()
+        return self.rows_donations
 
 
     def get_helper_list(self):
@@ -540,24 +564,29 @@ class Contributions():
 
         return removeDuplicates(self.db, rows)
 
-
-    def determine_number_of_shifts(self):
-        '''
-        This method determines the current numbers of shifts:
-            self.n_open  - number of still open shifts, that is, number of still needed helpers
-            self.n_taken - number of shifts already taken by some helper (not equal to the number of helpers as one helper may have taken more than one shift)
-            self.n_total - total number of configured shifts
-        '''
-        query = self.db.shift.event == self.eid
-        rows = self.db(query).select()
-        self.n_total = 0
-        self.n_taken = 0
-        self.n_open  = 0
+    def __extract_numbers_from_rows(self, rows):
+        n= {'total':0, 'taken':0, 'open':0}
         for row in rows:
-            self.n_total += row.target_number
-            self.n_taken += row.actual_number
-        self.n_open = self.n_total - self.n_taken
-        
+            n['total'] += row.target_number
+            n['taken'] += row.actual_number
+        n['open'] = n['total'] - n['taken']
+        return n
+
+    def get_number_of_shifts(self):
+        '''
+        This method determines the current numbers of shifts and returns a dictionary with the following fields
+            'open'  - number of still open shifts, that is, number of still needed helpers
+            'taken' - number of shifts already taken by some helper (not equal to the number of helpers as one helper may have taken more than one shift)
+            'total' - total number of configured shifts
+        '''
+        return self.__extract_numbers_from_rows(self.get_shifts())
+    
+    def get_number_of_donations(self):
+        '''
+        This method determines the current numbers of donations and returns a dictionary with the same fields as the method above.
+        '''
+        return self.__extract_numbers_from_rows(self.get_donations())
+
         
 class WaitList():
     '''
@@ -665,15 +694,14 @@ class WaitList():
         if pid != None and NumberAssignment(self.db, pid).get_number(self.eid) > 0:
             return 'Sie haben bereits eine Kommissionsnummer für den kommenden Markt.'
         
-        h = Contributions(self.db, self.eid)
-        h.determine_number_of_shifts()
-        
+        n = Contributions(self.db, self.eid).get_number_of_shifts()
+
         # determine or prognost position on the wait list
         pos = self.get_pos_current(pid)
         if pos == 0:
             pos = self.length() + 1
         
-        x  = Numbers(self.db, self.eid).number_of_available() - pos - h.n_open
+        x  = Numbers(self.db, self.eid).number_of_available() - pos - n['open']
         
         if x > 20:
             msg = 'Es sind noch genügend Kommissionsnummern frei. Sie werden sicher eine Nummer erhalten, sobald unsere Warteliste aufgelöst wird.'
@@ -824,7 +852,7 @@ class User():
 
 class Reminder():
     '''
-    This class provides methods related to the riminder mails.
+    This class provides methods related to the reminder mails.
     Only the current event is considered.
     '''
     def __init__(self, db):

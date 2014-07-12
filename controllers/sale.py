@@ -16,7 +16,7 @@ from shotmail import *
 from shotdbutil import *
 import re
 from shoterrors import ShotError
-from formutils import regularizeName
+from formutils import regularizeName, getActNumberRatio
 
 
 T.force('de')
@@ -45,19 +45,12 @@ def __contribelement(label, formname, a, t):
     '''
     # database may contain None for the target (during configuration)
     if t != None and t > a:
-        r = round(1.0*a/t*100)
-    else:
-        r =100
-        
-    if r < 100:
+        tmp = getActNumberRatio(a, t)
+        r = tmp['ratio']
+        c  = tmp['_class']
         cl = config.cssclass.contribactive
-        if r < 50:
-            c = config.cssclass.actnumberlow
-        elif r < 90:
-            c = config.cssclass.actnumbermed
-        else:
-            c = config.cssclass.actnumberhigh
     else:
+        r = 100
         c  = config.cssclass.actnumberhigh
         cl = config.cssclass.contribpassive    
    
@@ -276,6 +269,8 @@ class Sale():
         self.currentevent_id = e.current.event.id
         self.template_set = e.current.event.template_set
         
+        self.contrib = Contributions(shotdb, self.currentevent_id)
+        
         self.person_name = 'anonymous'
         
         rows = shotdb(shotdb.person.id == self.pid).select()
@@ -288,22 +283,22 @@ class Sale():
         '''
         This function retrieves all shifts belonging to the current event and adds some evaluated properties.
         '''
-        self.rows = shotdb(shotdb.shift.event == self.currentevent_id).select()
-        for r in self.rows:
+        rows = self.contrib.get_shifts()
+        for r in rows:
             r.timelabel = r.day + ', ' + r.time
             r.label     = r.day + ', ' + r.time + ', ' + r.activity
             # add name of the form element, format: configured marker name '$' database id
             r.name  = config.formname.shift + '$' + str(r.id)
         
         # Note: Here a reference is returned!
-        return self.rows
+        return rows
 
     def getdonations(self):
         '''
         This function retrieves all donations belonging to the current event and adds some evaluated properties.
         '''
-        self.rows = shotdb(shotdb.donation.event == self.currentevent_id).select()
-        for r in self.rows:
+        rows = self.contrib.get_donations()
+        for r in rows:
             r.label = r.item
             
             # add name for the form element, format: configured marker name '$' database id
@@ -330,7 +325,7 @@ class Sale():
             r.notes.sort()
             
         # Note: Here a reference is returned!
-        return self.rows
+        return rows
     
     def analyzecheckboxes(self, vars):
         '''

@@ -95,3 +95,13 @@ table.ctblconfdat{
 	padding:  0 0 0 2em;
 	width: 12em
 }
+
+.cactnl {
+    color:red;
+}
+.cactnm {
+    color:black;
+}
+.cactnh {
+    color:green;
+}

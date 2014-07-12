@@ -10,6 +10,26 @@ import re
 from gluon.html import *
 
 
+def getActNumberRatio(a, t):
+    '''
+    This function returns a dictionary with the following fields:
+    'ratio':    fraction of actual number from target number in %
+    '_class':    css class for coloring the fraction
+    '''
+    if t != 0:
+        r = round(1.0*a/t*100)
+    else:
+        r = 100
+
+    if r < 50:
+        c = config.cssclass.actnumberlow
+    elif r < 90:
+        c = config.cssclass.actnumbermed
+    else:
+        c = config.cssclass.actnumberhigh
+        
+    return dict(ratio = r, _class = c)
+
 
 def regularizeName(s):
     '''

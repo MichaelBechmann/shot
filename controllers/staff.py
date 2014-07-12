@@ -172,19 +172,25 @@ def person_summary():
 def mail_sent():
     return dict()
 
-@auth.requires_membership('staff')
-def numbers():
+@auth.requires_membership('team')
+def dashboard():
     e = Events(shotdb)
     n = Numbers(shotdb, e.current.event.id)
+    w = WaitList(shotdb)
+    c = Contributions(shotdb, e.current.event.id)
     
-    return dict(
-                assigned    = n.assigned(),
-                free        = n.free(),
-                available   = n.number_of_available(),
-                b_available = n.b_numbers_available(),
-                limit       = e.current.event.numbers_limit
+    return dict(event           = e.current.form_label,
+                n_assigned      = n.number_of_assigned(),
+                n_wait          = w.length(),
+                n_limit         = e.current.event.numbers_limit,
+                n_shifts        = c.get_number_of_shifts(),
+                n_donations     = c.get_number_of_donations(),
+                shifts          = c.get_shifts(),
+                donations       = c.get_donations()
                 )
-    
+
+
+
 @auth.requires_membership('staff')
 def table():
     options = {}
