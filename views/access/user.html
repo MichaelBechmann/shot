@@ -1,0 +1,52 @@
+{{extend 'layout.html'}}
+<h3>
+{{
+if request.args(0)=='login':
+    h = 'Login als Secondhand-Teammitglied'
+elif request.args(0)=='register':
+    h = 'Registrierung als Secondhand-Teammitglied'
+elif request.args(0) in ('request_reset_password', 'reset_password'):
+    h = 'Paßwort zurücksetzen für Secondhand-Teammitglieder'
+elif request.args(0)=='profile':
+    h = 'Dein Profil als Secondhand-Teammitglied'
+elif request.args(0)=='change_password':
+    h = 'Paßwort ändern als Secondhand-Teammitglied'
+elif request.args(0)=='retrieve_username':
+    h = 'Benutzernamen als Secondhand-Teammitglied zusenden'
+else:
+    h = T( request.args(0).replace('_',' ').capitalize() )
+pass
+response.write(h)
+}}
+</h3>
+<div id="user_form">
+  {{=DIV(response.flash, _class = 'error')}}
+  {{=form}}
+</div>
+{{
+links = []
+if request.args(0)=='login':
+    if not 'register' in auth.settings.actions_disabled:
+        links.append(A('Registrieren', callback = URL(args='register')))
+    pass
+    if links:
+        links.append(', ')
+    pass
+    if not 'request_reset_password' in auth.settings.actions_disabled:
+        links.append(A('Paßwort vergessen?', callback = URL(args='request_reset_password')))
+    pass
+    if links:
+        links.append(', ')
+    pass
+    if not 'retrieve_username' in auth.settings.actions_disabled:
+        links.append(A('Benutzernamen vergessen?', callback = URL(args='retrieve_username')))
+    pass
+    
+pass
+  
+if links:
+    links.insert(0,'[')
+    links.append(']')
+    response.write(P(*links))
+pass
+}}
