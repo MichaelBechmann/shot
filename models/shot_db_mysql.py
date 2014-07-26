@@ -17,6 +17,7 @@ shotdb = DAL(config.db_connection_string)
 auth = Auth(shotdb, controller = "access", function = "user")
 auth.define_tables(username = True, signature = True)
 auth.settings.create_user_groups = None
+auth.settings.manager_actions = dict(db_admin=dict(role='admin',heading='Manage Database',tables = shotdb.tables))
 
 # The table 'event_type' allows the admin to add new classes of events.
 shotdb.define_table('event_type',
@@ -109,7 +110,7 @@ shotdb.define_table('sale',
     
     # This shall ensure that the combination of event and number is unique on database level.
     # Note: The unique attribute must be present already when the sqlite database file is created. Otherwise it will not take effect!
-    # Apparently it cannot be changed lateron.
+    # Apparently it cannot be changed later on.
     Field('number_unikey',      'string',  length=255, unique = True, compute=lambda r: str(r['event']) + ':' + str(r['number'])),  
     
     # define how a record is represented if referenced from other tables

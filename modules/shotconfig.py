@@ -170,6 +170,12 @@ config.colsets['request'] = { 'sets':{'request':  ['request.id', 'request.projec
                            'default': 'request'
                          }
 
+config.colsets_auth = {}
+config.colsets_auth['user'] = ['auth_user.id', 'auth_user.username', 'auth_user.first_name', 'auth_user.last_name', 'auth_user.email', 'auth_user.registration_key', 'auth_user.created_on']
+config.colsets_auth['group'] = ['auth_group.id', 'auth_group.role', 'auth_group.description']
+config.colsets_auth['permission'] = ['auth_permission.id', 'auth_permission.group_id', 'auth_permission.name', 'auth_permission.table_name']
+config.colsets_auth['membership'] = ['auth_membership.id', 'auth_membership.user_id', 'auth_membership.group_id']
+
 # waffle recipe
 config.recipe_list = (('300 g', 'Margarine'),
                       ('200 g', 'Zucker'),

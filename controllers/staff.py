@@ -247,7 +247,7 @@ def crud():
         return_page = URL('table/' + tablename)
         pid = None
     
-    table = shotdb[tablename]
+    #table = shotdb[tablename]
      
     crud = Crud(shotdb)
     crud.settings.controller = 'staff'
