@@ -222,7 +222,13 @@ def table():
     elif(t == 'request'):
         query = shotdb.request.id > 0
         options['displayeventfilter'] = False
+        
+    elif(t == 'shift'):
+        query = (shotdb.shift.id > 0)
     
+    elif(t == 'donation'):
+        query = (shotdb.donation.id > 0)
+
     else:
         return 'Invalid table!'
     
@@ -246,10 +252,9 @@ def crud():
     else:
         return_page = URL('table/' + tablename)
         pid = None
-    
-    #table = shotdb[tablename]
      
     crud = Crud(shotdb)
+    crud.settings.auth = auth   # ensures access control via permissions
     crud.settings.controller = 'staff'
     crud.settings.create_next = return_page
     crud.settings.update_next = return_page

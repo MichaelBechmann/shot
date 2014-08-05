@@ -56,7 +56,9 @@ def createStaffMenu(auth):
                          ['Help',      False, '/staff/table/help'],
                          ['Bring',     False, '/staff/table/bring'],
                          ['Messages',  False, '/staff/table/message'],
-                         ['Requests',  False, '/staff/table/request']
+                         ['Requests',  False, '/staff/table/request'],
+                         ['Shifts',    False, '/staff/table/shift'],
+                         ['Donations', False, '/staff/table/donation']
                         ]
                       ]
                      ])

@@ -169,6 +169,17 @@ config.colsets['request'] = { 'sets':{'request':  ['request.id', 'request.projec
                                    },
                            'default': 'request'
                          }
+config.colsets['shift'] = { 'sets':{'config':  ['shift.id', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time', 'shift.display'],
+                                    'comment': ['shift.id', 'shift.activity', 'shift.day', 'shift.time', 'shift.comment']
+                                   },
+                           'default': 'config'
+                         }
+config.colsets['donation'] = { 'sets':{'all':  ['donation.id', 'donation.item', 'donation.target_number', 'donation.enable_notes']
+                                   },
+                           'default': 'all'
+                         }
+
+
 
 config.colsets_auth = {}
 config.colsets_auth['user'] = ['auth_user.id', 'auth_user.username', 'auth_user.first_name', 'auth_user.last_name', 'auth_user.email', 'auth_user.registration_key', 'auth_user.created_on']
