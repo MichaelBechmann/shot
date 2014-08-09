@@ -252,3 +252,15 @@ shotdb.define_table('request',
     Field('amount_spent',       'integer',  requires = IS_INT_IN_RANGE(0, 1e100)),
     Field('status',             'string'    )
     ) # end of request
+
+# The table 'config' contains all configuration parameters which can be modified online.
+shotdb.define_table('config',
+                    
+    Field('name',           'string',   requires = IS_NOT_EMPTY(error_message = 'Please enter a name for the configuration parameter.')),
+    Field('active',         'boolean'),
+    Field('value',          'string'),
+    Field('description',    'string')
+) # end of config
+
+# perform initial update of the configuration parameters
+config.update_initial(shotdb)

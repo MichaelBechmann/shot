@@ -57,31 +57,56 @@ class ConfigurationConstants:
    
     pass
 
+    def __init__(self):
+        '''
+        Initialize all parameters which are later updated from the database.
+        '''
+        # flag to check whether of not the config object shall be updated after definition of the database model
+        self.initial_update = False #
+        
+        self.enable_debug           = False # show debug output on each page
+        self.enable_extended_menue  = False # expose additional menu items for staff members even when not logged in
+        self.enable_registration    = False # expose registration menu item and activate registration.
+        self.enable_requests        = False # expose appropriation request menu item
+        self.enable_tasks           = False # enable execution of tasks (e.g., send invitation mail etc.)
+        self.simulate_mail          = True  # send all generated mails to test address
+        self.enable_backup_mail     = False # send additional backup mails to test address
+        
+
+    def update(self, db):
+        '''
+        This method retrieves ALL configuration parameters from the database and updates the attributes accordingly.
+        '''
+        for row in db(db.config.id > 0).select():
+            if not row.value and row.active != None:
+                # no value given => boolean parameter
+                setattr(self, row.name.strip(), row.active)
+
+        
+    def update_initial(self, db):
+        '''
+        The parameter update from the database can be done only after the database model has been executed!
+        This method is used to avoid that this update is done EVERY TIME the database model is executed.
+        '''
+        if not self.initial_update:
+            self.update(db)
+        self.initial_update = True
+
+
 config = ConfigurationConstants()
 
 config.db_connection_string = siteconfig.db_connection_string
 config.db_backup_command = siteconfig.db_backup_command
 
-config.debug            = siteconfig.debug
-config.enableregis      = siteconfig.enableregis
-config.enablerequest    = siteconfig.enablerequest
-config.enable_tasks     = siteconfig.enable_tasks
-config.showadminitems   = siteconfig.showadminitems
 
 config.shoturl          = siteconfig.shoturl
 config.shotpath         = siteconfig.shotpath
 config.appname          = siteconfig.appname
 
-config.staffpassword = siteconfig.passwd_staff
-config.adminpassword = siteconfig.passwd_admin
-
-config.mail.simulate_mail   = siteconfig.simulate_mail
 config.mail.simulate_to     = siteconfig.email_simulate_to
 config.mail.backup_to       = siteconfig.email_backup_to
 config.mail.error_to        = siteconfig.email_error_to
 config.mail.contactmail_to  = siteconfig.email_contactmail_to
-
-config.email_backup_enabled = siteconfig.email_backup_enabled
 
 
 # strings used as identifying names of form input elements
@@ -184,7 +209,7 @@ config.colsets['donation'] = { 'sets':{'all':  ['donation.id', 'donation.item', 
 config.colsets_auth = {}
 config.colsets_auth['user'] = ['auth_user.id', 'auth_user.username', 'auth_user.first_name', 'auth_user.last_name', 'auth_user.email', 'auth_user.registration_key', 'auth_user.created_on']
 config.colsets_auth['group'] = ['auth_group.id', 'auth_group.role', 'auth_group.description']
-config.colsets_auth['permission'] = ['auth_permission.id', 'auth_permission.group_id', 'auth_permission.name', 'auth_permission.table_name']
+config.colsets_auth['permission'] = ['auth_permission.id', 'auth_permission.group_id', 'auth_permission.name', 'auth_permission.table_name', 'auth_permission.record_id']
 config.colsets_auth['membership'] = ['auth_membership.id', 'auth_membership.user_id', 'auth_membership.group_id']
 
 # waffle recipe

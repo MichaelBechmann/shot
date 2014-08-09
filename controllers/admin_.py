@@ -30,8 +30,6 @@ def manage_users():
     formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('admin_/crud', 'auth_' + table_id, 'add'))))
     form = FORM(*formelements)
     
-
-        
     form.vars['table_id'] = table_id
     
     # process form
@@ -58,12 +56,23 @@ def manage_users():
     return dict(form = form, sqltab = sqltab)
 
 @auth.requires_membership('admin')
+def configuration():
+    
+    # provide edit links
+    shotdb.config.id.represent = lambda id_, row: A(id_,_href=URL('crud/config/edit', args=(id_)))
+    sqltab = SQLTABLE(shotdb(shotdb.config.id > 0).select(),
+                               headers = 'fieldname:capitalize', _class = 'list')
+    
+    return dict(sqltab = sqltab)
+
+
+@auth.requires_membership('admin')
 def crud():
     tablename = request.args(0)
     action = request.args(1)
     id_ = request.args(2)
     
-    return_page = URL('manage_users/' + tablename)
+    return_page = URL(request.env.http_referer.split('/')[-1])
      
     crud = Crud(shotdb)
     crud.settings.controller = 'admin_'
@@ -76,8 +85,15 @@ def crud():
         crud_response = crud.create(tablename)
         
     elif(action == 'edit' and id_ != None):
-        shotdb['auth_user']['registration_key'].writable = True
-        crud_response = crud.update(tablename, id_)
+        if tablename == 'auth_user':
+            shotdb['auth_user']['registration_key'].writable = True
+            crud_response = crud.update(tablename, id_)
+        elif tablename == 'config':
+            crud.settings.update_deletable = False
+            shotdb['config']['name'].writable = False
+            
+            # update the configuration object, drop the passed argument form
+            crud_response = crud.update(tablename, id_, onaccept = lambda form: config.update(shotdb))
     else:
         crud_response = 'Nothing selected!'
     

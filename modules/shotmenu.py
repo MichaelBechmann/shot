@@ -17,10 +17,10 @@ def createMenu():
             ['Informationen für Verkäufer', False, '/main/vendorinfo']
            ]
     
-    if config.enableregis:
+    if config.enable_registration:
         menu.extend([['Registrierung', False, '/registration/form']])  
     
-    if config.enablerequest:        
+    if config.enable_requests:        
         menu.extend([['Fördermittel beantragen', False, '/appropriation/introduction']])
         
     menu.extend([
@@ -35,7 +35,7 @@ def createStaffMenu(auth):
 
     menu = [] 
     if not auth.is_logged_in():
-        if config.showadminitems:
+        if config.enable_extended_menue:
             menu.extend([['login', False, URL('access', 'user', args='login')]
                         ])
         else:
@@ -55,10 +55,10 @@ def createStaffMenu(auth):
                          ['Wait',      False, '/staff/table/wait'],   
                          ['Help',      False, '/staff/table/help'],
                          ['Bring',     False, '/staff/table/bring'],
-                         ['Messages',  False, '/staff/table/message'],
-                         ['Requests',  False, '/staff/table/request'],
                          ['Shifts',    False, '/staff/table/shift'],
-                         ['Donations', False, '/staff/table/donation']
+                         ['Donations', False, '/staff/table/donation'],
+                         ['Messages',  False, '/staff/table/message'],
+                         ['Requests',  False, '/staff/table/request']
                         ]
                       ]
                      ])
@@ -67,7 +67,15 @@ def createStaffMenu(auth):
             menu.extend([['Config Event', 'False', '/config/config_event']])
             
         if 'task executor' in auth.user_groups.values():
-            menu.extend([['Tasks', 'Fasle', '/tasks/start']])       
+            menu.extend([['Tasks', 'Fasle', '/tasks/start']])
+
+        if 'admin' in auth.user_groups.values():
+            menu.extend([['Admin', False, '#',
+                          [['manage users',     False,  '/admin_/manage_users'],
+                           ['configuration',    False,  '/admin_/configuration'],
+                          ]
+                         ]
+                        ])  
 
         menu.extend([['Account', False, '#',
                       [['logout',          False, '/access/user/logout'],
@@ -77,7 +85,5 @@ def createStaffMenu(auth):
                       ]
                      ]
                     ])
-        if 'admin' in auth.user_groups.values():
-            menu.extend([['Admin', False, '/admin_/manage_users']])  
         
     return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_staff'))

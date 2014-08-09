@@ -29,7 +29,7 @@ def form():
     i = Ident(shotdb, *request.args)
     
     # check if registration  is enabled    
-    if config.enableregis == False:
+    if config.enable_registration == False:
         redirect(URL('registration', 'locked'))
 
         
@@ -121,7 +121,7 @@ def confirm():
 
 def check():
     # check if registration is enabled
-    if config.enableregis == False:
+    if config.enable_registration == False:
         redirect(URL('registration', 'locked'))
         
     i = Ident(shotdb, request.args[0])

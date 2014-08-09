@@ -139,7 +139,7 @@ class EMail:
             for a in self.attachments:
                 msg.attach(a)  
         
-        if config.mail.simulate_mail:
+        if config.simulate_mail:
             self.receiver = config.mail.simulate_to
     
         msg['From']     = self.account.sender
@@ -152,7 +152,7 @@ class EMail:
         s.sendmail(msg['From'], msg['To'], msg.as_string())
         
         # backup mail
-        if config.email_backup_enabled and self.send_backup:
+        if config.enable_backup_mail and self.send_backup:
             msg.__delitem__('To')
             msg['To']       = config.mail.backup_to
             msg.__delitem__('Subject')

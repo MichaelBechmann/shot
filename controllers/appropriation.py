@@ -43,7 +43,7 @@ def introduction():
 def form():
     
     # check if appropriation requests are enabled    
-    if config.enablerequest == False:
+    if config.enable_requests == False:
         redirect(URL('main', 'index'))
 
     # note: multiple tables in SQLFORM must not have identical field names, see http://web2py.com/books/default/chapter/29/7#One-form-for-multiple-tables
