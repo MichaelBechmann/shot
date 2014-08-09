@@ -19,7 +19,7 @@ This function generates a backup dump of the complete shot database.
 logger_bg.info('start with script "backup_db" ...')
 
 try:
-    if config.debug:
+    if config.enable_debug:
         p = subprocess.Popen(['whoami'], shell = True, stdout=subprocess.PIPE, stderr = subprocess.PIPE)
         out, err = p.communicate()
         for s in out.split('\n'):
