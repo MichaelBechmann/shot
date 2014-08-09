@@ -85,15 +85,19 @@ def crud():
         crud_response = crud.create(tablename)
         
     elif(action == 'edit' and id_ != None):
+        onaccept = None
         if tablename == 'auth_user':
             shotdb['auth_user']['registration_key'].writable = True
-            crud_response = crud.update(tablename, id_)
+            
         elif tablename == 'config':
             crud.settings.update_deletable = False
             shotdb['config']['name'].writable = False
             
             # update the configuration object, drop the passed argument form
-            crud_response = crud.update(tablename, id_, onaccept = lambda form: config.update(shotdb))
+            onaccept = lambda form: config.update(shotdb)
+
+        crud_response = crud.update(tablename, id_, onaccept = onaccept)    
+            
     else:
         crud_response = 'Nothing selected!'
     
