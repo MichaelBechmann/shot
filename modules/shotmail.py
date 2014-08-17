@@ -274,6 +274,8 @@ class  PlainMail(ShotMail):
     def __init__(self, db, pid):
         ShotMail.__init__(self, db, pid, 'static/mail_templates/plain_de.html')
         self.subject = 'Info'
+        self.send_backup = True
+        self.subject_backup = 'backup plain mail: ' + self.person.name + ', ' + self.person.forename
 
 
 class  RegistrationMail(ShotMail):
@@ -298,7 +300,7 @@ class  InvitationMail(ShotMail):
         self.subject = 'Einladung zum Markt'
         self.subs['<PLACEHOLDER_FORM_URL>'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
         
-        self.send_backup    = False
+        self.send_backup    = True
         self.subject_backup = 'backup invitation: ' + self.person.name + ', ' + self.person.forename
 
          
