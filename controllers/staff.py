@@ -206,6 +206,7 @@ def dashboard():
 def manage_help():
     sef = SimpleEventForm()
     c = Contributions(shotdb, sef.event_id)
+    msg_list = c.get_persons_with_message()
     
     # details table
     a_total, t_total = 0, 0
@@ -222,8 +223,13 @@ def manage_help():
         
         data_shift = []
         person_list = []
-        for p in c.get_helper_list_for_shift(s.id).sort(lambda x: x.name):
-            person_list.append(A('%s, %s (%s)' %(p.name, p.forename, p.place), _href = URL('person_summary', args = (p.id))))
+        for p in c.get_helper_list_for_shift(s.id):
+            link = A('%s, %s (%s)' %(p.name, p.forename, p.place), _href = URL('person_summary', args = (p.id)))
+            if p.id in msg_list:
+                msg = SPAN('msg', _class = 'mh_msg_marker')
+            else:
+                msg = ''
+            person_list.append(SPAN(link, msg))
         
         table_row_list = __row_list(person_list, 2)
         table_row_list.insert(0, A('+', _href = URL('redirect_crud_add/help/%d' % s.id), _class = 'mh_add_link'))
@@ -261,6 +267,7 @@ def manage_help():
 def manage_donations():
     sef = SimpleEventForm()
     c = Contributions(shotdb, sef.event_id)
+    msg_list = c.get_persons_with_message()
     
     # details table
     a_total, t_total = 0, 0
@@ -283,12 +290,18 @@ def manage_donations():
                                  ))
         
         person_list = []
-        for p in c.get_bringer_list_for_donation(d.id).sort(lambda x: x.person.name):
+        for p in c.get_bringer_list_for_donation(d.id):
             if p.bring.note:
                 note = ' (%s)' % p.bring.note
             else:
                 note = ''
-            person_list.append(A('%s, %s%s' %(p.person.name, p.person.forename, note), _href = URL('person_summary', args = (p.person.id))))
+                
+            link = A('%s, %s%s' %(p.person.name, p.person.forename, note), _href = URL('person_summary', args = (p.person.id)))
+            if p.person.id in msg_list:
+                msg = SPAN('msg', _class = 'mh_msg_marker')
+            else:
+                msg = ''
+            person_list.append(SPAN(link, msg))
         
         table_row_list = __row_list(person_list, 2)
         table_row_list.insert(0, A('+', _href = URL('redirect_crud_add/bring/%d' % d.id), _class = 'mh_add_link'))

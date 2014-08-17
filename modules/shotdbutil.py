@@ -556,11 +556,12 @@ class Contributions():
     def get_helper_list_for_shift(self, sid):
         '''
         This method returns all persons who are assigned to the one shift specified by the parameter.
+        The rows are sorted by the persons last names.
         '''
         query  = (self.db.help.person == self.db.person.id)
         query &= (self.db.help.shift  == sid)
         
-        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place, orderby = self.db.person.name)
 
         return rows
 
@@ -581,11 +582,12 @@ class Contributions():
         '''
         This method returns all persons who are assigned to the one donation specified by the parameter.
         The notes are included.
+        The rows are sorted by the persons last names.
         '''
         query  = (self.db.bring.person == self.db.person.id)
         query &= (self.db.bring.donation  == did)
         
-        rows = self.db(query).select(self.db.bring.note, self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
+        rows = self.db(query).select(self.db.bring.note, self.db.person.id, self.db.person.name, self.db.person.forename, orderby = self.db.person.name)
 
         return rows
     
@@ -616,6 +618,17 @@ class Contributions():
             notes_list.append(s)
             
         return notes_list
+    
+    def get_persons_with_message(self):
+        '''
+        This method returns a plain set of person ids corresponding to those persons who left a message.
+        '''
+        query  = self.db.message.event == self.eid
+        query &= self.db.message.person == self.db.person.id
+        rows = self.db(query).select(self.db.person.id)
+        
+        return set([r.id for r in rows])
+        
     
 
     def __extract_numbers_from_rows(self, rows):

@@ -98,6 +98,13 @@ table.caution td {
 .mh_person_list > tbody > tr > td{
 	padding: 0 25px 0 0;
 }
+.mh_msg_marker{
+	padding: 0 0 0 10px;
+	font-size: 0.8em;
+	font-style: italic;
+	color: #AA3333;
+}
+
 .md_notes_list > tbody > tr > td{
     padding: 0 15px 0 0;
 }
