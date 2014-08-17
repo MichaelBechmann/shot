@@ -11,6 +11,7 @@ if 0:
 
 from shotdbutil import *
 from gluon.tools import Crud
+from gluon.storage import Storage
 from shoterrors import ShotError
 from formutils import *
 from shotmail import *
@@ -20,15 +21,22 @@ T.force('de')
 
 @auth.requires_membership('staff')
 def person_summary():
+    
     form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
                            buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')]
                            )
     form.custom.widget.person['_class'] = 'autosubmit'
-
+    
     # prepopulate form
-    if session.selected_pid != None:
+    if request.args(0):
+        pid = request.args(0)
+        form.vars['person'] = pid
+        session.selected_pid = pid
+        
+    elif session.selected_pid:
         pid = session.selected_pid
         form.vars['person'] = pid
+        
     else:
         pid = 0
     
@@ -38,7 +46,8 @@ def person_summary():
         session.selected_pid = pid
         session.mailform_message = None
         # redirect is necessary to pre-populate the form; didn't find another way
-        redirect(request.env.request_uri.split('/')[-1])
+        
+        redirect(URL('person_summary'))
     
     p = Person(shotdb, pid)
     if p.record != None:
@@ -52,7 +61,7 @@ def person_summary():
         
         # person information
         name = A(DIV(DIV('%s, %s'% (p.record.name, p.record.forename), _id = 'ps_name'), DIV(CENTER('(#%d)'%( p.record.id), _id = 'ps_id'))),
-                 _href = URL('staff', 'crud/person/edit/%d/ps'%( p.record.id)))
+                 _href = URL('staff', 'crud/person/edit/%d'%( p.record.id)))
         if p.record.verified != None and p.record.verified > 0:
             email_verify_note = SPAN('verified', _class = 'ps_email_active')
         else:
@@ -88,14 +97,14 @@ def person_summary():
                         if table == None:
                             elems.append(DIV(x[1]))
                         else:
-                            elems.append(DIV(A(x[1], _href = URL('staff','crud/%s/edit/%d/ps' % (table, x[0]))), _class = 'ps_' + table))
+                            elems.append(DIV(A(x[1], _href = URL('staff','crud/%s/edit/%d' % (table, x[0]))), _class = 'ps_' + table))
                     
                     if ed['current']:
                         if (col in ('shifts', 'donations') or (col in ('numbers', 'wait entries') and len(elems) == 0)):
                             if col == 'numbers':
                                 elems.append(DIV('prediction: %d' % (NumberAssignment(shotdb, pid).determine_number()), _id = 'ps_prediction'))
 
-                            elems.append(A('+', _href = URL('staff','crud/%s/add/ps' % (table)), _class = 'ps_add_link'))
+                            elems.append(A('+', _href = URL('staff','crud/%s/add' % (table)), _class = 'ps_add_link'))
                             
                         # evaluate email action flags
                         if len(ed['shifts']) > 0 or len(ed['donations']) > 0:
@@ -166,6 +175,8 @@ def person_summary():
         log         = None
         data        = None
         mailform    = None
+        
+    session.crud = Storage(return_page = 'person_summary', fix_ref_id = dict(person = pid, event = p.events.current.event.id))
 
     return dict(form = form, mailform = mailform, name = name, info = info, log = log, data = data)
 
@@ -190,6 +201,185 @@ def dashboard():
                 )
 
 
+@auth.requires_membership('staff')
+def manage_help():
+    sef = SimpleEventForm()
+    c = Contributions(shotdb, sef.event_id)
+    
+    # details table
+    a_total, t_total = 0, 0
+    data_elements = []
+    for s in c.get_shifts():
+        a, t = s.actual_number, s.target_number
+        a_total += a
+        t_total += t
+        title = A(TABLE(
+                    TR(TD('%s, %s:' % (s.day, s.time)), 
+                       TD(s.activity, _class = 'mh_activity'),
+                       TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class'])
+                       ), _class = 'mh_shift_title'), _href=URL('crud/shift/edit', args=(s.id)))
+        
+        data_shift = []
+        person_list = []
+        for p in c.get_helper_list_for_shift(s.id).sort(lambda x: x.name):
+            person_list.append(A('%s, %s (%s)' %(p.name, p.forename, p.place), _href = URL('person_summary', args = (p.id))))
+        
+        table_row_list = __row_list(person_list, 2)
+        table_row_list.insert(0, A('+', _href = URL('redirect_crud_add/help/%d' % s.id), _class = 'mh_add_link'))
+        
+        if s.comment:
+            data_shift.append(DIV(s.comment, _class = 'mh_comment'))
+        
+        data_shift.append(DIV(
+                                   DIV(SPAN('assigned persons ('), SPAN(' toggle ', _class = config.cssclass.tggltrig), SPAN('):')),
+                                   DIV(TABLE(*table_row_list, _class = 'mh_person_list'),  _class = config.cssclass.tggl)
+                                   ))
+        
+        data_elements.append(TR(DIV(title, DIV(*data_shift, _class = 'mh_shift_body'))))
+        
+    table = TABLE(*data_elements)
+    
+    # statistics table
+    tu = TableUtils()
+    data_stat = []
+    data_stat.append((TD('number of shifts'), 
+                      TD(SPAN('%d (' % len(data_elements)), A(' + ', _href = URL('crud/shift/add'), _class = 'mh_add_link'), SPAN(')'))
+                      ))
+    ratio = getActNumberRatio(a_total, t_total)
+    data_stat.append((TD('number of assignments'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio['ratio']), _class = ratio['_class'])))
+    data_stat.append((TD('number of assigned persons'), TD('%d' % len(c.get_helper_list()))))
+    
+    table_stat = TABLE(*[TR(*x, _class = tu.get_class_evenodd()) for x in data_stat], _class = 'list')
+    
+    session.crud = Storage(return_page = 'manage_help', fix_ref_id = dict(event = sef.event_id))
+    
+    return dict(form = sef.form, table_stat = table_stat, table = table)
+
+
+@auth.requires_membership('staff')
+def manage_donations():
+    sef = SimpleEventForm()
+    c = Contributions(shotdb, sef.event_id)
+    
+    # details table
+    a_total, t_total = 0, 0
+    data_elements = []
+    table = TABLE(*data_elements)
+    for d in c.get_donations():
+        a, t = d.actual_number, d.target_number
+        a_total += a
+        t_total += t
+        title = A(TABLE(TR(
+                       TD(d.item, _class = 'mh_activity'),
+                       TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class'])
+                       ), _class = 'mh_shift_title'), _href=URL('crud/donation/edit', args=(d.id)))
+        
+        data_donation = []
+        
+        data_donation.append(DIV(
+                                 DIV(SPAN('details ('), SPAN(' toggle ', _class = config.cssclass.tggltrig), SPAN('):')),
+                                 DIV(TABLE(__row_list(c.get_notes_list_for_donation(d.id), 3), _class = 'md_notes_list'), BR(),  _class = config.cssclass.tggl)
+                                 ))
+        
+        person_list = []
+        for p in c.get_bringer_list_for_donation(d.id).sort(lambda x: x.person.name):
+            if p.bring.note:
+                note = ' (%s)' % p.bring.note
+            else:
+                note = ''
+            person_list.append(A('%s, %s%s' %(p.person.name, p.person.forename, note), _href = URL('person_summary', args = (p.person.id))))
+        
+        table_row_list = __row_list(person_list, 2)
+        table_row_list.insert(0, A('+', _href = URL('redirect_crud_add/bring/%d' % d.id), _class = 'mh_add_link'))
+        
+        data_donation.append(DIV(
+                                   DIV(SPAN('assigned persons ('), SPAN(' toggle ', _class = config.cssclass.tggltrig), SPAN('):')),
+                                   DIV(TABLE(*table_row_list, _class = 'mh_person_list'),  _class = config.cssclass.tggl)
+                                   ))
+        
+        
+        
+        
+        data_elements.append(TR(DIV(title, DIV(*data_donation, _class = 'mh_shift_body'))))
+        
+    table = TABLE(*data_elements)
+    
+    # statistics table
+    tu = TableUtils()
+    data_stat = []
+    data_stat.append((TD('number of donations'), 
+                      TD(SPAN('%d (' % len(data_elements)), A(' + ', _href = URL('crud/donation/add'), _class = 'mh_add_link'), SPAN(')'))
+                      ))
+    ratio = getActNumberRatio(a_total, t_total)
+    data_stat.append((TD('number of assignments'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio['ratio']), _class = ratio['_class'])))
+    data_stat.append((TD('number of assigned persons'), TD('%d' % len(c.get_helper_list()))))
+    
+    table_stat = TABLE(*[TR(*x, _class = tu.get_class_evenodd()) for x in data_stat], _class = 'list')
+    
+    session.crud = Storage(return_page = 'manage_donations', fix_ref_id = dict(event = sef.event_id))
+    
+    return dict(form = sef.form, table_stat = table_stat, table = table)
+
+def __row_list(elements, n_columns_max):
+    '''
+    This auxiliary function generates from the list elements a list of table rows in n_colxums_max columns.
+    The elements are arranged column after column (not line after line) which is better for sorted data!
+    '''
+    len_pl = len(elements)
+    
+    n_columns = max(1, min(n_columns_max, int(len_pl/2)))
+    table_row_list = []
+
+    len_col = int((len_pl + n_columns - 1)/n_columns)
+    for x in xrange(0, len_col):
+        td_data = []
+        for i in xrange(0, n_columns):
+            idx = x+i*len_col
+            if idx < len_pl:
+                td_data.append(elements[idx])
+        table_row_list.append(TR(*td_data))
+
+    return table_row_list
+
+@auth.requires_membership('staff')
+def redirect_crud_add():
+    # auxiliary function to transfer the information from the crud link to the session.crud object
+    tablename = request.args(0)
+    ref_id    = request.args(1)
+    
+    if tablename == 'help':
+        session.crud.fix_ref_id['shift'] = ref_id
+    elif tablename == 'bring':
+        session.crud.fix_ref_id['donation'] = ref_id
+        
+    redirect(URL('crud/%s/add' % tablename))
+    
+
+class SimpleEventForm():
+    def __init__(self):
+        e = Events(shotdb)
+        le = e.get_all().keys()
+        
+        name_event  = 'selev'
+        
+        self.form = FORM(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
+        
+        # extract selections from session object for use in the controller and pre-populate selectors
+        # event filter selection
+        selev = session.selected_event_simple
+        if selev != None:
+            self.form.vars[name_event] = selev
+            self.event_id = e.all[selev]
+        else:
+            self.form.vars[name_event] = e.current.form_label
+            self.event_id = e.current.event.id 
+        
+        # process form
+        if self.form.process().accepted:
+            session.selected_event_simple = self.form.vars[name_event]
+
+            # redirect is necessary to pre-populate the form; didn't find another way
+            redirect(request.env.request_uri.split('/')[-1]) 
 
 @auth.requires_membership('staff')
 def table():
@@ -232,8 +422,9 @@ def table():
     else:
         return 'Invalid table!'
     
-    
     f = Filter(t, query, **options)
+    session.crud = Storage(return_page = 'table/' + t, fix_ref_id = dict(event = f.event_id)) 
+    
     return dict(table = t, form = f.form, sqltab = f.sqltab)
 
 
@@ -244,14 +435,12 @@ def crud():
     action = request.args(1)
     id = request.args(2)
     
-    if request.args(-1) == 'ps':
-        # crud functions are called from person summary page
-        return_page = URL('person_summary')
-        pid = session.selected_pid
+    if session.crud.return_page:
+        return_page = URL(session.crud.return_page)
         
     else:
         return_page = URL('table/' + tablename)
-        pid = None
+        
      
     crud = Crud(shotdb)
     crud.settings.auth = auth   # ensures access control via permissions
@@ -259,26 +448,24 @@ def crud():
     crud.settings.create_next = return_page
     crud.settings.update_next = return_page
     crud.settings.update_deletable = True
-    crud.settings.showid = True   
+    crud.settings.showid = True
+
+    if session.crud.fix_ref_id:
+        for ref_table, ref_id in session.crud.fix_ref_id.iteritems():
+            if ref_id > 0 and ref_table in shotdb[tablename]:
+                    shotdb[tablename][ref_table].default = ref_id
+                    shotdb[tablename][ref_table].writable = False
     
-    if(action == 'add'):
-        if pid != None:
-            shotdb[tablename].person.default = pid
-            shotdb[tablename].person.writable = False
-            if 'event' in shotdb[tablename]:
-                shotdb[tablename].event.default = Events(shotdb).current.event.id
-                shotdb[tablename].event.writable = False
-                
+    if(action == 'add'):     
         crud_response = crud.create(tablename)
-        
     elif(action == 'edit' and id != None):
-        if shotdb[tablename].has_key('person'):
-            shotdb[tablename].person.writable = False
         crud_response = crud.update(tablename, id)
     else:
         crud_response = 'Nothing selected!'
     
     return dict(crud_response = crud_response)
+
+
 
 class Filter():
     '''
@@ -385,4 +572,3 @@ class Filter():
                                headers = 'fieldname:capitalize', orderby = 'dummy', _class = 'list')
 
         
-    

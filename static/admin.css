@@ -76,3 +76,37 @@ table.caution td {
     color: #BBBBBB;
 	text-align: center;
 }
+
+/* manage help */
+.mh_shift_title{
+    font-weight: bold;
+}
+.mh_activity{
+	font-size: 1.2em;
+}
+.mh_shift_body{
+	padding: 5px 0px 5px 20px;
+}
+.mh_add_link{
+	font-weight: bold;
+    font-size: 1.2em;
+    color: #AA3333;
+}
+.mh_comment{
+	padding: 0 0 5px 0;
+}
+.mh_person_list > tbody > tr > td{
+	padding: 0 25px 0 0;
+}
+.md_notes_list > tbody > tr > td{
+    padding: 0 15px 0 0;
+}
+.ctggltrig, .cexpand, .ccollapse{
+    color: #7799FF;
+}
+.cexpand{
+	cursor: s-resize;
+}
+.ccollapse{
+    cursor: n-resize;
+}

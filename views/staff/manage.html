@@ -1,0 +1,19 @@
+{{extend 'layout_admin.html'}}
+<script src="/static/js/manage_contributions.js" type="text/javascript"></script>
+
+{{include}}
+{{=form}}
+<br/>
+{{=table_stat}}
+<br/>
+{{navtab =TABLE(TR(TD('('),
+            TD('expand all', _class = 'cexpand'), 
+            TD(' / '), 
+            TD('collapse all', _class = 'ccollapse'), 
+            TD(')')
+            ))
+}}
+{{=navtab}}
+{{=table}}
+<br/>
+{{=navtab}}

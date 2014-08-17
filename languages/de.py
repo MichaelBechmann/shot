@@ -186,6 +186,7 @@
 'Username retrieve': 'Username retrieve',
 'Users': 'Users',
 'value already in database or empty': 'value already in database or empty',
+'value not in database': 'value not in database',
 'Vendor control': 'Vendor control',
 'Vendor list': 'Vendor list',
 'Vendor registration': 'Registrierung als Verkäufer',

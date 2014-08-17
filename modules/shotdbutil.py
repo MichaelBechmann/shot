@@ -73,7 +73,7 @@ class Events():
 
     def get_all(self):
         '''
-        This method is used for the event filter form in the view table pages
+        This method is used for event filter forms, e.g., in the view table pages
         '''
         q  = self.db.event.id > 0
         q &= self.db.event.type == self.db.event_type.id
@@ -542,8 +542,9 @@ class Contributions():
 
 
     def get_helper_list(self):
-        
-        # get all persons who help
+        '''
+        This method returns all persons who are assigned to ANY shift of the event/all helping persons.
+        '''
         query  = (self.db.help.person == self.db.person.id)
         query &= (self.db.help.shift  == self.db.shift.id)
         query &= (self.db.shift.event == self.eid)
@@ -551,6 +552,17 @@ class Contributions():
         rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
 
         return removeDuplicates(self.db, rows)
+    
+    def get_helper_list_for_shift(self, sid):
+        '''
+        This method returns all persons who are assigned to the one shift specified by the parameter.
+        '''
+        query  = (self.db.help.person == self.db.person.id)
+        query &= (self.db.help.shift  == sid)
+        
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
+
+        return rows
 
 
     def get_bringer_list(self):
@@ -563,6 +575,48 @@ class Contributions():
         rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
 
         return removeDuplicates(self.db, rows)
+    
+    
+    def get_bringer_list_for_donation(self, did):
+        '''
+        This method returns all persons who are assigned to the one donation specified by the parameter.
+        The notes are included.
+        '''
+        query  = (self.db.bring.person == self.db.person.id)
+        query &= (self.db.bring.donation  == did)
+        
+        rows = self.db(query).select(self.db.bring.note, self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
+
+        return rows
+    
+    def get_notes_list_for_donation(self, did):
+        '''
+        This method returns a sorted list of strings containing all DIFFERENT notes for the given donation identified by did.
+        Format of strings: note (nx)
+        '''
+        notes = {}
+        for bring in self.db(self.db.bring.donation == did).select():
+            if bring.note != None:
+                # add note if new, increment counter otherwise
+                if bring.note in notes:
+                    notes[bring.note] += 1
+                elif bring.note:
+                    notes[bring.note] = 1
+        
+        notes_list = []
+        
+        
+        #aux = [(k, v) for k, v in notes.iteritems()]
+        aux = notes.items()
+        aux.sort(key = lambda x: '%d%s'%(1000 - x[1], x[0]))
+        for k, v in aux:
+            s = k
+            if v > 1:
+                s += ' (%dx)' % v
+            notes_list.append(s)
+            
+        return notes_list
+    
 
     def __extract_numbers_from_rows(self, rows):
         n= {'total':0, 'taken':0, 'open':0}
@@ -745,6 +799,8 @@ class Person():
         
         self.data = {}
         e = Events(db)
+        self.events = e
+        
         for label, eid in e.get_all().iteritems():
             self.data[eid] = {'label': label, 'current': False, 'numbers': [], 'wait entries': [], 'shifts': [], 'donations': [], 'messages': []}
             if eid == e.current.event.id:

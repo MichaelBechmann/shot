@@ -21,7 +21,7 @@ tu.reset()
 aux = [('Insgesamt', n_shifts['taken'], n_shifts['total'])]
 aux.extend([('%s, %s, %s' % (s.day, s.time, s.activity), s.actual_number, s.target_number) for s in shifts])
 response.write(TABLE(
-                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = getActNumberRatio(x[1], x[2])['_class'])) for x in aux],
+                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = getActNumberRatio(x[1], x[2])['_class']), _class = tu.get_class_evenodd()) for x in aux],
                      _class = 'list' ))
 response.write(BR())
 
@@ -32,7 +32,7 @@ tu.reset()
 aux = [('Insgesamt', n_donations['taken'], n_donations['total'])]
 aux.extend([(d.item, d.actual_number, d.target_number) for d in donations])
 response.write(TABLE(
-                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = getActNumberRatio(x[1], x[2])['_class'])) for x in aux],
+                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = getActNumberRatio(x[1], x[2])['_class']), _class = tu.get_class_evenodd()) for x in aux],
                      _class = 'list' ))
             
 }}

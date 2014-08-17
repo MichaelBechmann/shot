@@ -308,21 +308,7 @@ class Sale():
             r.name_note = config.formname.note + '$' +  str(r.id)
             
             # add a list of all notes which already exist for this donation
-            notes = {}
-            for bring in shotdb(shotdb.bring.donation == r.id).select():
-                if bring.note != None:
-                    # add note if new, increment counter otherwise
-                    if bring.note in notes:
-                        notes[bring.note] += 1
-                    else:
-                        notes[bring.note] = 1
-            r.notes = []
-            for k, v in notes.iteritems():
-                s = k
-                if v > 1:
-                    s += ' (%dx)' % v
-                r.notes.append(s)
-            r.notes.sort()
+            r.notes = self.contrib.get_notes_list_for_donation(r.id)
             
         # Note: Here a reference is returned!
         return rows
