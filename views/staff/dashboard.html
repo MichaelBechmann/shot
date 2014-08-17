@@ -1,5 +1,4 @@
 {{extend 'layout_admin.html'}}
-
 {{
 from formutils import TableUtils, getActNumberRatio
 tu = TableUtils()
@@ -13,7 +12,12 @@ response.write(TABLE(TR('Insgesamt zu vergebene Nummern', n_limit,     _class = 
                      TR('Noch verfügbare Nummern',        max([0, n_limit - n_assigned - n_wait]),   _class = tu.get_class_evenodd()),
                     _class = 'list' ))
 response.write(BR())
+response.write(BR())
 
+response.write(P('Aktuelle Statusanzeige auf dem Anmeldeformular:'))
+response.write(DIV(wl_status_text, _id = config.cssid.salenumberstatus))
+response.write(BR())
+response.write(BR())
 
 response.write(P('Bereits übernommene Helferschichten:'))
 tu.reset()
@@ -23,6 +27,7 @@ aux.extend([('%s, %s, %s' % (s.day, s.time, s.activity), s.actual_number, s.targ
 response.write(TABLE(
                      *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = getActNumberRatio(x[1], x[2])['_class']), _class = tu.get_class_evenodd()) for x in aux],
                      _class = 'list' ))
+response.write(BR())
 response.write(BR())
 
 

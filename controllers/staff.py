@@ -196,6 +196,7 @@ def dashboard():
                 n_limit         = e.current.event.numbers_limit,
                 n_shifts        = c.get_number_of_shifts(),
                 n_donations     = c.get_number_of_donations(),
+                wl_status_text  = w.status_text(0),
                 shifts          = c.get_shifts(),
                 donations       = c.get_donations()
                 )
