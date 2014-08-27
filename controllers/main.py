@@ -11,6 +11,7 @@ if 0:
     
 from shotdbutil import Events
 from shotmail import ErrorMail
+from shotconfig import config
 
 T.force('de')
 
@@ -26,7 +27,11 @@ def privacy():
 def legal():
     return dict()
 
-def error():  
-    ErrorMail().send()
+def error():
+    if config.enable_error_mail:
+        ErrorMail().send()
+    ticket = request.vars.ticket
+    if config.redirect_to_ticket and ticket != 'None':
+            redirect(config.shotticketurl + ticket)
     return dict()
 

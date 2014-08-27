@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 #from gluon.custom_import import track_changes
 #track_changes(True)
+
+
+
 """
 This module provides all classes concerning email for the shot application.
 """
@@ -16,7 +19,7 @@ from shotdbutil import Events, NumberAssignment, WaitList
 from formutils import getAppRequestDataTale
 from gluon.html import *
 from gluon import current
-
+import datetime
 
 
 class EMail:
@@ -35,9 +38,9 @@ class EMail:
         self.subs           = {'<PLACEHOLDER_APPENDIX>': ''}
         self.attachments    = []
         
-        file = open(config.shotpath + template, 'r')
-        self.html = file.read()
-        file.close()
+        f = open(config.shotpath + template, 'r')
+        self.html = f.read()
+        f.close()
    
     def _convert_html_to_text(self):
         """
@@ -59,13 +62,13 @@ class EMail:
         return text
 
  
-    def attachpdf(self, file, name):
+    def attachpdf(self, filepath, name):
         """
         This method adds the specified pdf as attachment to the mail.
         Once other types shall be send this method has to be generalized (e.g., http://snippets.dzone.com/posts/show/10237)
         """
         
-        a = MIMEApplication(_data = open(config.shotpath + file,"rb").read(), _subtype='pdf')
+        a = MIMEApplication(_data = open(config.shotpath + filepath,"rb").read(), _subtype='pdf')
         a.add_header('Content-Disposition', 'attachment', filename = name)
         self.attachments.append(a)
         
@@ -75,10 +78,16 @@ class EMail:
         It adds some environment information to the email for the purpose of error analysis.
         '''
         dd  = str(STRONG('session\n')) + BEAUTIFY(current.session).xml()
-        dd += str(STRONG('request.env\n')) + BEAUTIFY(current.request.env).xml()
-        dd += str(STRONG('request.vars\n')) + BEAUTIFY(current.request.vars).xml()
-        dd += str(STRONG('request.user_agent()\n')) + BEAUTIFY(current.request.user_agent()).xml()
+        dd += str(STRONG('request.env\n')) + BEAUTIFY(current.request.env).xml() #@UndefinedVariable
+        dd += str(STRONG('request.vars\n')) + BEAUTIFY(current.request.vars).xml() #@UndefinedVariable
+        dd += str(STRONG('request.user_agent()\n')) + BEAUTIFY(current.request.user_agent()).xml() #@UndefinedVariable
         self.subs['<PLACEHOLDER_DEBUG_DATA>'] = dd
+        
+    def add_timestamp(self):
+        '''
+        This method adds the current date and time.
+        '''
+        self.subs['<PLACEHOLDER_TIMESTAMP>'] = datetime.datetime.now().strftime("%Y-%m-%d_%H:%M:%S")
         
     def do_substitution(self):
         '''
@@ -427,8 +436,15 @@ class ErrorMail(EMail):
     def __init__(self, msg = 'no message'):
         EMail.__init__(self, 'static/mail_templates/error.html', 'postmaster')
         self.receiver = config.mail.error_to
-        self.subject  = 'Error (%s)' % config.shoturl
+        self.subject  = 'Error %s (%s)' % (str(current.request.vars.code), config.shoturl) #@UndefinedVariable
         self.add_debug_data()
-        self.subs['<PLACEHOLDER_MSG>'] = msg   
+        self.add_timestamp()
+        self.subs['<PLACEHOLDER_MSG>'] = msg
+        ticket = current.request.vars.ticket #@UndefinedVariable
+        if ticket != 'None':
+            url = config.shotticketurl + ticket
+            self.subs['<PLACEHOLDER_TICKET>'] = A(url, _href = url)
+        else:
+            self.subs['<PLACEHOLDER_TICKET>'] = 'no ticket' 
         
         
