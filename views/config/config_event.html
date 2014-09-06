@@ -1,19 +1,27 @@
 {{extend 'layout_admin.html'}}
-<link href="/static/crud.css" rel="stylesheet" type="text/css" />
 
 {{
-
-
 response.write(H3('Configure the event!'))
 
-response.write(A('add event type', _href=URL('config', 'config_event/addeventtype'), _class = 'intext'))
+response.write(P('Inspect the current appearance of the enrollment form:'))
+response.write(button_view_form)
+response.write(BR())
+response.write(BR())
+
+response.write(P('Edit event types:'))
+response.write(A('Click here to add new event type', _href=URL('config', 'config_event/addeventtype')))
 response.write(crudeventtype_response)
 response.write(BR())
-
-response.write(A('add event', _href=URL('config', 'config_event/addevent'), _class = 'intext'))
-response.write(crudevent_response)
 response.write(BR())
 
-response.write(button)
+response.write(P('Edit events:'))
+response.write(A('Click here to add new add event', _href=URL('config', 'config_event/addevent')))
+response.write(crudevent_response)
+response.write(BR())
+response.write(BR())
+
+response.write(P('Copy configuration (shifts and donations) from former event to the current enevt:'))
+response.write(copy_form)
+response.write(DIV(response.flash, _class = 'flash'))
 
 }}

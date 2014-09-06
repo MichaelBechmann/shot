@@ -117,3 +117,7 @@ table.caution td {
 .ccollapse{
     cursor: n-resize;
 }
+
+.flash{
+    color: #ff0000;
+}

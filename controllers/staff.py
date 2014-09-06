@@ -214,6 +214,8 @@ def manage_help():
     for s in c.get_shifts():
         a, t = s.actual_number, s.target_number
         a_total += a
+        if not t:
+            t = 0
         t_total += t
         title = A(TABLE(
                     TR(TD('%s, %s:' % (s.day, s.time)), 
@@ -376,7 +378,7 @@ class SimpleEventForm():
         
         name_event  = 'selev'
         
-        self.form = FORM(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
+        self.form = FORM(SPAN(T('Event: '),   SELECT(le, _name = name_event, _class = 'autosubmit')))
         
         # extract selections from session object for use in the controller and pre-populate selectors
         # event filter selection

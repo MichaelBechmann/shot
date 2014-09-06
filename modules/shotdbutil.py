@@ -634,6 +634,8 @@ class Contributions():
     def __extract_numbers_from_rows(self, rows):
         n= {'total':0, 'taken':0, 'open':0}
         for row in rows:
+            if not row.target_number:
+                row.target_number = 0
             n['total'] += row.target_number
             n['taken'] += row.actual_number
         n['open'] = n['total'] - n['taken']
@@ -947,3 +949,45 @@ class Reminder():
         rows_compact = rows_h | rows_b | rows_s# | removes duplicates!
         
         return rows_compact
+
+
+class CopyConfig():
+    '''
+    This class contains code to copy the configuration from an former event to the current event.
+    '''
+    def __init__(self, db,  source_event_id):
+        self.db = db
+        self.source_event_id = source_event_id
+        
+        self.current_event_id = Events(db).current.event.id
+        
+    def __copy_rows(self, table):
+        '''
+        This method copies all rows of the given table which are linked to the source event. The new entries are linked to the current event.
+        The number of rows (inserted or updated) is returned
+        '''
+        rows = self.db(table.event == self.source_event_id).select()
+        
+        n = 0
+        for row in rows:
+            n += 1
+            data = row.as_dict()
+            data['event'] = self.current_event_id
+            
+            # remove id
+            if 'id' in data:
+                del data['id']
+            
+            # remove virtual attribute
+            if 'actual_number' in data:
+                del data['actual_number']
+                
+            table.update_or_insert(**data)
+        
+        return n
+        
+    def copy_donations(self):
+        return self.__copy_rows(self.db.donation)
+            
+    def copy_shifts(self):
+        return self.__copy_rows(self.db.shift)

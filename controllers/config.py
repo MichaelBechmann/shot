@@ -9,10 +9,14 @@ if 0:
     global auth
 
 from gluon.tools import Crud
-
+from shotdbutil import Events, CopyConfig
 
 @auth.requires_membership('configurator')
 def config_event():
+    
+    if 'submit_view_form' in request.vars:
+        session.form_passive = True
+        redirect(URL('sale', 'form'))
     
     crudeventtype = Crud(shotdb)
     crudeventtype.settings.controller = 'config'
@@ -45,47 +49,40 @@ def config_event():
         crudevent_response = crudevent.update(tableevent, request.args(1))              
     else:
         tableeventtype.id.represent = lambda id, row: A(id,_href=URL('config_event/editeventtype', args=(id)))
-        crudeventtype_response = crudeventtype.select(tableeventtype)
+        crudeventtype_response = crudeventtype.select(tableeventtype, _class = 'list')
         
         tableevent.id.represent = lambda id, row: A(id,_href=URL('config_event/editevent', args=(id)))
-        crudevent_response = crudevent.select(tableevent)
+        crudevent_response = crudevent.select(tableevent, _class = 'list')
     
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
-    button = FORM(INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = T('view form')))
-        
-    if 'submit' in request.vars:
-        session.form_passive = True
-        redirect(URL('sale', 'form'))    
-
-    return dict(crudeventtype_response = crudeventtype_response, crudevent_response = crudevent_response, button = button)
-
-
- 
-def _config_event_4():
-    '''
-    This function adds the configuration for the third event.
-    '''
+    button_view_form = FORM(INPUT(_type = 'submit', _class = 'button', _name = 'submit_view_form', _value = T('view form')))
     
-    if session.admin != True:
-        return 'no way!'
-     
-    # add event
-    #shotdb.event.update_or_insert(label = 'Herbst 2013', active = True, number_ranges = '200-250, 300-350, 400-450, 500-550', numbers_limit = 195)
-     
-    # add donations
-    shotdb.donation.update_or_insert(event = 4, item = 'Kuchen',     target_number = 30, enable_notes = True)
-    shotdb.donation.update_or_insert(event = 4, item = 'Waffelteig', target_number = 10, enable_notes = False)
+    
+    e = Events(shotdb)
+    le = e.get_all().keys()
+    le.insert(0, ' Please select ...')
+    
+    copy_form = FORM(TABLE(TR('Source Event: ', SELECT(le, _name = 'event'),
+                                    INPUT(_type = 'submit', _class = 'button', _name = 'submit_copy', _value = T('copy configuration')))))  
+        
+    if copy_form.process().accepted:
+        selev = copy_form.vars['event']
+        if selev not in e.all:    
+            response.flash = 'Please select a source event!'
+        else:
+            cc = CopyConfig(shotdb, e.all[selev])
+            
+            # copy shifts
+            n_s = cc.copy_shifts()
+            
+            # copy donations
+            n_d = cc.copy_donations()
+            
+            response.flash = 'Inserted or updated %d shifts and %d donations.' % (n_s, n_d)
 
-    # add shifts
-    shotdb.shift.update_or_insert(event = 4, activity = 'Sortieren',            day = 'Freitag, 27.9.', time = '14:30 - 17 Uhr', target_number = 20, display = 'a1')
-    shotdb.shift.update_or_insert(event = 4, activity = 'Küche',                day = 'Samstag, 28.9.', time = '8:30 - 11 Uhr',  target_number = 3,  display = 'a2')
-    shotdb.shift.update_or_insert(event = 4, activity = 'Auflegen',             day = 'Samstag, 28.9.', time = '9 - 11:30 Uhr',  target_number = 6,  display = 'b1')
-    shotdb.shift.update_or_insert(event = 4, activity = 'Kasse',                day = 'Samstag, 28.9.', time = '8:30 - 11 Uhr',  target_number = 4,  display = 'a2')
-    shotdb.shift.update_or_insert(event = 4, activity = 'Kuchentheke',          day = 'Samstag, 28.9.', time = '9 - 11:30 Uhr',  target_number = 2,  display = 'b1')    
-    shotdb.shift.update_or_insert(event = 4, activity = 'Waffelstand',          day = 'Samstag, 28.9.', time = '9 - 11:30 Uhr',  target_number = 2,  display = 'b1')
-    shotdb.shift.update_or_insert(event = 4, activity = 'Küche',                day = 'Samstag, 28.9.', time = '12 - 14:30 Uhr', target_number = 3,  display = 'b2')    
-    shotdb.shift.update_or_insert(event = 4, activity = 'Rücksortieren',        day = 'Samstag, 28.9.', time = '12 - 14:30 Uhr', target_number = 25, display = 'b2')
-    shotdb.shift.update_or_insert(event = 4, activity = 'Kistenkontrolle',      day = 'Samstag, 28.9.', time = '13:30 - 15 Uhr', target_number = 25, display = 'c1')
-    shotdb.shift.update_or_insert(event = 4, activity = 'Ich helfe nach Bedarf (nach Rücksprache).',       day = 'Samstag, 28.9.', time = 'flexibel', target_number = 15, display = 'c2')    
- 
-    redirect(URL('config', 'config_event'))
+
+    return dict(crudeventtype_response = crudeventtype_response,
+                crudevent_response = crudevent_response,
+                button_view_form = button_view_form,
+                copy_form = copy_form)
+    
