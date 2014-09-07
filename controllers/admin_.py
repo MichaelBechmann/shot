@@ -72,8 +72,8 @@ def crud():
     action = request.args(1)
     id_ = request.args(2)
     
-    return_page = URL(request.env.http_referer.split('/')[-1])
-     
+    return_page = URL('manage_users')
+    
     crud = Crud(shotdb)
     crud.settings.controller = 'admin_'
     crud.settings.create_next = return_page

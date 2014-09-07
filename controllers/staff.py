@@ -328,7 +328,7 @@ def manage_donations():
                       ))
     ratio = getActNumberRatio(a_total, t_total)
     data_stat.append((TD('number of assignments'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio['ratio']), _class = ratio['_class'])))
-    data_stat.append((TD('number of assigned persons'), TD('%d' % len(c.get_helper_list()))))
+    data_stat.append((TD('number of assigned persons'), TD('%d' % len(c.get_bringer_list()))))
     
     table_stat = TABLE(*[TR(*x, _class = tu.get_class_evenodd()) for x in data_stat], _class = 'list')
     

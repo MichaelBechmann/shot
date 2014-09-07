@@ -56,6 +56,7 @@
 'event label': 'event label',
 'event type': 'event type',
 'event:': 'event:',
+'Event: ': 'Event: ',
 'First name': 'First name',
 'For the cafe I will bring the following:': 'Für das Café bringe ich folgendes mit:',
 'forename': 'Vorname',

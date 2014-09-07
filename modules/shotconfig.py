@@ -198,13 +198,15 @@ config.colsets['request'] = { 'sets':{'request':  ['request.id', 'request.projec
                            'default': 'request'
                          }
 config.colsets['shift'] = { 'sets':{'config':  ['shift.id', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time', 'shift.display'],
-                                    'comment': ['shift.id', 'shift.activity', 'shift.day', 'shift.time', 'shift.comment']
+                                    'comment': ['shift.id', 'shift.activity', 'shift.day', 'shift.time', 'shift.comment'],
+                                    'event':   ['shift.id', 'shift.event', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time']
                                    },
                            'default': 'config'
                          }
-config.colsets['donation'] = { 'sets':{'all':  ['donation.id', 'donation.item', 'donation.target_number', 'donation.enable_notes']
+config.colsets['donation'] = { 'sets':{'config': ['donation.id', 'donation.item', 'donation.target_number', 'donation.enable_notes'],
+                                       'all':    ['donation.id', 'donation.event', 'donation.item', 'donation.target_number', 'donation.enable_notes'],
                                    },
-                           'default': 'all'
+                           'default': 'config'
                          }
 
 
