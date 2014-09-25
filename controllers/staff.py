@@ -29,7 +29,7 @@ def person_summary():
     
     # prepopulate form
     if request.args(0):
-        pid = request.args(0)
+        pid = int(request.args(0))
         form.vars['person'] = pid
         session.selected_pid = pid
         

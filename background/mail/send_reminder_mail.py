@@ -31,7 +31,7 @@ try:
             
         m.send()
         count += 1 
-        logger_bg.info('#%d, id: %d\t%s, %s   (%s)' % (count, row.id, row.name, row.forename, str(ReminderMail)))
+        logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.id, row.name, row.forename))
         
     logger_bg.info('all done.')
 

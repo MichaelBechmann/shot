@@ -777,9 +777,9 @@ class WaitList():
         elif x >= 0:
             msg = 'Es sind nur noch wenige Kommissionsnummern frei. Da wir Helfer bevorzugt behandeln, ist unsicher, ob Sie über die Warteliste eine Nummer erhalten werden.'
         elif x >= -15:
-            msg = 'Es sind derzeit leider keine Kommissionsnummern mehr frei. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine über die Warteliste erhalten.'
+            msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine über die Warteliste erhalten, ohne zu helfen.'
         else:
-            msg = 'Es sind leider keine Kommissionsnummern mehr frei. Unsere Warteliste ist auch schon so lang, daß Sie sicher keine Nummer mehr erhalten werden.'
+            msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Unsere Warteliste ist auch schon so lang, daß Sie ohne zu helfen sicher keine Nummer mehr erhalten werden.'
         
         return msg
     
@@ -789,7 +789,6 @@ class WaitListPos():
     This class contains code to calculate the position of a person on the wait list of a given event.
     ''' 
     def __init__(self, db, pid, eid = None):
-        
         if eid == None:
             eid = Events(db).current.event.id
             
@@ -800,6 +799,7 @@ class WaitListPos():
         self.pos = 0
         if len(rows) > 0:
             prow = rows.find(lambda r: r.person == pid).last()
+
             if prow != None:
                 # determine how many ids are lower
                 self.pos = len([r for r in rows if prow.id >= r.id])

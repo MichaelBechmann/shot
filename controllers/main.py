@@ -35,3 +35,18 @@ def error():
             redirect(config.shotticketurl + ticket)
     return dict()
 
+def redirect_https():
+
+    c = 'main'
+    f = 'index'
+    args = []
+    
+    l = len(request.args)
+    
+    if l >= 2:
+        c = request.args[0]
+        f = request.args[1]
+    if l > 2:
+        args = request.args[2:]
+
+    redirect(URL(c = c, f = f, args = args, scheme = 'http'))

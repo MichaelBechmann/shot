@@ -222,9 +222,9 @@ class ShotMail(EMail):
                     for r in self.db(query).select()]
         if len(elem) > 0:
             helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
-            helpersaletext = DIV('Wie in jedem Jahr können Sie als Helfer schon vor dem Markt zwischen 8 Und 9 Uhr  bei uns "voreinkaufen".\
-                                  Hierzu wird ab 8 Uhr für die Helfer der Seiteneingang des Gemeindezentrums geöffnet.\
-                                  Der Vordereingang wird bis 9 Uhr geschlossen bleiben.'
+            helpersaletext = DIV(STRONG('Wie in jedem Jahr können Sie als Helfer schon vor dem Markt zwischen 8 Und 9 Uhr  bei uns "voreinkaufen". '),
+                                  SPAN('Hierzu wird ab 8 Uhr für die Helfer der Seiteneingang des Gemeindezentrums geöffnet.\
+                                  Der Vordereingang wird bis 9 Uhr geschlossen bleiben.')
                                 )
         else:
             helptext = DIV(SPAN('Sie können keine Helferschicht übernehmen.'))

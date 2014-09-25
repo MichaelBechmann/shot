@@ -83,7 +83,7 @@ def confirm():
 
         
     if 'submit back' in request.vars:
-        redirect('form')
+        redirect(URL('form'))
     elif 'submit send' in request.vars:
             
         pe = PersonEntry(shotdb, session.registration_person)

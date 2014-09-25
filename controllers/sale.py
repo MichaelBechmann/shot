@@ -236,11 +236,9 @@ def confirm():
         # prevent multiple database entries
         session.clear()
         if sale.b_sale_number_assigned or not sale.b_wants_sale_number:
-            nextpage = URL('sale','final')
+            redirect(URL('sale','final'))
         else:
-            nextpage = URL('sale','final_wait')
-            
-        redirect(nextpage)      
+            redirect(URL('sale','final_wait'))
         
     return(dict(form = form, data = data))
 

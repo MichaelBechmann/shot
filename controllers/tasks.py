@@ -52,7 +52,7 @@ def start():
     if config.enable_tasks:
         for k in request.vars.iterkeys():
             subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + tasklist[int(k)][2]])
-            redirect('final')
+            redirect(URL('final'))
             break
 
     return dict(form = form)
