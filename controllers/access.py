@@ -14,7 +14,7 @@ if 0:
 from shotconfig import EMailAccount
 from shotdbutil import User
 
-auth.settings.login_next           = URL('access', 'info' )
+auth.settings.login_next           = URL('info' )
 auth.settings.logout_next          = URL('main','index')
 auth.settings.reset_password_next  = URL('info')
 auth.settings.change_password_next = URL('info')

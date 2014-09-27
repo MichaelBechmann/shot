@@ -159,52 +159,58 @@ config.msg.wait                 = 'The processing of your data takes some time. 
 
 
 config.colsets = {}      
-config.colsets['sale'] = { 'sets':{'details' : ['sale.id', 'sale.event', 'person.name', 'person.forename', 'person.place', 'sale.number', 'sale.number_unikey'], 
-                                   'default'  : ['sale.event', 'person.name', 'person.forename', 'sale.number'],
-                                   'sign list': ['sale.number','person.name', 'person.forename', 'person.place', 'person.street', 'person.house_number', 'person.telephone']
+config.colsets['sale'] = { 'sets':{'edit':      ['sale.id', 'sale.person' 'person.place', 'sale.number', 'sale.number_unikey'], 
+                                   'default':   ['sale.person', 'person.place', 'sale.number'],
+                                   'event':     ['sale.event', 'sale.person', 'person.place', 'sale.number'],
+                                   'sign list': ['sale.number', 'person.name', 'person.forename', 'person.place', 'person.street', 'person.house_number', 'person.telephone']
                                    },
                            'default': 'default'
                          }
-config.colsets['wait'] = { 'sets':{'details' : ['wait.id', 'wait.event', 'person.name', 'person.forename', 'sale.number', 'wait.denial_sent'],
-                                   },
-                           'default': 'details'
-                         }
-
-config.colsets['bring'] = { 'sets':{'details': ['bring.id', 'donation.event', 'person.name', 'person.forename', 'person.place', 'donation.item', 'bring.note'], 
-                                   'default'  : ['person.name', 'person.forename', 'donation.item', 'bring.note']
-                                   },
-                           'default': 'default'
-                         }
-config.colsets['help'] = { 'sets':{'details' : ['help.id', 'shift.event', 'person.name', 'person.forename', 'person.place', 'shift.activity', 'shift.day', 'shift.time'], 
-                                   'default'  : ['person.name', 'person.forename', 'shift.activity', 'shift.day', 'shift.time'],
+config.colsets['wait'] = { 'sets':{'edit':      ['wait.id', 'wait.person', 'sale.number', 'wait.denial_sent'],
+                                   'default':   ['wait.person', 'sale.number', 'wait.denial_sent'],
+                                   'event':     ['wait.event', 'wait.person', 'sale.number', 'wait.denial_sent']
                                    },
                            'default': 'default'
                          }
 
-config.colsets['message'] = { 'sets':{'details': ['message.id', 'message.event', 'person.name', 'person.forename', 'person.place', 'message.text'], 
-                                       'default': ['person.name', 'person.forename', 'message.text']
+config.colsets['bring'] = { 'sets':{'edit':     ['bring.id', 'bring.person', 'person.place', 'donation.item', 'bring.note'], 
+                                   'default':   ['bring.person', 'person.place', 'donation.item', 'bring.note'],
+                                   'event':     ['donation.event', 'bring.person', 'person.place', 'donation.item', 'bring.note']
                                    },
                            'default': 'default'
                          }
-config.colsets['person'] = { 'sets':{'details':  ['person.id', 'person.name', 'person.forename', 'person.place', 'person.zip_code', 'person.street', 'person.house_number', 'person.email', 'person.telephone'],
-                                     'default' : ['person.name', 'person.forename', 'person.place', 'person.email', 'person.telephone'],
-                                     'technical':['person.id', 'person.name', 'person.forename', 'person.code', 'person.verified', 'person.mail_enabled', 'person.log']
+config.colsets['help'] = { 'sets':{'edit':      ['help.id', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'], 
+                                   'default':   ['help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'],
+                                   'event':     ['shift.event', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time']
                                    },
                            'default': 'default'
                          }
-config.colsets['request'] = { 'sets':{'request':  ['request.id', 'request.project', 'request.organization', 'request.amount_total', 'request.amount_requested', 'request.description'],
-                                      'appropriation' : ['request.id', 'request.project', 'request.person', 'request.status', 'request.amount_total', 'request.amount_requested', 'request.amount_spent', 'request.comment']
+
+config.colsets['message'] = { 'sets':{'edit':    ['message.id', 'message.person', 'person.place', 'message.text'], 
+                                      'default': ['message.person', 'person.place', 'message.text'],
+                                      'event':   ['message.event', 'message.person', 'person.place', 'message.text'],
+                                   },
+                           'default': 'default'
+                         }
+config.colsets['person'] = { 'sets':{'edit/details':  ['person.id', 'person.name', 'person.forename', 'person.place', 'person.zip_code', 'person.street', 'person.house_number', 'person.email', 'person.telephone'],
+                                     'default' :      ['person.name', 'person.forename', 'person.place', 'person.email', 'person.telephone'],
+                                     'technical':     ['person.id', 'person.name', 'person.forename', 'person.code', 'person.verified', 'person.mail_enabled', 'person.log']
+                                   },
+                           'default': 'default'
+                         }
+config.colsets['request'] = { 'sets':{'request':        ['request.id', 'request.project', 'request.organization', 'request.amount_total', 'request.amount_requested', 'request.description'],
+                                      'appropriation':  ['request.id', 'request.project', 'request.person', 'request.status', 'request.amount_total', 'request.amount_requested', 'request.amount_spent', 'request.comment']
                                    },
                            'default': 'request'
                          }
 config.colsets['shift'] = { 'sets':{'config':  ['shift.id', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time', 'shift.display'],
-                                    'comment': ['shift.id', 'shift.activity', 'shift.day', 'shift.time', 'shift.comment'],
-                                    'event':   ['shift.id', 'shift.event', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time']
+                                    'comment': ['shift.id', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time', 'shift.display', 'shift.comment'],
+                                    'event':   ['shift.event', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time']
                                    },
                            'default': 'config'
                          }
 config.colsets['donation'] = { 'sets':{'config': ['donation.id', 'donation.item', 'donation.target_number', 'donation.enable_notes'],
-                                       'all':    ['donation.id', 'donation.event', 'donation.item', 'donation.target_number', 'donation.enable_notes'],
+                                       'event':  ['donation.event', 'donation.item', 'donation.target_number', 'donation.enable_notes'],
                                    },
                            'default': 'config'
                          }

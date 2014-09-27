@@ -517,6 +517,13 @@ class Filter():
         # provide edit links
         shotdb[self.tablename].id.represent = lambda id, row: A(id,_href=URL('crud/' + self.tablename + '/edit', args=(id)))
         
+        # provide links to person summary
+        if self.tablename == 'person':
+            shotdb[self.tablename].name.represent     = lambda x, row: A(x,_href=URL('person_summary', args = (row.id)))
+            shotdb[self.tablename].forename.represent = lambda x, row: A(x,_href=URL('person_summary', args = (row.id)))
+        elif 'person' in shotdb[self.tablename]:
+            shotdb[self.tablename].person.represent = lambda x, row: A('%s, %s'%(row.person.name, row.person.forename),_href=URL('person_summary', args = (row.person.id)))
+        
         formelements = []
         if self.displayeventfilter:
             formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
