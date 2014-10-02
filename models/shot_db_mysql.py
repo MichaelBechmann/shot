@@ -158,7 +158,7 @@ shotdb.define_table('shift',
     Field('display',    'string'),
     
     # define how a record is represented if referenced from other tables
-    format='%(activity)s, %(day)s, %(time)s (%(event)s)'
+    format='(%(event)s) %(activity)s, %(day)s, %(time)s'
     
 )
 class VirtualFieldsShift():
@@ -197,7 +197,7 @@ shotdb.define_table('donation',
     Field('enable_notes', 'boolean'),
     
     # define how a record is represented if referenced from other tables
-    format='%(item)s (%(event)s)'
+    format='(%(event)s) %(item)s'
     
 ) 
 class VirtualFieldsDonation():

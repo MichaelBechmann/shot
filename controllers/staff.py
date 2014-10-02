@@ -61,7 +61,7 @@ def person_summary():
         
         # person information
         name = A(DIV(DIV('%s, %s'% (p.record.name, p.record.forename), _id = 'ps_name'), DIV(CENTER('(#%d)'%( p.record.id), _id = 'ps_id'))),
-                 _href = URL('staff', 'crud/person/edit/%d'%( p.record.id)))
+                 _href = URL('crud',args = ['person', 'edit'], vars = dict(id = p.record.id)))
         if p.record.verified != None and p.record.verified > 0:
             email_verify_note = SPAN('verified', _class = 'ps_email_active')
         else:
@@ -97,14 +97,14 @@ def person_summary():
                         if table == None:
                             elems.append(DIV(x[1]))
                         else:
-                            elems.append(DIV(A(x[1], _href = URL('staff','crud/%s/edit/%d' % (table, x[0]))), _class = 'ps_' + table))
+                            elems.append(DIV(A(x[1], _href = URL('crud', args = [table, 'edit'], vars = dict(eid = ed['eid'], id = x[0]))), _class = 'ps_' + table))
                     
                     if ed['current']:
                         if (col in ('shifts', 'donations') or (col in ('numbers', 'wait entries') and len(elems) == 0)):
                             if col == 'numbers':
                                 elems.append(DIV('prediction: %d' % (NumberAssignment(shotdb, pid).determine_number()), _id = 'ps_prediction'))
 
-                            elems.append(A('+', _href = URL('staff','crud/%s/add' % (table)), _class = 'ps_add_link'))
+                            elems.append(A('+', _href = URL('crud', args = [table, 'add'], vars = dict(eid = ed['eid'])), _class = 'ps_add_link'))
                             
                         # evaluate email action flags
                         if len(ed['shifts']) > 0 or len(ed['donations']) > 0:
@@ -221,7 +221,7 @@ def manage_help():
                     TR(TD('%s, %s:' % (s.day, s.time)), 
                        TD(s.activity, _class = 'mh_activity'),
                        TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class'])
-                       ), _class = 'mh_shift_title'), _href=URL('crud/shift/edit', args=(s.id)))
+                       ), _class = 'mh_shift_title'), _href = URL('crud/shift/edit', vars = dict(id = s.id)))
         
         data_shift = []
         person_list = []
@@ -282,7 +282,7 @@ def manage_donations():
         title = A(TABLE(TR(
                        TD(d.item, _class = 'mh_activity'),
                        TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class'])
-                       ), _class = 'mh_shift_title'), _href=URL('crud/donation/edit', args=(d.id)))
+                       ), _class = 'mh_shift_title'), _href=URL('crud/donation/edit', vars = dict(id = d.id)))
         
         data_donation = []
         
@@ -368,7 +368,7 @@ def redirect_crud_add():
     elif tablename == 'bring':
         session.crud.fix_ref_id['donation'] = ref_id
         
-    redirect(URL('crud/%s/add' % tablename))
+    redirect(URL('crud', args = [tablename, 'add']))
     
 
 class SimpleEventForm():
@@ -449,7 +449,8 @@ def crud():
     
     tablename = request.args(0)
     action = request.args(1)
-    id = request.args(2)
+    event_id = request.get_vars['eid']
+    record_id = request.get_vars['id']
     
     if session.crud.return_page:
         return_page = URL(session.crud.return_page)
@@ -472,10 +473,17 @@ def crud():
                     shotdb[tablename][ref_table].default = ref_id
                     shotdb[tablename][ref_table].writable = False
     
-    if(action == 'add'):     
+    # add event filter to drop down selectors
+    if event_id != None and event_id > 0:
+        if tablename == 'help':
+            shotdb.help.shift.requires = IS_IN_DB(shotdb(shotdb.shift.event == event_id), 'shift.id', '%(activity)s, %(day)s, %(time)s')
+        elif tablename == 'bring':
+            shotdb.bring.donation.requires = IS_IN_DB(shotdb(shotdb.donation.event == event_id), 'donation.id', '%(item)s')
+    
+    if(action == 'add'):            
         crud_response = crud.create(tablename)
-    elif(action == 'edit' and id != None):
-        crud_response = crud.update(tablename, id)
+    elif(action == 'edit' and record_id != None):
+        crud_response = crud.update(tablename, record_id)
     else:
         crud_response = 'Nothing selected!'
     
@@ -515,21 +523,21 @@ class Filter():
         ls = config.colsets[self.tablename]['sets'].keys()
         
         # provide edit links
-        shotdb[self.tablename].id.represent = lambda id, row: A(id,_href=URL('crud/' + self.tablename + '/edit', args=(id)))
+        shotdb[self.tablename].id.represent = lambda id, row: A(id,_href=URL('crud', args =[self.tablename, 'edit'], vars = dict(id = id)))
         
         # provide links to person summary
         if self.tablename == 'person':
-            shotdb[self.tablename].name.represent     = lambda x, row: A(x,_href=URL('person_summary', args = (row.id)))
-            shotdb[self.tablename].forename.represent = lambda x, row: A(x,_href=URL('person_summary', args = (row.id)))
+            shotdb[self.tablename].name.represent     = lambda x, row: A(x,_href=URL('person_summary', vars = dict(id = row.id)))
+            shotdb[self.tablename].forename.represent = lambda x, row: A(x,_href=URL('person_summary', vars = dict(id = row.id)))
         elif 'person' in shotdb[self.tablename]:
-            shotdb[self.tablename].person.represent = lambda x, row: A('%s, %s'%(row.person.name, row.person.forename),_href=URL('person_summary', args = (row.person.id)))
+            shotdb[self.tablename].person.represent = lambda x, row: A('%s, %s'%(row.person.name, row.person.forename),_href=URL('person_summary', vars = dict(id = row.person.id)))
         
         formelements = []
         if self.displayeventfilter:
             formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
         formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
         formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
-        formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('staff/crud', self.tablename, 'add'))))
+        formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('crud', args = [self.tablename, 'add']))))
         self.form = FORM(*formelements)
 
         # extract selections from session object for use in the controller and pre-populate selectors

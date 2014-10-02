@@ -817,7 +817,7 @@ class Person():
         self.events = e
         
         for label, eid in e.get_all().iteritems():
-            self.data[eid] = {'label': label, 'current': False, 'numbers': [], 'wait entries': [], 'shifts': [], 'donations': [], 'messages': []}
+            self.data[eid] = {'label': label, 'eid': eid, 'current': False, 'numbers': [], 'wait entries': [], 'shifts': [], 'donations': [], 'messages': []}
             if eid == e.current.event.id:
                 self.data[eid]['current'] = True 
         

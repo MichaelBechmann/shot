@@ -105,6 +105,7 @@
 'Name': 'Name',
 'name of the event type': 'name of the event type',
 'New password': 'New password',
+'no match': 'no match',
 'no, in neither one': 'nein, in keinem von beiden',
 'Not authorized': 'Not authorized',
 'number': 'Nummer',
