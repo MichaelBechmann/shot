@@ -27,7 +27,7 @@ def manage_users():
     formelements = []
     formelements.append(SPAN(T('Auth table:'),  SELECT(table_ids, _name = 'table_id', _class = 'autosubmit')))
     formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
-    formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('admin_/crud', 'auth_' + table_id, 'add'))))
+    formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('crud', args = ['auth_' + table_id, 'add']))))
     form = FORM(*formelements)
     
     form.vars['table_id'] = table_id
@@ -42,7 +42,7 @@ def manage_users():
     
     # provide edit links
     table = 'auth_' + table_id
-    shotdb[table].id.represent = lambda id_, row: A(id_,_href=URL('crud/' + table + '/edit', args=(id_)))
+    shotdb[table].id.represent = lambda id_, row: A(id_, _href=URL('crud', args = [table, 'edit', id_]))
     
     # generate table
     if table_id in config.colsets_auth:
@@ -59,7 +59,7 @@ def manage_users():
 def configuration():
     
     # provide edit links
-    shotdb.config.id.represent = lambda id_, row: A(id_,_href=URL('crud/config/edit', args=(id_)))
+    shotdb.config.id.represent = lambda id_, row: A(id_,_href=URL('crud', args = ['config', 'edit', id_]))
     sqltab = SQLTABLE(shotdb(shotdb.config.id > 0).select(),
                                headers = 'fieldname:capitalize', _class = 'list')
     
@@ -72,7 +72,7 @@ def crud():
     action = request.args(1)
     id_ = request.args(2)
     
-    return_page = URL('manage_users')
+    return_page = URL(request.env.http_referer.split('/')[-1])
     
     crud = Crud(shotdb)
     crud.settings.controller = 'admin_'

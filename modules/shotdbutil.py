@@ -66,9 +66,17 @@ class Events():
     '''
     def __init__(self, db):
         self.db = db
+        
+        # determine the current event
         q  = db.event.active == True
-        q &= db.event.type == db.event_type.id
+        q_join_type = db.event.type == db.event_type.id
+        q &= q_join_type
         self.current = db(q).select().last()
+        
+        if self.current == None:
+            # in case of an configuration error (no active event) => take first event to not damage too much
+            self.current = db(q_join_type).select().first()
+        
         self.current.form_label = self._form_label(self.current)
 
     def get_all(self):

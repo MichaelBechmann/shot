@@ -190,10 +190,14 @@ def dashboard():
     w = WaitList(shotdb)
     c = Contributions(shotdb, e.current.event.id)
     
+    n_limit = e.current.event.numbers_limit
+    if n_limit == None:
+        n_limit = 0
+    
     return dict(event           = e.current.form_label,
                 n_assigned      = n.number_of_assigned(),
                 n_wait          = w.length(),
-                n_limit         = e.current.event.numbers_limit,
+                n_limit         = n_limit,
                 n_shifts        = c.get_number_of_shifts(),
                 n_donations     = c.get_number_of_donations(),
                 wl_status_text  = w.status_text(0),
