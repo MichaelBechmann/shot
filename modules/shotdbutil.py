@@ -71,7 +71,8 @@ class Events():
         q  = db.event.active == True
         q_join_type = db.event.type == db.event_type.id
         q &= q_join_type
-        self.current = db(q).select().last()
+        # if there are multiple events active => select the last one to be the current event
+        self.current = db(q).select(orderby=db.event.id).last()
         
         if self.current == None:
             # in case of an configuration error (no active event) => take first event to not damage too much
@@ -385,10 +386,12 @@ class NumberAssignment():
 
     def get_old_number(self):
         '''
-        This method tries to identify the most recent sale number the person had
+        This method tries to identify the most recent sale number the person had.
+        Only events of the same type as the current event are considered!
         '''
         n = 0
-        query  = (self.db.sale.event == self.db.event.id)
+        query  = (self.db.event.type == self.e.current.event_type.id)
+        query &= (self.db.sale.event == self.db.event.id)
         query &= (self.db.sale.person == self.pid)
         rows = self.db(query).select(self.db.event.id, self.db.sale.number)
         if rows:

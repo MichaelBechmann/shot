@@ -230,7 +230,7 @@ def manage_help():
         data_shift = []
         person_list = []
         for p in c.get_helper_list_for_shift(s.id):
-            link = A('%s, %s (%s)' %(p.name, p.forename, p.place), _href = URL('person_summary', args = (p.id)))
+            link = A('%s, %s (%s)' %(p.name, p.forename, p.place), _href = URL('person_summary', args = [p.id]))
             if p.id in msg_list:
                 msg = SPAN('msg', _class = 'mh_msg_marker')
             else:
@@ -302,7 +302,7 @@ def manage_donations():
             else:
                 note = ''
                 
-            link = A('%s, %s%s' %(p.person.name, p.person.forename, note), _href = URL('person_summary', args = (p.person.id)))
+            link = A('%s, %s%s' %(p.person.name, p.person.forename, note), _href = URL('person_summary', args = [p.person.id]))
             if p.person.id in msg_list:
                 msg = SPAN('msg', _class = 'mh_msg_marker')
             else:
@@ -531,10 +531,10 @@ class Filter():
         
         # provide links to person summary
         if self.tablename == 'person':
-            shotdb[self.tablename].name.represent     = lambda x, row: A(x,_href=URL('person_summary', vars = dict(id = row.id)))
-            shotdb[self.tablename].forename.represent = lambda x, row: A(x,_href=URL('person_summary', vars = dict(id = row.id)))
+            shotdb[self.tablename].name.represent     = lambda x, row: A(x,_href=URL('person_summary', args = [row.id]))
+            shotdb[self.tablename].forename.represent = lambda x, row: A(x,_href=URL('person_summary', args = [row.id]))
         elif 'person' in shotdb[self.tablename]:
-            shotdb[self.tablename].person.represent = lambda x, row: A('%s, %s'%(row.person.name, row.person.forename),_href=URL('person_summary', vars = dict(id = row.person.id)))
+            shotdb[self.tablename].person.represent = lambda x, row: A('%s, %s'%(row.person.name, row.person.forename),_href=URL('person_summary', args = [row.person.id]))
         
         formelements = []
         if self.displayeventfilter:

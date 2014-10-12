@@ -38,7 +38,7 @@ try:
                 logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
             else:
                 # wait before sending next mail
-                sleep(5)          
+                sleep(10)          
             
             m.send()
             count += 1

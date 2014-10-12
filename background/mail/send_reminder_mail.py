@@ -27,7 +27,7 @@ try:
             logger_bg.info('The following account settings are used:')
             logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
         else:
-            sleep(5)
+            sleep(10)
             
         m.send()
         count += 1 

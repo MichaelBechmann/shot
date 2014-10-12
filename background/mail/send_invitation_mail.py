@@ -20,7 +20,7 @@ logger_bg.info('start with script "send_invitation_mail" ...')
 
 try:
     count = 0   
-    for row in shotdb(shotdb.person.id < 1).select():  
+    for row in shotdb(shotdb.person.id > 0).select():  
         if row.mail_enabled == None or row.mail_enabled == True:
             
             m = InvitationMail(shotdb, row.id, mass = True)
@@ -29,7 +29,7 @@ try:
                 logger_bg.info('The following account settings are used:')
                 logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
             else:
-                sleep(5)
+                sleep(10)
             
             m.send()
             count += 1
