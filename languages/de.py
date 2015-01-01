@@ -1,4 +1,4 @@
-# coding: utf8
+# -*- coding: utf-8 -*-
 {
 '%Y-%m-%d %H:%M:%S': '%Y-%m-%d %H:%M:%S',
 '(login)': '(login)',
@@ -51,6 +51,7 @@
 'Email sent': 'Email sent',
 'enrol date': 'enrol date',
 'enter a value': 'enter a value',
+'Enter an integer between %(min)g and %(max)g': 'Enter an integer between %(min)g and %(max)g',
 'enter an integer between %(min)g and %(max)g': 'enter an integer between %(min)g and %(max)g',
 'Errors in form, please check it out.': 'Errors in form, please check it out.',
 'event label': 'event label',
@@ -82,6 +83,7 @@
 'Invalid login': 'Invalid login',
 'Invalid password': 'Invalid password',
 'Invalid reset password': 'Invalid reset password',
+'Invalid username': 'Invalid username',
 'Is Active': 'Is Active',
 'kindergarten': 'Kindergarten',
 'Last name': 'Last name',
@@ -183,11 +185,13 @@
 'template set': 'template set',
 'test': 'test',
 'The processing of your data takes some time. Please be patient ...': 'Es dauert etwas, Ihre Daten zu verarbeiten. Bitte haben Sie Geduld ...',
+'This email already has an account': 'This email already has an account',
 'time': 'time',
 'Timestamp': 'Timestamp',
 'too short': 'too short',
 'User ID': 'User ID',
 'Username': 'Username',
+'Username already taken': 'Username already taken',
 'Username retrieve': 'Username retrieve',
 'Users': 'Users',
 'value already in database or empty': 'value already in database or empty',
