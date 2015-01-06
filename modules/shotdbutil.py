@@ -783,11 +783,11 @@ class WaitList():
         
         x  = Numbers(self.db, self.eid).number_of_available() - pos - n['open']
         
-        if x > 20:
+        if x > 15:
             msg = 'Es sind noch genügend Kommissionsnummern frei. Sie werden sicher eine Nummer erhalten, sobald unsere Warteliste aufgelöst wird.'
         elif x >= 0:
-            msg = 'Es sind nur noch wenige Kommissionsnummern frei. Da wir Helfer bevorzugt behandeln, ist unsicher, ob Sie über die Warteliste eine Nummer erhalten werden.'
-        elif x >= -15:
+            msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen. Ob Sie dann eine Nummer erhalten, hängt davon ab, wie viele Helfer wir noch gewinnen können. Um ganz sicher eine Nummer zu erhalten, tragen Sie sich für eine Helferschicht ein.'
+        elif x >= -10:
             msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine über die Warteliste erhalten, ohne zu helfen.'
         else:
             msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Unsere Warteliste ist auch schon so lang, daß Sie ohne zu helfen sicher keine Nummer mehr erhalten werden.'
