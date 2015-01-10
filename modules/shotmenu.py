@@ -13,7 +13,7 @@ from gluon.html import *
 
 def createMenu():
     
-    menu = [['Start', False, '/'],
+    menu = [['Start', False, '/main/index'],
             ['Informationen für Verkäufer', False, '/main/vendorinfo']
            ]
     

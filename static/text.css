@@ -17,10 +17,9 @@ color: #20C020;
 
 #tbl_next_event_date td{
     font-weight: bold;
-    font-size: 1.4em;
     margin:  0 0 1em 0;
     color: #000000;
-    line-height:1.6;
+    line-height:1.4;
 }
 
 #tbl_enrol_dates{
