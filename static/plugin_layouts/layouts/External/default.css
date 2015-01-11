@@ -68,7 +68,7 @@ h4{
     margin-bottom: 0.2em;
 }
 
-p, table {
+p, table.intext {
     font-size: 1.2em;
     margin: 0 0 1em 0;
     line-height: 180%;

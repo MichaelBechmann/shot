@@ -324,13 +324,12 @@ class Numbers():
     
     def free(self):
         '''
-        This method returns a list of the free numbers.
+        This method returns a set of the free numbers.
         '''        
         c = self.config()
-        l = list(set(c) - self._s_assigned())       
-        # sort as the set is hash like
-        l.sort()
-        return l
+        s = set(c) - self._s_assigned()     
+
+        return s
         
     def number_of_available(self):
         '''
@@ -354,7 +353,7 @@ class Numbers():
     
     def helper(self, eid = 0):
         '''
-        This method returns a list of the sale numbers of all helpers at the given event.
+        This method returns a set of the sale numbers of all helpers at the given event.
         If no event id is passed the default event id of the object is used.
         '''
         if eid == 0:
@@ -365,9 +364,9 @@ class Numbers():
         query &= (self.db.person.id == self.db.sale.person)
         query &= (self.db.sale.event == eid)
         
-        l = [row.number for row in self.db(query).select(self.db.sale.number)]
+        s = set([row.number for row in self.db(query).select(self.db.sale.number)])
         
-        return l
+        return s
     
     
 class NumberAssignment():
@@ -384,21 +383,37 @@ class NumberAssignment():
         self.e = Events(self.db)      
                  
 
-    def get_old_number(self):
+    def get_old_number(self, pid = None):
         '''
         This method tries to identify the most recent sale number the person had.
         Only events of the same type as the current event are considered!
         '''
+        if not pid:
+            pid = self.pid
+        
         n = 0
         query  = (self.db.event.type == self.e.current.event_type.id)
         query &= (self.db.sale.event == self.db.event.id)
-        query &= (self.db.sale.person == self.pid)
+        query &= (self.db.sale.person == pid)
         rows = self.db(query).select(self.db.event.id, self.db.sale.number)
         if rows:
             r = rows.sort(lambda row: row.event.id).last()
             n = r.sale.number
         
         return n
+    
+    def get_old_numbers_of_wait_list_persons(self):
+        '''
+        This method returns a sorted list containing the old numbers of all persons of the wait list.
+        The list is in the same order as the wait list would be resolved (helpers first)
+        '''
+        l = []
+        rows = WaitList(self.db).get_sorted_all()
+        for row in rows:
+            l.append(self.get_old_number(int(row.person.id)))
+
+        return l
+    
     
     def determine_number(self):
         '''
@@ -411,6 +426,7 @@ class NumberAssignment():
         2) If the old number of the person is still free and not a number of a helper from the previous event => assign old number
         3) If person has no old number or the old number is not free any more => assign one of the free numbers
         4) Assign numbers of helpers at the previous event not before all other free numbers (block previous helper numbers).
+        5) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
         '''
         
         self.numbers = Numbers(self.db, self.e.current.event.id)
@@ -432,24 +448,34 @@ class NumberAssignment():
         self.free = self.numbers.free()
 
         on = self.get_old_number()
-        self.on = on
         
         sn = 0
-        if (on > 0 and on not in self.numbers.assigned()):
+        if (on > 0 and on in self.free and on not in self.numbers.assigned()):
             if (self.b_helped_previous_event):
                 sn = on
             else:
-                ohn = self.numbers.helper(self.previousevent)
-                if on not in ohn:
+                if on not in self.numbers.helper(self.previousevent):
                     sn = on
 
         if sn == 0:
             # get all free numbers which shall not be blocked for previous helpers
-            sprio = set(self.free) - set(self.numbers.helper(self.previousevent))
-            if len(sprio) > 0:
-                sn = min(sprio)
-            elif len(self.free) > 0:
-                sn = self.free[-1]
+            s_ohn_removed = self.free - self.numbers.helper(self.previousevent)
+            if len(s_ohn_removed) > 0:
+                s_current = s_ohn_removed
+            else:
+                s_current = self.free
+                
+            # take into account old numbers of persons on the wait list
+            onwl = self.get_old_numbers_of_wait_list_persons()
+            s_onwl_removed = s_current - set(onwl)
+            if len(s_onwl_removed) > 0:
+                sn = min(s_onwl_removed)
+            else:
+                # Set operations cannot be used here anymore because the order old numbers of the wait list persons has to be taken into account!
+                for n in reversed(onwl):
+                    if n in s_current:
+                        sn = n
+                        break
         
         return sn
     
@@ -697,7 +723,7 @@ class WaitList():
         self.rows_wait = self.rows_all.find(lambda row: row.id not in lsale)
         
         
-    def _get_sorted_all(self):
+    def get_sorted_all(self):
         '''
         This method returns a rows object containing all persons who have no sale yet for the current event.
         All persons who help at the current event are sorted at the beginning of the list.
@@ -726,7 +752,7 @@ class WaitList():
 
     def get_sorted(self):
         
-        rows = self._get_sorted_all()
+        rows = self.get_sorted_all()
         
         # return only as many rows as numbers are available
         # negative numbers in slices do not work
@@ -750,7 +776,7 @@ class WaitList():
         pos = 0
         count = 0
         if pid != None:
-            for row in self._get_sorted_all():
+            for row in self.get_sorted_all():
                 count += 1
                 if row.person.id == pid:
                     pos = count
