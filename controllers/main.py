@@ -50,3 +50,22 @@ def redirect_https():
         args = request.args[2:]
 
     redirect(URL(c = c, f = f, args = args, scheme = 'http'))
+
+
+
+def wiki(): 
+    
+    if session.wiki_render_mode == None:
+        session.wiki_render_mode = 'html'
+    
+    return auth.wiki(render = session.wiki_render_mode, menu_groups=['nobody'])
+
+def announcement_events():
+    announcements = Events(shotdb).get_visible()
+    if announcements:
+        return TABLE([TD('%s am %s, %s' % (r.label, r.date, r.time)) for r in announcements], _id="tbl_next_event_date")
+
+    else:
+        return SPAN('Die Termine für die nächsten Märkte stehen noch nicht fest.')
+
+    

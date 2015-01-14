@@ -3,6 +3,7 @@
 <script src="/static/js/jquery.js" type="text/javascript"></script>
 <script src="/static/js/jquery.ba-outside-events.min.js" type="text/javascript"></script>
 <script src="/static/js/menu.js" type="text/javascript"></script>
+{{response.include_files()}}
 {{from shotmenu import *}}
 {{=createMenu()}}
 {{=createStaffMenu(auth)}}
