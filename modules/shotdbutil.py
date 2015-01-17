@@ -410,7 +410,9 @@ class NumberAssignment():
         l = []
         rows = WaitList(self.db).get_sorted_all()
         for row in rows:
-            l.append(self.get_old_number(int(row.person.id)))
+            n = self.get_old_number(int(row.person.id))
+            if n != 0:
+                l.append(n)
 
         return l
     
