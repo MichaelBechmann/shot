@@ -422,11 +422,17 @@ class NumberAssignment():
         This method determines the sale number based on the persons data.
         If no valid sale number could be determined this function returns 0.
         
+        old number: last number of this person, not necessarily from the previous event
+        free numbers: numbers in the configured number ranges for the event which are not yet assigned
+        
+        note possible conflict: Who helped at the previous event will get ones old number even if one did not have a number at the previous event.
+        
         For the determination of the sale number the following rules are applied:
         0) If there are no numbers available any more => assign 0
-        1) If the person helped at the previous event => assign old number (last number of this person, not necessarily from the previous event)
-        2) If the old number of the person is still free and not a number of a helper from the previous event => assign old number
-        3) If person has no old number or the old number is not free any more => assign one of the free numbers
+        1) If the old number of the person is not yet assigned and the person helped at the previous event => assign old number
+           It is possible that this old number is not in the range of configured numbers!
+        2) If the old number of the person is not yet assigned and not a number of a helper from the previous event => assign old number
+        3) If person has no old number or the old number is already assigned => assign one of the free numbers
         4) Assign numbers of helpers at the previous event not before all other free numbers (block previous helper numbers).
         5) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
         '''
@@ -452,7 +458,7 @@ class NumberAssignment():
         on = self.get_old_number()
         
         sn = 0
-        if (on > 0 and on in self.free and on not in self.numbers.assigned()):
+        if (on > 0 and on not in self.numbers.assigned()):
             if (self.b_helped_previous_event):
                 sn = on
             else:
