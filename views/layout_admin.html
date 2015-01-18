@@ -10,7 +10,12 @@
 
 {{from shotmenu import *}}
 {{=createMenu()}}
-{{=createStaffMenu(auth)}}
+{{
+    if 'wiki_ctrl' not in response._vars:
+        wiki_ctrl = None
+        pass
+}}
+{{=createStaffMenu(auth, wiki_ctrl)}}
 
 
 

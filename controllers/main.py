@@ -8,24 +8,16 @@ if 0:
     global response
     global session
     global shotdb
+    global auth
     
 from shotdbutil import Events
 from shotmail import ErrorMail
 from shotconfig import config
+from gluon.storage import Storage
 
 T.force('de')
 
-def index():
-    return dict(announcements = Events(shotdb).get_visible())
 
-def vendorinfo():
-    return dict(enrol_dates = Events(shotdb).get_visible())
-
-def privacy():
-    return dict()
-
-def legal():
-    return dict()
 
 def error():
     if config.enable_error_mail:
@@ -53,12 +45,20 @@ def redirect_https():
 
 
 
-def wiki(): 
+def wiki():
     
-    if session.wiki_render_mode == None:
-        session.wiki_render_mode = 'html'
+    wiki = auth.wiki(render = 'multiple', menu_groups=['nobody'])
     
-    return auth.wiki(render = session.wiki_render_mode, menu_groups=['nobody'])
+    wiki_ctrl = Storage()
+
+    if str(request.args(0)).startswith('_'):
+        wiki_ctrl.cmd = request.args(0)     
+    else:
+        wiki_ctrl.slug = request.args(0)
+        
+    wiki['wiki_ctrl'] = wiki_ctrl
+    
+    return wiki
 
 def announcement_events():
     announcements = Events(shotdb).get_visible()
@@ -67,5 +67,12 @@ def announcement_events():
 
     else:
         return SPAN('Die Termine für die nächsten Märkte stehen noch nicht fest.')
+
+def announcement_enroll():
+    enrol_dates = Events(shotdb).get_visible()
+    if enrol_dates:
+        return TABLE([TD('ab ', SPAN(r.enrol_date, _id = 'enrol_date'), ' für den %s  am %s' % (r.label, r.date)) for r in enrol_dates], _id = 'tbl_enrol_dates')
+    else:
+        return 'Die Anmeldetermine für die nächsten Märkte stehen noch nicht fest.'
 
     

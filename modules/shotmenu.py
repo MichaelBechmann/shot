@@ -11,30 +11,29 @@ if 0:
 from shotconfig import *
 from shotdbutil import User
 from gluon.html import *
-from gluon import current
 
 def createMenu():
     
     menu = [
             ['Start', False, URL('main','wiki', args=['start'])],
-            ['Informationen für Verkäufer', False, URL('main','vendorinfo')]
+            ['Informationen für Verkäufer', False, URL('main','wiki', args=['vendorinfo'])]
            ]
     
     if config.enable_registration:
         menu.extend([['Registrierung', False, URL('registration','form')]])  
     
     if config.enable_requests:        
-        menu.extend([['Fördermittel beantragen', False, URL('appropriation','introduction')]])
+        menu.extend([['Fördermittel beantragen', False, URL('main', 'wiki',args=['appropriation-start'])]])
         
     menu.extend([
-                 ['Datenschutz', False, URL('main','privacy')],
+                 ['Datenschutz', False, URL('main','wiki', args=['dataprivacy'])],
                  ['Kontakt', False, URL('contact','form')]
                 ])
                       
     return(DIV(MENU(menu), _id='menu'))
 
 
-def createStaffMenu(auth):
+def createStaffMenu(auth, wiki_ctrl = None):
 
     menu = [] 
     if not auth.is_logged_in():
@@ -95,6 +94,7 @@ def createStaffMenu(auth):
                     ])
         
         # wiki menue
+
         controller = 'main'
         function = 'wiki'
         
@@ -102,12 +102,15 @@ def createStaffMenu(auth):
             wiki_menu = [['Manage pages', False, URL(controller, function, args=['_pages'])],
                          ['Search pages', False, URL(controller, function, args=['_search'])],
                         ]
-            if not str(current.request.args(0)).startswith('_'):
-                slug = current.request.args(0)
-                wiki_menu.append(['Edit this page', False, URL(controller, function, args=('_edit', slug))])
+            
+            if 'wiki_author' in auth.user_groups.values():
+                wiki_menu.append(['Create new page', False, URL(controller, function, args=('_create'))])
+            
+            if wiki_ctrl and not wiki_ctrl['cmd']:
+                wiki_menu.append(['Edit this page', False, URL(controller, function, args=('_edit', wiki_ctrl['slug']))])
             
             
             menu.extend([['Wiki', False, '#', wiki_menu]])
                 
-
+    
     return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_staff'))

@@ -30,7 +30,7 @@ def form():
     
     # check if registration  is enabled    
     if config.enable_registration == False:
-        redirect(URL('registration', 'locked'))
+        redirect(URL('main', 'wiki', args=['registration-locked']))
 
         
     display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email']
@@ -122,7 +122,7 @@ def confirm():
 def check():
     # check if registration is enabled
     if config.enable_registration == False:
-        redirect(URL('registration', 'locked'))
+        redirect(URL('main', 'wiki', args=['registration-locked']))
         
     i = Ident(shotdb, request.args[0])
 
@@ -154,8 +154,6 @@ def disable_mail():
 
     return dict(c = c)             
 
-def locked():
-    return dict()
             
         
         

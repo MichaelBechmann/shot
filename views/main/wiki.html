@@ -1,9 +1,15 @@
 {{response.files.append(URL('static','wiki.css'))}}
-{{response.files.append(URL('static','js/markitup/jquery.markitup.js'))}}
-{{response.files.append(URL('static','js/wiki.js'))}}
 {{response.files.append(URL('static','js/web2py.js'))}}
-{{response.files.append(URL('static','js/markitup/sets/%s/set.js' % session.wiki_render_mode))}}
-{{response.files.append(URL('static','js/markitup/sets/%s/style.css' % session.wiki_render_mode))}}
-{{response.files.append(URL('static','js/markitup/skins/markitup/style.css'))}}
+
+{{
+  if wiki_ctrl.cmd == '_edit':
+    render = 'html'
+    response.files.append(URL('static','js/wiki.js'))
+    response.files.append(URL('static','js/markitup/jquery.markitup.js'))
+    response.files.append(URL('static','js/markitup/sets/%s/set.js' % render))
+    response.files.append(URL('static','js/markitup/sets/%s/style.css' % render))
+    response.files.append(URL('static','js/markitup/skins/markitup/style.css'))
+    pass
+}}
 {{extend 'layout.html'}}
 {{=content}}

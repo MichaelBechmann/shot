@@ -203,6 +203,7 @@
 'Registration key': 'Registration key',
 'Registration successful': 'Registration successful',
 'Remember me (for 30 days)': 'Remember me (for 30 days)',
+'Render': 'Render',
 'Request reset password': 'Request reset password',
 'Requests': 'Requests',
 'Reset password': 'Reset password',

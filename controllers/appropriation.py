@@ -33,11 +33,6 @@ def __regularize_form_input(form):
     # check fields from table request
     for field in ('project', 'organization'):
         form.vars[field] = regularizeName(form.vars[field])
-    
-
-def introduction():
-    form = FORM(INPUT(_type = 'submit', _class = 'button', _value = 'Weiter zum Antragsformular'), _action =  URL('appropriation', 'form'))
-    return dict(form = form)
 
 
 def form():
