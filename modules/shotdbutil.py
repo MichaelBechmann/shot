@@ -7,7 +7,8 @@ import random
 import string
 import datetime
 from shotconfig import *
-from gluon.dal import DAL, Rows
+from gluon.dal import DAL
+from gluon.dal.objects import Rows
 from gluon.contrib.pymysql import IntegrityError
 
 
