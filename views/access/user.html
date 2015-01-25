@@ -24,22 +24,23 @@ response.write(h)
   {{=form}}
 </div>
 {{
+from urlutils import URLUser
 links = []
 if request.args(0)=='login':
     if not 'register' in auth.settings.actions_disabled:
-        links.append(A('Registrieren', callback = URL(args='register')))
+        links.append(A('Registrieren', callback = URLUser('register')))
     pass
     if links:
         links.append(', ')
     pass
     if not 'request_reset_password' in auth.settings.actions_disabled:
-        links.append(A('Paßwort vergessen?', callback = URL(args='request_reset_password')))
+        links.append(A('Paßwort vergessen?', callback = URLUser('request_reset_password')))
     pass
     if links:
         links.append(', ')
     pass
     if not 'retrieve_username' in auth.settings.actions_disabled:
-        links.append(A('Benutzernamen vergessen?', callback = URL(args='retrieve_username')))
+        links.append(A('Benutzernamen vergessen?', callback = URLUser('retrieve_username')))
     pass
     
 pass

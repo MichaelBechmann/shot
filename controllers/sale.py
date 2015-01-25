@@ -17,6 +17,7 @@ from shotdbutil import *
 import re
 from shoterrors import ShotError
 from formutils import regularizeName, getActNumberRatio
+from urlutils import URLWiki
 
 
 T.force('de')
@@ -75,7 +76,7 @@ def form():
         sale = Sale()
     elif session.registration_person_id == None:
         # Something went wrong.
-        redirect(URL('main','index'))
+        redirect(URLWiki('start'))
         #raise ShotError('Sale form entered without identified person.') # see issue #43
     else:
         # The form is active.
@@ -176,7 +177,7 @@ def form():
 def confirm():
     # check if there is personal information to be confirmed
     if (session.sale_vars == None) or (session.registration_person_id == None):
-        redirect(URL('main','index'))
+        redirect(URLWiki('start'))
     sale = Sale(session.registration_person_id)
     
     # construct display of data to be confirmed

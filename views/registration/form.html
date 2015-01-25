@@ -1,9 +1,3 @@
 {{extend 'layout.html'}}
-
-
-{{include 'registration/form_comment_de.html'}}
-
-{{
-response.write(form)
-
-}}
+{{=auth.wiki(slug='registration-comment-form')}}
+{{=form}}

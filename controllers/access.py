@@ -13,9 +13,10 @@ if 0:
     
 from shotconfig import EMailAccount
 from shotdbutil import User
+from urlutils import URLWiki
 
 auth.settings.login_next           = URL('info' )
-auth.settings.logout_next          = URL('main','index')
+auth.settings.logout_next          = URLWiki('start')
 auth.settings.reset_password_next  = URL('info')
 auth.settings.change_password_next = URL('info')
 auth.settings.profile_next         = URL('info')

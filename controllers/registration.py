@@ -18,6 +18,7 @@ from shotdbutil import *
 from gluon.storage import Storage
 from shoterrors import ShotError
 from formutils import regularizeFormInputPersonorm, getPersonDataTable
+from urlutils import URLWiki
 import re
 
 T.force('de')
@@ -30,7 +31,7 @@ def form():
     
     # check if registration  is enabled    
     if config.enable_registration == False:
-        redirect(URL('main', 'wiki', args=['registration-locked']))
+        redirect(URLWiki('registration-locked'))
 
         
     display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email']
@@ -66,7 +67,7 @@ def form():
 def confirm():
     # check if there is personal information to be confirmed
     if session.registration_person == None:
-        redirect(URL('main','index'))
+        redirect(URLWiki('start'))
 
     # construct display of data to be confirmed
     data = getPersonDataTable(session.registration_person)          
@@ -122,7 +123,7 @@ def confirm():
 def check():
     # check if registration is enabled
     if config.enable_registration == False:
-        redirect(URL('main', 'wiki', args=['registration-locked']))
+        redirect(URLWiki('registration-locked'))
         
     i = Ident(shotdb, request.args[0])
 

@@ -1,0 +1,14 @@
+{{extend 'layout_admin.html'}}
+
+
+<h3>
+Admin actions
+</h3>
+
+{{=form}}
+{{
+if result:
+    response.write(H4('Results'))
+    response.write(result)
+    pass
+}}

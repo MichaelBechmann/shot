@@ -16,10 +16,10 @@ if 0:
     global shotdb
     
 from shotconfig import *
-from shoterrors import ShotError
 from formutils import regularizeName, regularizeFormInputPersonorm, getPersonDataTable, getAppRequestDataTale
 from shotdbutil import PersonEntry, AppropriationRequestEntry
 from shotmail import AppropriationRequestMail
+from urlutils import URLWiki
 
 T.force('de')
 
@@ -39,7 +39,7 @@ def form():
     
     # check if appropriation requests are enabled    
     if config.enable_requests == False:
-        redirect(URL('main', 'index'))
+        redirect(URLWiki('start'))
 
     # note: multiple tables in SQLFORM must not have identical field names, see http://web2py.com/books/default/chapter/29/7#One-form-for-multiple-tables
     display_fields = ['project', 'organization', 'forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email', 'amount_total', 'amount_requested', 'description']
@@ -80,7 +80,7 @@ def form():
 def confirm():
     # check if there is personal information to be confirmed
     if session.appropriation_request == None:
-        redirect(URL('main','index'))
+        redirect(URLWiki('start'))
     
     
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
@@ -115,13 +115,8 @@ def confirm():
         shotdb.commit()
         AppropriationRequestMail(shotdb, ar.aid).send()
         
-        redirect(URL('final'))
+        redirect(URLWiki('appropriation-final'))
 
     return(dict(data_person = getPersonDataTable(session.appropriation_request), data_project = getAppRequestDataTale(session.appropriation_request), form = form))
 
-def final():
-    return dict()
-
-        
-        
     

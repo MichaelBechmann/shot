@@ -11,22 +11,23 @@ if 0:
 from shotconfig import *
 from shotdbutil import User
 from gluon.html import *
+from urlutils import URLWiki, URLTable, URLUser
 
 def createMenu():
     
     menu = [
-            ['Start', False, URL('main','wiki', args=['start'])],
-            ['Informationen für Verkäufer', False, URL('main','wiki', args=['vendorinfo'])]
+            ['Start', False, URLWiki('start')],
+            ['Informationen für Verkäufer', False, URLWiki('vendorinfo')]
            ]
     
     if config.enable_registration:
         menu.extend([['Registrierung', False, URL('registration','form')]])  
     
     if config.enable_requests:        
-        menu.extend([['Fördermittel beantragen', False, URL('main', 'wiki',args=['appropriation-start'])]])
+        menu.extend([['Fördermittel beantragen', False, URLWiki('appropriation-start')]])
         
     menu.extend([
-                 ['Datenschutz', False, URL('main','wiki', args=['dataprivacy'])],
+                 ['Datenschutz', False, URLWiki('dataprivacy')],
                  ['Kontakt', False, URL('contact','form')]
                 ])
                       
@@ -38,7 +39,7 @@ def createStaffMenu(auth, wiki_ctrl = None):
     menu = [] 
     if not auth.is_logged_in():
         if config.enable_extended_menue:
-            menu.extend([['login', False, URL('access', 'user', args='login')]
+            menu.extend([['login', False, URLUser('login')]
                         ])
         else:
             return ''
@@ -47,24 +48,31 @@ def createStaffMenu(auth, wiki_ctrl = None):
             menu.extend([['Dashboard',        False, URL('staff','dashboard')]])
         
         if 'staff' in auth.user_groups.values():
+<<<<<<< Upstream, based on origin/master
             menu.extend([['Organize', False, '#',
                           [['Person summary',    False, '/staff/person_summary'],
                            ['Number summary',    False, '/staff/number_summary'],
                            ['Number status map', False, '/staff/number_status_map'],
                            ['Manage help',       False, '/staff/manage_help'],
                            ['Manage donations',  False, '/staff/manage_donations']
+=======
+            menu.extend([['Organize', False, '',
+                          [['Person summary',   False, URL('staff','person_summary')],
+                           ['Manage help',      False, URL('staff','manage_help')],
+                           ['Manage donations', False, URL('staff','manage_donations')]
+>>>>>>> 1295891 #74 wiki setup intermediate 20150125
                        ]
                       ],
-                      ['Tables', False, '#',
-                        [['Persons',   False, URL('staff','table', args=['person'])],
-                         ['Sale',      False, URL('staff','table', args=['sale'])],    
-                         ['Wait',      False, URL('staff','table', args=['wait'])],   
-                         ['Help',      False, URL('staff','table', args=['help'])],
-                         ['Bring',     False, URL('staff','table', args=['bring'])],
-                         ['Shifts',    False, URL('staff','table', args=['shift'])],
-                         ['Donations', False, URL('staff','table', args=['donation'])],
-                         ['Messages',  False, URL('staff','table', args=['message'])],
-                         ['Requests',  False, URL('staff','table', args=['request'])]
+                      ['Tables', False, '',
+                        [['Persons',   False, URLTable('person')],
+                         ['Sale',      False, URLTable('sale')],    
+                         ['Wait',      False, URLTable('wait')],   
+                         ['Help',      False, URLTable('help')],
+                         ['Bring',     False, URLTable('bring')],
+                         ['Shifts',    False, URLTable('shift')],
+                         ['Donations', False, URLTable('donation')],
+                         ['Messages',  False, URLTable('message')],
+                         ['Requests',  False, URLTable('request')]
                         ]
                       ]
                      ])
@@ -76,38 +84,39 @@ def createStaffMenu(auth, wiki_ctrl = None):
             menu.extend([['Tasks', False, URL('tasks','start')]])
 
         if 'admin' in auth.user_groups.values():
-            menu.extend([['Admin', False, '#',
+            menu.extend([['Admin', False, '',
                           [['Manage users',     False,  URL('admin_','manage_users')],
                            ['Configuration',    False,  URL('admin_','configuration')],
+<<<<<<< Upstream, based on origin/master
                            ['benchmark',        False,  '/admin_/benchmark']
+=======
+                           ['Actions',          False,  URL('admin_','actions')],
+>>>>>>> 1295891 #74 wiki setup intermediate 20150125
                           ]
                          ]
                         ])  
 
-        menu.extend([['Account', False, '#',
-                      [['Logout',          False, URL('access','user', args=['logout'])],
+        menu.extend([['Account', False, '',
+                      [['Logout',          False, URLUser('logout')],
                        ['Info',            False, URL('access','info')],
-                       ['Profile',         False, URL('access','user', args=['profile'])],
-                       ['Change password', False, URL('access','user', args=['change_password'])],
+                       ['Profile',         False, URLUser('profile')],
+                       ['Change password', False, URLUser('change_password')],
                       ]
                      ]
                     ])
         
         # wiki menue
-
-        controller = 'main'
-        function = 'wiki'
         
         if 'wiki_editor' in auth.user_groups.values() or 'wiki_author' in auth.user_groups.values():
-            wiki_menu = [['Manage pages', False, URL(controller, function, args=['_pages'])],
-                         ['Search pages', False, URL(controller, function, args=['_search'])],
+            wiki_menu = [['Manage pages', False, URLWiki('_pages')],
+                         ['Search pages', False, URLWiki('_search')],
                         ]
             
             if 'wiki_author' in auth.user_groups.values():
-                wiki_menu.append(['Create new page', False, URL(controller, function, args=('_create'))])
+                wiki_menu.append(['Create new page', False, URLWiki('_create')])
             
             if wiki_ctrl and not wiki_ctrl['cmd']:
-                wiki_menu.append(['Edit this page', False, URL(controller, function, args=('_edit', wiki_ctrl['slug']))])
+                wiki_menu.append(['Edit this page', False, URLWiki(('_edit', wiki_ctrl['slug']))])
             
             
             menu.extend([['Wiki', False, '#', wiki_menu]])

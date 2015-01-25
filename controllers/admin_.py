@@ -130,3 +130,45 @@ def benchmark():
     
     return dict(results = TABLE(*rl, _class = 'list'))
     
+    
+    @auth.requires_membership('admin')
+def actions():
+    result = None
+    
+    actions = (('Rectify wiki links', __rectify_wiki),
+
+              )
+    rows = [TR(actions[i][0],
+               INPUT(_type = 'submit', _name = str(i), _value = 'go!', _class = "irreversible")
+               ) for i in range(len(actions))]
+    form = FORM(TABLE(*rows, _class = 'caution'))
+    
+    for k in request.vars.iterkeys():
+        f = actions[int(k)][1]
+        result = f()
+        break
+    
+    return dict(form = form, result = result)
+
+
+def __rectify_wiki():
+    '''
+    This function loops through all rows of table wiki_page. For each page the body is retrieved and then converted to html which is then stored in the database.
+    This is necessary to fix all links all copying the database from some other site.
+    '''
+    print 'before'
+    auth.wiki(render = 'multiple')
+    print 'after'
+    slugs = []
+    q = shotdb.wiki_page.id > 0
+    for page in shotdb(q).select():
+        
+        renderer = auth._wiki.get_renderer()
+        shotdb(shotdb.wiki_page.id == page.id).update(html = renderer(page))
+        
+        slugs.append(page.slug)
+    
+    
+    result = DIV(P('The following pages have been rectified:'),BEAUTIFY(slugs))
+    
+    return result
