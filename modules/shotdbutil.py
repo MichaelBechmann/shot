@@ -731,11 +731,20 @@ class WaitList():
         # create auxiliary rows object containing all wait list entries without sale
         self.rows_wait = self.rows_all.find(lambda row: row.id not in lsale)
         
+    def _limit_rows(self, rows, l):
+        '''
+        Auxiliary method to limit the length the rows objects constructed by other method of this class.
+        l>0: number of rows returned, l=0: parameter is ignored, l<0: the last l rows are dropped
+        '''
+        if l == 0:
+            return rows
+        else:
+            return rows[:l]
         
     def get_sorted_all(self):
         '''
         This method returns a rows object containing all persons who have no sale yet for the current event.
-        All persons who help at the current event are sorted at the beginning of the list.
+        All persons who help at the current event are sorted at the beginning of the list.      
         '''
         # get all wait list entries which additionally are linked to shifts
         query_help  = self.query_wait
@@ -756,23 +765,27 @@ class WaitList():
 
         # sort helpers in front
         # Note: sort method of rows object does not operate in place!
-        return(self.rows_wait.sort(lambda row: row.id if row.id in lhelp else row.id + offset))
-        
+        return self.rows_wait.sort(lambda row: row.id if row.id in lhelp else row.id + offset)
 
-    def get_sorted(self):
-        
+    def get_sorted(self, l = 0):
+        '''
+        This method returns only as many rows as numbers are available
+        parameter l: specifies the length of the returned rows object  
+        '''
         rows = self.get_sorted_all()
         
-        # return only as many rows as numbers are available
         # negative numbers in slices do not work
-        return rows[:max([0, Numbers(self.db, self.eid).number_of_available()])]
+        r = rows[:max([0, Numbers(self.db, self.eid).number_of_available()])]
+        return self._limit_rows(r, l)
         
-    def get_denials(self):
+    def get_denials(self, l = 0):
         '''
         This method returns a rows object containing all persons who have no sale yet for the current event
         and have got no denial mail so far.
+        parameter l: specifies the length of the returned rows object
         '''
-        return self.rows_wait.find(lambda row: row.denial_sent != True)
+        r = self.rows_wait.find(lambda row: row.denial_sent != True)
+        return self._limit_rows(r, l)
     
     def get_pos_current(self, pid):
         '''

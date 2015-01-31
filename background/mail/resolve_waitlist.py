@@ -11,6 +11,7 @@ from shotdbutil import *
 from shotmail import NumberFromWaitlistMail, NumberFromWaitlistMailSuccession
 from time import sleep
 from shotlogging import logger_bg
+import sys
 
 '''
 This function goes through the sorted wait list and assigns sale numbers as long as there are numbers left.
@@ -18,6 +19,13 @@ An email is sent to each person who got a sale number this way.
 '''
 
 logger_bg.info('start with script "resolve_waitlist" ...')
+logger_bg.info('command line arguments: ' + str(sys.argv))
+
+# extract limit from parameter
+if len(sys.argv) > 1:
+    limit = int(sys.argv[1])
+else:
+    limit = 0
 
 b_log_account_number_mail       = True
 b_log_account_number_mail_succ  = True
@@ -25,7 +33,7 @@ b_log_account_number_mail_succ  = True
 try:
     wl = WaitList(shotdb)
     count = 0
-    for row in wl.get_sorted():
+    for row in wl.get_sorted(limit):
         if Numbers(shotdb, wl.eid).b_numbers_available():
             if count > 0:
                 # wait before sending next mail

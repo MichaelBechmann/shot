@@ -1,9 +1,9 @@
 {{extend 'layout.html'}}
-
 <link href="/static/admin.css" rel="stylesheet" type="text/css" />
-          
-{{
 
+<h3>Background tasks</h3>
+
+{{
 if config.enable_tasks:
     s = 'enabled'
     c = 'active'
@@ -23,7 +23,16 @@ else:
 r2 = TR('Mail status:', TD(s, _class = c))
 
 response.write(TABLE(r1, r2, _id = 'task_status'))
-
-response.write(form)
-
 }}
+
+<br />
+Mit dem Parameter "limit" läßt sich steuern, wieviele Datenbankeinträge tatsächlich bearbeitet werden sollen.
+<br />
+limit = 0 oder leer: Keine Wirkung
+<br />
+limit > 0: Anzahl der zu bearbeitenden Einträge
+<br />
+limit < 0: Anzahl der Einträge, die übrig bleiben sollen
+<br />
+<br />
+{{=form}}

@@ -11,6 +11,7 @@ from shotdbutil import WaitList, Numbers
 from shotmail import WaitDenialMail
 from time import sleep
 from shotlogging import logger_bg
+import sys
 
 '''
 This function goes through the sorted wait list after its resolution. 
@@ -18,7 +19,13 @@ An denial email is sent to each person who did not get a sale number.
 '''
 
 logger_bg.info('start with script "send_waitlist_denial_mail.py" ...')
+logger_bg.info('command line arguments: ' + str(sys.argv))
 
+# extract limit from parameter
+if len(sys.argv) > 1:
+    limit = int(sys.argv[1])
+else:
+    limit = 0
 try:
     wl = WaitList(shotdb)
     if Numbers(shotdb, wl.eid).b_numbers_available():
@@ -26,7 +33,7 @@ try:
         
     else:
         count = 0
-        for row in wl.get_denials():
+        for row in wl.get_denials(limit):
             
             shotdb(shotdb.wait.id == row.id).update(denial_sent = True)
             shotdb.commit()

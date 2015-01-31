@@ -1,4 +1,4 @@
-    # -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 '''
 creation: bechmann, Aug 10, 2013
 
@@ -21,39 +21,58 @@ import subprocess
 
 @auth.requires_membership('task executor')
 def start():
-    tasklist = ((0, 'Send invitation mail to all former vendors.',  '/background/mail/send_invitation_mail.py',         False),
-                (1, 'Resolve waitlist and send sale number mail.',  '/background/mail/resolve_waitlist.py',             True),
-                (2, 'Send waitlist denial mail.',                   '/background/mail/send_waitlist_denial_mail.py',    True),
-                (3, 'Send reminder mail to all participants.',      '/background/mail/send_reminder_mail.py',           True),
-                (4, 'Backup database',                              '/background/backup/backup_db.py',                  False)
+    #            id label/description                                task script                                        parameter,  test button
+    tasklist = ((0, 'Send invitation mail to all former vendors.',  '/background/mail/send_invitation_mail.py',         False,      False),
+                (1, 'Resolve waitlist and send sale number mail.',  '/background/mail/resolve_waitlist.py',             True,       True),
+                (2, 'Send waitlist denial mail.',                   '/background/mail/send_waitlist_denial_mail.py',    True,       True),
+                (3, 'Send reminder mail to all participants.',      '/background/mail/send_reminder_mail.py',           False,      True),
+                (4, 'Backup database',                              '/background/backup/backup_db.py',                  False,      False)
                 )
     rows = [TR(t[1],
-               INPUT(_type = 'submit', _name = 'test_' + str(t[0]), _value = T('test')) if t[3] else TD(''),
+               SPAN('limit: ', INPUT(_type = 'text', requires = IS_EMPTY_OR(IS_INT_IN_RANGE(-10000, 10000, error_message = 'Not an integer!')), _name = 'param_' + str(t[0]), _size = 2)) if t[3] else TD(''),
+               INPUT(_type = 'submit', _name = 'test_'  + str(t[0]), _value = T('test')) if t[4] else TD(''),
                INPUT(_type = 'submit', _name = str(t[0]), _value = T('go!'), _class = "irreversible")
                ) for t in tasklist]
     form = FORM(TABLE(*rows, _class = 'caution'))
 
-    rows_out = None
-    if 'test_1' in request.vars.iterkeys():
-        rows_out = WaitList(shotdb).get_sorted()
-        columns = ['wait.id', 'wait.person']
-
-    elif 'test_2' in request.vars.iterkeys():
-        rows_out = WaitList(shotdb).get_denials()
-        columns = ['wait.id', 'wait.person']
+    if form.validate():
         
-    elif 'test_3' in request.vars.iterkeys():
-        rows_out = Reminder(shotdb).get_all_persons()
-        columns = ['person.id', 'person.name', 'person.forename']
-
-    if rows_out != None:
-        return DIV(SPAN('Number of mails: %d' % len(rows_out)), SQLTABLE(rows_out, columns = columns, headers='fieldname:capitalize'))
-
-    if config.enable_tasks:
-        for k in request.vars.iterkeys():
-            subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + tasklist[int(k)][2]])
-            redirect(URL('final'))
-            break
+        # extract parameter
+        param = 0
+        for t in tasklist:
+            si = str(t[0])
+            st = 'test_'  + si
+            sp = 'param_' + si
+            if t[3] and ((st in request.vars) or (si in request.vars)):
+                p = request.vars[sp]
+                if p:
+                    param = int(p)
+                break
+        
+        rows_out = None
+        if 'test_1' in request.vars.iterkeys():
+            rows_out = WaitList(shotdb).get_sorted(param)
+            columns = ['wait.id', 'wait.person']
+    
+        elif 'test_2' in request.vars.iterkeys():
+            rows_out = WaitList(shotdb).get_denials(param)
+            columns = ['wait.id', 'wait.person']
+            
+        elif 'test_3' in request.vars.iterkeys():
+            rows_out = Reminder(shotdb).get_all_persons()
+            columns = ['person.id', 'person.name', 'person.forename']
+    
+        if rows_out != None:
+            return DIV(SPAN('Number of mails: %d' % len(rows_out)), SQLTABLE(rows_out, columns = columns, headers='fieldname:capitalize'))
+    
+        if config.enable_tasks:
+            for t in tasklist:
+                idx = t[0]
+                if str(idx) in request.vars:
+                    subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + t[2], '-A', str(param)])
+                    redirect(URL('final'))
+                    break
+           
 
     return dict(form = form)
 
