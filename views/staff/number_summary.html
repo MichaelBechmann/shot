@@ -1,0 +1,16 @@
+{{extend 'layout_admin.html'}}
+
+<h3>Number summary</h3>
+<p>
+Diese Seite stellt alle Informationen zu einzelnen Kommissionsnummern bereit.
+</p>
+{{=form}}
+<br />
+
+{{
+if data:
+    response.write(DIV('Here is the data for sale number: ', STRONG(str(number))))  
+    response.write(BEAUTIFY(data))
+    pass
+
+}}

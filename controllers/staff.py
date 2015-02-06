@@ -45,8 +45,8 @@ def person_summary():
         pid = int(form.vars['person'])
         session.selected_pid = pid
         session.mailform_message = None
-        # redirect is necessary to pre-populate the form; didn't find another way
         
+        # redirect is necessary to pre-populate the form; didn't find another way
         redirect(URL('person_summary'))
     
     p = Person(shotdb, pid)
@@ -182,6 +182,44 @@ def person_summary():
 
 def mail_sent():
     return dict()
+
+@auth.requires_membership('staff')
+def number_summary():
+    
+    number = session.selected_number
+    data = None
+    
+    elems = [SPAN('Sale number: '),
+             INPUT(_type = 'text', requires = IS_INT_IN_RANGE(0, 100000, error_message = 'Not an integer!'), _name = 'number', _size = 3),
+             INPUT(_type = 'submit', _name = 'submit', _value = 'go!')
+            ]
+    
+    form = FORM(TABLE(TR(*elems)))
+    
+    if form.validate():
+        number = int(form.vars['number'])
+        session.selected_number = number
+        
+    if number:
+        eventdata = Numbers(shotdb).number_history(number)
+        
+        tu = TableUtils()
+        data_elements = []
+        for d in eventdata:
+            if 'person' in d:
+                p = d['person'].person
+                l = A('%s, %s (%s)' %(p.name, p.forename, p.place), _href = URL('person_summary', args = [p.id]))
+            else:
+                l = '-'
+            data_elements.append(TR(TD(d['label']),
+                                    TD(l),
+                                    _class = tu.get_class_evenodd()))
+        
+        data = TABLE(THEAD(TR(TH('Event'), TH('Person'))),
+                     TBODY(*data_elements), _class = 'list', _id = 'ps_data_table')
+        
+    return dict(form = form, number = number, data = data)    
+        
 
 @auth.requires_membership('team')
 def dashboard():

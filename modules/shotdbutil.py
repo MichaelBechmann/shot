@@ -266,10 +266,11 @@ class Numbers():
     
     arguments: eid - event database id
     '''
-    def __init__(self, db, eid):  
+    def __init__(self, db, eid = None):  
         self.db = db
-        self.eid    = eid
-        self.event  = self.db.event[eid]
+        if eid:
+            self.eid = eid
+            self.event  = self.db.event[eid]
         
     def _s_assigned(self):
         '''
@@ -368,6 +369,31 @@ class Numbers():
         s = set([row.number for row in self.db(query).select(self.db.sale.number)])
         
         return s
+    
+    def number_history(self, number):
+        '''
+        This method returns a list of all persons who ever had this sale number.
+        '''
+        query  = (self.db.sale.number == number)
+        query &= (self.db.sale.person == self.db.person.id)
+        query &= (self.db.sale.event  == self.db.event.id)
+        
+        rows = self.db(query).select(self.db.event.id, self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
+        
+        data = {}
+        for label, eid in Events(self.db).get_all().iteritems():
+            data[eid] = {'label': label}
+            for r in rows:
+                if r.event.id == eid:
+                    data[eid]['person'] = r
+                    break
+        
+        #  create sorted list
+        eventdata = []
+        for eid in sorted(data.keys(), reverse=True):
+            eventdata.append(data[eid])
+        
+        return eventdata
     
     
 class NumberAssignment():
