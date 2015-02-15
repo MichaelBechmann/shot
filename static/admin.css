@@ -121,3 +121,41 @@ table.caution td {
 .flash{
     color: #ff0000;
 }
+
+/* number status map */
+table.number_status_map{
+    font-family: verdana,arial,sans-serif;
+    font-size:1.0em;
+}
+#number_status_map_legend{
+    font-size:0.8em;
+}
+
+table.number_status_map td {
+    border-width: 1px;
+    padding: 8px;
+    border-style: solid;
+    border-color: #a0a0a0;
+}
+
+table.number_status_map td.free {
+	background: #ffffff;
+}
+table.number_status_map td.reserved {
+    background: #ffff99;
+}
+table.number_status_map td.new {
+    background: #99ddff;
+}
+table.number_status_map td.old_number {
+    background: #aaffaa;
+}
+table.number_status_map td.not_old_number {
+    background: #ff6f6f;
+}
+table.number_status_map td.not_old_but_missed_previous {
+    background: #ffcfcf;
+}
+table.number_status_map td.unknown {
+    background: #bbbbbb;
+}

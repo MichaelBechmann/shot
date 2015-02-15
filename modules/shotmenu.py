@@ -46,10 +46,11 @@ def createStaffMenu(auth):
         
         if 'staff' in auth.user_groups.values():
             menu.extend([['Organize', False, '#',
-                          [['Person summary',   False, '/staff/person_summary'],
-                           ['Number summary',   False, '/staff/number_summary'],
-                           ['Manage help',      False, '/staff/manage_help'],
-                           ['Manage donations', False, '/staff/manage_donations']
+                          [['Person summary',    False, '/staff/person_summary'],
+                           ['Number summary',    False, '/staff/number_summary'],
+                           ['Number status map', False, '/staff/number_status_map'],
+                           ['Manage help',       False, '/staff/manage_help'],
+                           ['Manage donations',  False, '/staff/manage_donations']
                        ]
                       ],
                       ['Tables', False, '#',
@@ -84,7 +85,7 @@ def createStaffMenu(auth):
                       [['logout',          False, '/access/user/logout'],
                        ['info',            False, '/access/info'],
                        ['profile',         False, '/access/user/profile'],
-                       ['changepassword',  False, '/access/user/change_password'],
+                       ['change password',  False, '/access/user/change_password'],
                       ]
                      ]
                     ])

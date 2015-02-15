@@ -185,8 +185,11 @@ def mail_sent():
 
 @auth.requires_membership('staff')
 def number_summary():
-    
-    number = session.selected_number
+    if request.args(0):
+        number = int(request.args(0))
+        session.selected_number = number
+    else:
+        number = session.selected_number
     data = None
     
     elems = [SPAN('Sale number: '),
@@ -219,7 +222,31 @@ def number_summary():
                      TBODY(*data_elements), _class = 'list', _id = 'ps_data_table')
         
     return dict(form = form, number = number, data = data)    
+
+@auth.requires_membership('team')
+def number_status_map():
+    sef = SimpleEventForm()
+    status_map = Numbers(shotdb, sef.event_id).status_map()
+    
+    # construct table
+    width = 10 # number of items in each table row
+    rows = []
+    row = []
+    n_first = 999999
+    for item in status_map:
+        n, c = item
+        if len(row) > 0 and ((n - n_first >= width) or (n % width == 0)):
+            rows.append(TR(row))
+            row = []
+            n_first = n
+        row.append(TD(A(str(n), _href = URL('number_summary', args = [n])), _class = c))
         
+    if len(row) > 0:
+        rows.append(TR(row))
+    
+    table = TABLE(*rows, _class = 'number_status_map')
+    return dict(form = sef.form, table = table)
+
 
 @auth.requires_membership('team')
 def dashboard():

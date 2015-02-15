@@ -100,6 +100,16 @@ class Events():
         This method returns a rows object of all events for which the visible flag is set.
         '''
         return self.db(self.db.event.visible == True).select(self.db.event.label, self.db.event.date, self.db.event.time, self.db.event.enrol_date)
+    
+    def type(self, eid = 0):
+        '''
+        This method returns the event type id of the event passed.
+        If no enevt id is passed the current event is assumed.
+        '''
+        if eid == 0:
+            eid = self.current.event.id
+        return(self.db.event[eid].type)
+
         
     def previous_id(self, eid = 0):
         '''
@@ -113,7 +123,7 @@ class Events():
         if eid == 0:
             eid = self.current.event.id
             
-        t = self.db.event[eid].type
+        t = self.type(eid)
             
         query  = self.db.event.type == t
         query &= self.db.event.id < eid
@@ -395,7 +405,64 @@ class Numbers():
         
         return eventdata
     
-    
+    def _status_assigned(self, number):
+        '''
+        This method returns the status relative to the previous event of a single sale number
+        '''
+        status = 'unknown'
+        
+        # determine person who has the given sale number at the event under consideration
+        query  = (self.db.sale.number == number)
+        query &= (self.db.sale.event  == self.eid)
+        rows = self.db(query).select(self.db.sale.person)
+        if rows:
+            pid = rows.first().person
+            
+            # retrieve the sale numbers of that person at all older events of the event type under consideration
+            query  = (self.db.event.type == self.event_type)
+            query &= (self.db.sale.event == self.db.event.id)
+            query &= (self.db.sale.event <= self.previous_eid)
+            query &= (self.db.sale.person == pid)
+            rows = self.db(query).select(self.db.event.id, self.db.sale.number, self.db.sale.person)
+            
+            if rows:
+                # sort events, most recent event is last
+                rows.sort(lambda r: r.event.id)
+                row = rows.last()
+                if row.sale.number == number:
+                    # person has old sale number, either from previous event or earlier
+                    status = 'old_number'
+                elif row.event.id == self.previous_eid:
+                    # person had a different sale number at the previous event
+                    status = 'not_old_number'
+                else:
+                    status = 'not_old_but_missed_previous'
+            else:
+                # there are no older sale numbers related to that person
+                status = 'new'
+                
+        return status
+
+    def status_map(self):
+        '''
+        This method yields a sorted list of tuples with status information of all sale numbers.
+        format: [(number, class), (522, 'free'), ...]
+        '''
+        e = Events(self.db)
+        self.previous_eid = e.previous_id(self.eid)
+        self.event_type = e.type(self.eid)
+        
+        # handle all numbers which are already assigned
+        l = [(n, self._status_assigned(n)) for n in self.assigned()]
+        
+        # handle all still free numbers
+        s_helper = self.helper(self.previous_eid)
+        l.extend([(n, 'reserved' if n in s_helper else 'free') for n in self.free()])
+        l.sort(key = lambda x: x[0])
+
+        return l
+
+
 class NumberAssignment():
     '''
     This class collects everything needed to determine and to assign sale numbers.
