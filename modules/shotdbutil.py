@@ -278,15 +278,24 @@ class Numbers():
     '''
     def __init__(self, db, eid = None):  
         self.db = db
+        e = Events(self.db)
         if eid:
             self.eid = eid
-            self.event  = self.db.event[eid]
+        else:
+            self.eid = e.current.event.id
+            
+        self.event  = self.db.event[self.eid]
+        self.previous_eid = e.previous_id(self.eid)
+        self.event_type = e.type(self.eid)
         
-    def _s_assigned(self):
+    def _s_assigned(self, eid = 0):
         '''
-        This method returns a set (not a list) of all assigned numbers
+        This method returns a set (not a list) of all assigned numbers.
         '''
-        q = self.db.sale.event == self.eid
+        if eid == 0:
+            eid = self.eid
+        
+        q = self.db.sale.event == eid
         s = set([r.number for r in self.db(q).select()])
         
         # if there should be a sale entry without number
@@ -339,9 +348,19 @@ class Numbers():
         This method returns a set of the free numbers.
         '''        
         c = self.config()
-        s = set(c) - self._s_assigned()     
+        s = set(c) - self._s_assigned()
 
         return s
+    
+    def free_at_previous_event(self):
+        '''
+        This method returns a set of sale numbers which are configured for the current event but were not assigned at the previous event.
+        '''
+        s_assigned_previous = self._s_assigned(self.previous_eid)
+        s_conf = set(self.config())
+        s = s_conf - s_assigned_previous
+        return s
+    
         
     def number_of_available(self):
         '''
@@ -448,10 +467,6 @@ class Numbers():
         This method yields a sorted list of tuples with status information of all sale numbers.
         format: [(number, class), (522, 'free'), ...]
         '''
-        e = Events(self.db)
-        self.previous_eid = e.previous_id(self.eid)
-        self.event_type = e.type(self.eid)
-        
         # handle all numbers which are already assigned
         l = [(n, self._status_assigned(n)) for n in self.assigned()]
         
@@ -527,8 +542,9 @@ class NumberAssignment():
            It is possible that this old number is not in the range of configured numbers!
         2) If the old number of the person is not yet assigned and not a number of a helper from the previous event => assign old number
         3) If person has no old number or the old number is already assigned => assign one of the free numbers
-        4) Assign numbers of helpers at the previous event not before all other free numbers (block previous helper numbers).
-        5) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
+        4) If there are free numbers which were not assigned at the previous event => choose one of those
+        5) Assign numbers of helpers at the previous event not before all other free numbers (block previous helper numbers).
+        6) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
         '''
         
         self.numbers = Numbers(self.db, self.e.current.event.id)
@@ -547,7 +563,7 @@ class NumberAssignment():
             self.b_helped_previous_event = False
         
         # get list of potential (= free) sale numbers
-        self.free = self.numbers.free()
+        s_free = self.numbers.free()
 
         on = self.get_old_number()
         
@@ -560,12 +576,17 @@ class NumberAssignment():
                     sn = on
 
         if sn == 0:
-            # get all free numbers which shall not be blocked for previous helpers
-            s_ohn_removed = self.free - self.numbers.helper(self.previousevent)
-            if len(s_ohn_removed) > 0:
-                s_current = s_ohn_removed
+            # check if there are free numbers which were not assigned at the previous event
+            s_free_and_free_previous = s_free & self.numbers.free_at_previous_event()
+            if len(s_free_and_free_previous) > 0:
+                s_current = s_free_and_free_previous
             else:
-                s_current = self.free
+                # get all free numbers which shall not be blocked for previous helpers
+                s_ohn_removed = s_free - self.numbers.helper(self.previousevent)
+                if len(s_ohn_removed) > 0:
+                    s_current = s_ohn_removed
+                else:
+                    s_current = s_free
                 
             # take into account old numbers of persons on the wait list
             onwl = self.get_old_numbers_of_wait_list_persons()
@@ -573,7 +594,7 @@ class NumberAssignment():
             if len(s_onwl_removed) > 0:
                 sn = min(s_onwl_removed)
             else:
-                # Set operations cannot be used here anymore because the order old numbers of the wait list persons has to be taken into account!
+                # Set operations cannot be used here anymore because the order old numbers of the wait list persons have to be taken into account!
                 for n in reversed(onwl):
                     if n in s_current:
                         sn = n
@@ -877,9 +898,12 @@ class WaitList():
         and have got no denial mail so far.
         parameter l: specifies the length of the returned rows object
         '''
-        r = self.rows_wait.find(lambda row: row.denial_sent != True)
-        return self._limit_rows(r, l)
-    
+        rows = self.rows_wait.find(lambda row: row.denial_sent != True)
+        # sort in reverse order to limit from the desired end of the list
+        rows = rows.sort(lambda row: -row.id)
+        rows_limit = self._limit_rows(rows, l)
+        return rows_limit.sort(lambda row: row.id)
+
     def get_pos_current(self, pid):
         '''
         Returns the current position on the wait list for person pid (all sales and helps taken into account).

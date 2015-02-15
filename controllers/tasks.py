@@ -21,8 +21,12 @@ import subprocess
 
 @auth.requires_membership('task executor')
 def start():
+    
+    # dummy line: prevent accidental start of first task by pressing ENTER, fix with issue #79
+    
     #            id label/description                                task script                                        parameter,  test button
-    tasklist = ((0, 'Send invitation mail to all former vendors.',  '/background/mail/send_invitation_mail.py',         False,      False),
+    tasklist = ((99, 'dummy',  'dummy',         False,      False),
+                (0, 'Send invitation mail to all former vendors.',  '/background/mail/send_invitation_mail.py',         False,      False),
                 (1, 'Resolve waitlist and send sale number mail.',  '/background/mail/resolve_waitlist.py',             True,       True),
                 (2, 'Send waitlist denial mail.',                   '/background/mail/send_waitlist_denial_mail.py',    True,       True),
                 (3, 'Send reminder mail to all participants.',      '/background/mail/send_reminder_mail.py',           False,      True),
@@ -68,9 +72,9 @@ def start():
         if config.enable_tasks:
             for t in tasklist:
                 idx = t[0]
-                if str(idx) in request.vars:
-                    subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + t[2], '-A', str(param)])
-                    redirect(URL('final'))
+                if not idx == 99 and str(idx) in request.vars:
+                    #subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + t[2], '-A', str(param)])
+                    #redirect(URL('final'))
                     break
            
 
