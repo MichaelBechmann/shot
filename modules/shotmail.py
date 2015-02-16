@@ -255,8 +255,15 @@ class ShotMail(EMail):
                 s = ' (sofern Sie eine Kommissionsnummer erhalten)'
             bringtext = DIV(SPAN('Sie haben sich bereit erklärt, für das Cafe folgendes zu spenden' + s + ':'), BR(), TABLE(*elem))
         else:
-            bringtext = DIV(SPAN('Sie können keinen Kuchen für das Cafe mitbringen.'))
-
+            #bringtext = DIV(SPAN('Sie können keinen Kuchen für das Cafe mitbringen.'))
+            bringtext = DIV(SPAN('''
+            Sie haben angegeben, keinen Kuchen für das Cafe mitzubringen.
+            Allerdings fehlen uns diesmal leider noch einige Kuchen.
+            Falls Sie uns doch noch helfen möchten, können Sie sich direkt über unser '''),
+            A('Kontaktformular', _href = config.shoturl + 'contact/form/'),
+            SPAN(''' an uns wenden.
+            Wir würden Ihre Kuchenspende dann selbst in unsere Datenbank eintragen. Vielen herzlichen Dank!'''))
+            
         # add waffle recipe
         if b_add_recipe:
             bringtext = DIV(bringtext, BR(), self.recipe)

@@ -73,10 +73,9 @@ def start():
             for t in tasklist:
                 idx = t[0]
                 if not idx == 99 and str(idx) in request.vars:
-                    #subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + t[2], '-A', str(param)])
-                    #redirect(URL('final'))
+                    subprocess.Popen(['python', 'web2py.py', '-S', config.appname , '-M', '-R', 'applications/' + config.appname + t[2], '-A', str(param)])
+                    redirect(URL('final'))
                     break
-           
 
     return dict(form = form)
 
