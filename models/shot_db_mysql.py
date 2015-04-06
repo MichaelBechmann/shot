@@ -11,7 +11,7 @@ from gluon.tools import Auth
 T.force('de')
 
 # There is one single database containing the data of all market events.
-shotdb = DAL(config.db_connection_string)
+shotdb = DAL(config.db_connection_string, pool_size=5)
 
 # Create all tables required for authentication
 auth = Auth(shotdb, controller = "access", function = "user")

@@ -12,6 +12,7 @@ if 0:
 
 from shotconfig import config
 from gluon.tools import Crud
+from benchmark import *
 
 @auth.requires_membership('admin')
 def manage_users():
@@ -51,7 +52,8 @@ def manage_users():
         colset = None
     sqltab = SQLTABLE(shotdb(shotdb[table].id > 0).select(),
                                columns = colset,
-                               headers = 'fieldname:capitalize', _class = 'list')
+                               headers = 'fieldname:capitalize', _class = 'list',
+                               truncate = None)
     
     return dict(form = form, sqltab = sqltab)
 
@@ -61,7 +63,8 @@ def configuration():
     # provide edit links
     shotdb.config.id.represent = lambda id_, row: A(id_,_href=URL('crud', args = ['config', 'edit', id_]))
     sqltab = SQLTABLE(shotdb(shotdb.config.id > 0).select(),
-                               headers = 'fieldname:capitalize', _class = 'list')
+                               headers = 'fieldname:capitalize', _class = 'list',
+                               truncate = None)
     
     return dict(sqltab = sqltab)
 
@@ -72,7 +75,7 @@ def crud():
     action = request.args(1)
     id_ = request.args(2)
     
-    return_page = URL(request.env.http_referer.split('/')[-1])
+    return_page = URL('admin_', 'manage_users')
     
     crud = Crud(shotdb)
     crud.settings.controller = 'admin_'
@@ -102,3 +105,28 @@ def crud():
         crud_response = 'Nothing selected!'
     
     return dict(crud_response = crud_response)
+
+
+@auth.requires_membership('admin')
+def benchmark():
+    
+    l = [BenchmarkCalculations().run(),
+         BenchmarkListManipulation().run(),
+         BenchmarkHTMLHelper().run(),
+         BenchmarkDBQuery(shotdb).run(),
+         #BenchmarkSleep().run(),
+        ]
+    
+    total = 0
+    for r in l:
+        total += r['duration']
+    
+    rl = []
+    for r in l:
+        d = r['duration']
+        rl.append(TR(r['id'], '%.1f sec' % d, '%.1f %%' % (d/total * 100)))
+        
+    rl.append(TR('Total duration', '%.1f sec' % total, '100 %'))
+    
+    return dict(results = TABLE(*rl, _class = 'list'))
+    

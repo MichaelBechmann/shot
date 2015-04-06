@@ -77,6 +77,7 @@ def createStaffMenu(auth):
             menu.extend([['Admin', False, '#',
                           [['manage users',     False,  '/admin_/manage_users'],
                            ['configuration',    False,  '/admin_/configuration'],
+                           ['benchmark',        False,  '/admin_/benchmark']
                           ]
                          ]
                         ])  

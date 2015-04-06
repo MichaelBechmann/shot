@@ -53,8 +53,9 @@ def info():
     u = User(shotdb, auth.user.id)
         
     roles = SQLTABLE(u.get_groups(),
-                     columns = ('auth_group.role', 'auth_group.description'),
-                     headers = {'auth_group.role': 'Rolle', 'auth_group.description': 'Beschreibung'},
-                     _class = 'list')
+                     columns  = ('auth_group.role', 'auth_group.description'),
+                     headers  = {'auth_group.role': 'Rolle', 'auth_group.description': 'Beschreibung'},
+                     truncate = None,
+                     _class   = 'list')
     
     return dict(name = auth.user.first_name, roles = roles)

@@ -669,6 +669,7 @@ class Filter():
         # construct table
         self.sqltab = SQLTABLE(shotdb(self.query).select(left = self.left, orderby = self.orderby),
                                columns = self.colset,
-                               headers = 'fieldname:capitalize', orderby = 'dummy', _class = 'list')
+                               headers = 'fieldname:capitalize', orderby = 'dummy', _class = 'list',
+                               truncate = None)
 
         
