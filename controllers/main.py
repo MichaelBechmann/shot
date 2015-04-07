@@ -75,4 +75,3 @@ def announcement_enroll():
     else:
         return 'Die Anmeldetermine für die nächsten Märkte stehen noch nicht fest.'
 
-    

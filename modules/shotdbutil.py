@@ -8,11 +8,7 @@ import string
 import datetime
 from shotconfig import *
 from gluon.dal import DAL
-<<<<<<< Upstream, based on origin/master
 from pydal.objects import Rows
-=======
-from gluon.dal.objects import Rows
->>>>>>> 1295891 #74 wiki setup intermediate 20150125
 from gluon.contrib.pymysql import IntegrityError
 
 

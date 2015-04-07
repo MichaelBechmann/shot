@@ -131,7 +131,7 @@ def benchmark():
     return dict(results = TABLE(*rl, _class = 'list'))
     
     
-    @auth.requires_membership('admin')
+@auth.requires_membership('admin')
 def actions():
     result = None
     
@@ -172,3 +172,5 @@ def __rectify_wiki():
     result = DIV(P('The following pages have been rectified:'),BEAUTIFY(slugs))
     
     return result
+
+

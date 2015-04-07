@@ -48,19 +48,12 @@ def createStaffMenu(auth, wiki_ctrl = None):
             menu.extend([['Dashboard',        False, URL('staff','dashboard')]])
         
         if 'staff' in auth.user_groups.values():
-<<<<<<< Upstream, based on origin/master
             menu.extend([['Organize', False, '#',
-                          [['Person summary',    False, '/staff/person_summary'],
-                           ['Number summary',    False, '/staff/number_summary'],
-                           ['Number status map', False, '/staff/number_status_map'],
-                           ['Manage help',       False, '/staff/manage_help'],
-                           ['Manage donations',  False, '/staff/manage_donations']
-=======
-            menu.extend([['Organize', False, '',
-                          [['Person summary',   False, URL('staff','person_summary')],
-                           ['Manage help',      False, URL('staff','manage_help')],
-                           ['Manage donations', False, URL('staff','manage_donations')]
->>>>>>> 1295891 #74 wiki setup intermediate 20150125
+                          [['Person summary',    False, URL('staff', 'person_summary')],
+                           ['Number summary',    False, URL('staff', 'number_summary')],
+                           ['Number status map', False, URL('staff', 'number_status_map')],
+                           ['Manage help',       False, URL('staff', 'manage_help')],
+                           ['Manage donations',  False, URL('staff', 'manage_donations')]
                        ]
                       ],
                       ['Tables', False, '',
@@ -85,13 +78,10 @@ def createStaffMenu(auth, wiki_ctrl = None):
 
         if 'admin' in auth.user_groups.values():
             menu.extend([['Admin', False, '',
-                          [['Manage users',     False,  URL('admin_','manage_users')],
-                           ['Configuration',    False,  URL('admin_','configuration')],
-<<<<<<< Upstream, based on origin/master
-                           ['benchmark',        False,  '/admin_/benchmark']
-=======
-                           ['Actions',          False,  URL('admin_','actions')],
->>>>>>> 1295891 #74 wiki setup intermediate 20150125
+                          [['Manage users',     False,  URL('admin_', 'manage_users')],
+                           ['Configuration',    False,  URL('admin_', 'configuration')],
+                           ['benchmark',        False,  URL('admin_', 'benchmark')],
+                           ['Actions',          False,  URL('admin_', 'actions')],
                           ]
                          ]
                         ])  

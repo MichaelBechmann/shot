@@ -146,6 +146,7 @@
 'New password': 'New password',
 'New Search': 'New Search',
 'no match': 'no match',
+'No records found': 'No records found',
 'No results': 'No results',
 'no, in neither one': 'nein, in keinem von beiden',
 'Not an integer!': 'Not an integer!',
