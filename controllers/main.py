@@ -14,7 +14,7 @@ from shotdbutil import Events
 from shotmail import ErrorMail
 from shotconfig import config
 from gluon.storage import Storage
-
+from urlutils import URLWiki
 T.force('de')
 
 
@@ -23,9 +23,9 @@ def error():
     if config.enable_error_mail:
         ErrorMail().send()
     ticket = request.vars.ticket
-    if config.redirect_to_ticket and ticket != 'None':
+    if config.redirect_to_ticket and ticket:
             redirect(config.shotticketurl + ticket)
-    return dict()
+    redirect(URLWiki('error'))
 
 def redirect_https():
 

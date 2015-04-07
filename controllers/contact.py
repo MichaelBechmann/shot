@@ -14,6 +14,7 @@ if 0:
 
 from shotmail import *
 from formutils import regularizeName
+from urlutils import URLWiki
 
 T.force('de')
 
@@ -52,25 +53,6 @@ def form():
         email = form.vars.email
 
         ContactMail(cat, msg, name, email).send()
-        redirect(URL('final'))
+        redirect(URLWiki('contact-final'))
     
     return dict(form=form)
-    
-    
-    
-def final():
-    return dict()
-
-
-
-
-
-
-
-
-
-
-
-
-
-

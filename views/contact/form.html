@@ -1,9 +1,3 @@
 {{extend 'layout.html'}}
-
-{{include 'contact/form/form_de.html'}}
-
-{{
-    
-response.write(form)
-
-}}
+{{=auth.wiki(slug='contact-comment-form')}}
+{{=form}}

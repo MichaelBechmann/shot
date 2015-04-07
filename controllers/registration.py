@@ -113,7 +113,7 @@ def confirm():
             pe.insert()
             shotdb.commit()
             RegistrationMail(shotdb, pe.id).send()
-            nextpage = URL('final')  
+            nextpage = URLWiki('registration-final')  
         
         redirect(nextpage)
 
@@ -124,15 +124,20 @@ def check():
     # check if registration is enabled
     if config.enable_registration == False:
         redirect(URLWiki('registration-locked'))
-        
-    i = Ident(shotdb, request.args[0])
+    
+    if request.args:
+        code = request.args[0]
+    else:
+        code = None
+       
+    i = Ident(shotdb, code)
 
     if i.b_verified:
         session.clear()
         session.registration_person_id = i.id
         redirect(URL('info'))
    
-    return dict()
+    redirect(URLWiki('registration-check-error'))
 
 
 def info():
@@ -140,8 +145,6 @@ def info():
     form = FORM(INPUT(_type = 'submit', _class = 'button', _value = 'Weiter zu den Helferschichten und Kommissionsnummern'), _action = url)
     return dict(form = form)
 
-def final():
-    return dict()    
 
 def disable_mail(): 
     # This function is called from a dedicated personal link in e-mails.

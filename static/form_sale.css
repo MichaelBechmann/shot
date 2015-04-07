@@ -140,7 +140,6 @@ textarea {
 font-size: 0.83333em; /* 1/1.2*/
 }
 
-
 #error_response {
 margin-right: auto;
 margin-left: auto;
@@ -149,9 +148,8 @@ margin-bottom: 1em;
 
 #error_alarm {
 margin-bottom: 1em;
-font-size: 1.4em;
+font-size: 1.2em;
 color: red;
-text-decoration: blink;
 }
 
 

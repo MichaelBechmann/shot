@@ -448,7 +448,7 @@ class ErrorMail(EMail):
         self.add_timestamp()
         self.subs['<PLACEHOLDER_MSG>'] = msg
         ticket = current.request.vars.ticket #@UndefinedVariable
-        if ticket != 'None':
+        if ticket:
             url = config.shotticketurl + ticket
             self.subs['<PLACEHOLDER_TICKET>'] = A(url, _href = url)
         else:
