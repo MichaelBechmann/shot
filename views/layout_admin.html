@@ -9,19 +9,14 @@
 <script src="/static/js/dropdown_autosubmit.js" type="text/javascript"></script>
 
 {{from shotmenu import *}}
-{{=createMenu()}}
+{{=createMenu(auth)}}
 {{
     if 'wiki_ctrl' not in response._vars:
         wiki_ctrl = None
         pass
 }}
 {{=createStaffMenu(auth, wiki_ctrl)}}
-
-
-
-{{include}}
-
-
-<br/>
-
-{{include 'debug.html'}}
+<div id="page">  
+     {{include}}
+     {{include 'debug.html'}}
+</div>

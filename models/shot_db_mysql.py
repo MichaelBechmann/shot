@@ -1,23 +1,24 @@
 # -*- coding: utf-8 -*-
-# Static analyzer import helpers: (STATIC_IMPORT_MARK)
 if 0: 
     from gluon.languages import translator as T
     from gluon import *
 
 
 from shotconfig import *
-from gluon.tools import Auth
+from shotauth import *
 
 T.force('de')
 
 # There is one single database containing the data of all market events.
 shotdb = DAL(config.db_connection_string, pool_size=5)
 
+
 # Create all tables required for authentication
-auth = Auth(shotdb, controller = "access", function = "user")
+auth = ShotAuth(shotdb, controller = "access", function = "user")
 auth.define_tables(username = True, signature = True)
 auth.settings.create_user_groups = None
 auth.settings.manager_actions = dict(db_admin=dict(role='admin',heading='Manage Database',tables = shotdb.tables))
+
 
 # The table 'event_type' allows the admin to add new classes of events.
 shotdb.define_table('event_type',

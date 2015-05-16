@@ -46,13 +46,12 @@ def redirect_https():
 
 
 def wiki():
-    
-    wiki = auth.wiki(render = 'multiple', menu_groups=['nobody'])
-    
+    wiki = auth.shotwiki()
     wiki_ctrl = Storage()
 
     if str(request.args(0)).startswith('_'):
-        wiki_ctrl.cmd = request.args(0)     
+        wiki_ctrl.cmd = request.args(0)
+        wiki_ctrl.render = auth.get_wiki_rendering(shotdb, slug = request.args(1))
     else:
         wiki_ctrl.slug = request.args(0)
         

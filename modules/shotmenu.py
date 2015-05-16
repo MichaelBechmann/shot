@@ -11,27 +11,33 @@ if 0:
 from shotconfig import *
 from shotdbutil import User
 from gluon.html import *
+from gluon import current
 from urlutils import URLWiki, URLTable, URLUser
 
-def createMenu():
+
+
+def createMenu(auth):
     
-    menu = [
-            ['Start', False, URLWiki('start')],
-            ['Informationen für Verkäufer', False, URLWiki('vendorinfo')]
-           ]
+
     
-    if config.enable_registration:
-        menu.extend([['Registrierung', False, URL('registration','form')]])  
+    menu = current.response.menu
+    if not menu:
+        wiki = auth.shotwiki()
+        menu = current.response.menu
     
-    if config.enable_requests:        
-        menu.extend([['Fördermittel beantragen', False, URLWiki('appropriation-start')]])
-        
-    menu.extend([
-                 ['Datenschutz', False, URLWiki('dataprivacy')],
-                 ['Kontakt', False, URL('contact','form')]
-                ])
-                      
-    return(DIV(MENU(menu), _id='menu'))
+    if not config.enable_registration:
+        for e in menu:
+            if 'registration' in e[2]:
+                menu.remove(e)
+                break
+
+    if not config.enable_requests:
+        for e in menu:
+            if 'appropriation-start' in e[2]:
+                menu.remove(e)
+                break   
+    
+    return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_public', _class='menu'))
 
 
 def createStaffMenu(auth, wiki_ctrl = None):
@@ -48,7 +54,7 @@ def createStaffMenu(auth, wiki_ctrl = None):
             menu.extend([['Dashboard',        False, URL('staff','dashboard')]])
         
         if 'staff' in auth.user_groups.values():
-            menu.extend([['Organize', False, '#',
+            menu.extend([['Organize', False, '',
                           [['Person summary',    False, URL('staff', 'person_summary')],
                            ['Number summary',    False, URL('staff', 'number_summary')],
                            ['Number status map', False, URL('staff', 'number_status_map')],
@@ -80,7 +86,7 @@ def createStaffMenu(auth, wiki_ctrl = None):
             menu.extend([['Admin', False, '',
                           [['Manage users',     False,  URL('admin_', 'manage_users')],
                            ['Configuration',    False,  URL('admin_', 'configuration')],
-                           ['benchmark',        False,  URL('admin_', 'benchmark')],
+                           ['Benchmark',        False,  URL('admin_', 'benchmark')],
                            ['Actions',          False,  URL('admin_', 'actions')],
                           ]
                          ]
@@ -104,12 +110,13 @@ def createStaffMenu(auth, wiki_ctrl = None):
             
             if 'wiki_author' in auth.user_groups.values():
                 wiki_menu.append(['Create new page', False, URLWiki('_create')])
+                wiki_menu.append(['Edit the menu',   False, URLWiki(('_edit', 'wiki-menu'))])
             
             if wiki_ctrl and not wiki_ctrl['cmd']:
                 wiki_menu.append(['Edit this page', False, URLWiki(('_edit', wiki_ctrl['slug']))])
-            
+                wiki_menu.append(['Edit page media', False, URLWiki(('_editmedia', wiki_ctrl['slug']))])
             
             menu.extend([['Wiki', False, '#', wiki_menu]])
                 
     
-    return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_staff'))
+    return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_staff', _class='menu'))

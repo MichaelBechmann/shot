@@ -13,6 +13,7 @@ if 0:
 from shotconfig import config
 from gluon.tools import Crud
 from benchmark import *
+from gluon.storage import Storage
 
 @auth.requires_membership('admin')
 def manage_users():
@@ -55,6 +56,8 @@ def manage_users():
                                headers = 'fieldname:capitalize', _class = 'list',
                                truncate = None)
     
+    session.crud = Storage(return_page = URL('admin_', 'manage_users'))
+    
     return dict(form = form, sqltab = sqltab)
 
 @auth.requires_membership('admin')
@@ -66,6 +69,8 @@ def configuration():
                                headers = 'fieldname:capitalize', _class = 'list',
                                truncate = None)
     
+    session.crud = Storage(return_page = URL('admin_', 'configuration'))
+    
     return dict(sqltab = sqltab)
 
 
@@ -75,7 +80,10 @@ def crud():
     action = request.args(1)
     id_ = request.args(2)
     
-    return_page = URL('admin_', 'manage_users')
+    if session.crud and session.crud.return_page:
+        return_page = session.crud.return_page
+    else:
+        return_page = URL('admin_', 'manage_users')
     
     crud = Crud(shotdb)
     crud.settings.controller = 'admin_'
@@ -135,9 +143,12 @@ def benchmark():
 def actions():
     result = None
     
-    actions = (('Rectify wiki links', __rectify_wiki),
-
+    actions = ((DIV(SPAN('Rectify wiki links'), 
+                    BR(), 
+                    SPAN('(Necessary after the database has been imported from another site!)')),
+                __rectify_wiki),
               )
+    
     rows = [TR(actions[i][0],
                INPUT(_type = 'submit', _name = str(i), _value = 'go!', _class = "irreversible")
                ) for i in range(len(actions))]
@@ -156,9 +167,7 @@ def __rectify_wiki():
     This function loops through all rows of table wiki_page. For each page the body is retrieved and then converted to html which is then stored in the database.
     This is necessary to fix all links all copying the database from some other site.
     '''
-    print 'before'
-    auth.wiki(render = 'multiple')
-    print 'after'
+    auth.shotwiki()
     slugs = []
     q = shotdb.wiki_page.id > 0
     for page in shotdb(q).select():

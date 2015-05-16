@@ -24,33 +24,14 @@ Description: Three-column blog design with the third column allocated for ads. F
  </head>
  <body>
 
-
-  <!-- start header -->
-    <div id="wrapper">
    <div id="header">
-    <div id="logo">
      <h1>
       Secondhand Ottersweier
      </h1>
-    </div>
    </div>
-   <!-- end header -->
-	
+   
+   {{include}}
 
-   <!-- start page -->
-   <div id="page">  
-    <!-- start content -->
-    <div id="content">
-     
-     {{include}}
-     
-    </div>
-    <!-- end content -->
-
-    
-   </div>
-   <!-- end page -->
-   <!-- start footer -->
    <div id="footer">
     <p> 
         {{= A(T('Legal Details'), _href=URLWiki('impressum'))}}
@@ -59,6 +40,5 @@ Description: Three-column blog design with the third column allocated for ads. F
     </p>
    </div>
   </div>
-  <!-- end footer -->
  </body>
 </html>
