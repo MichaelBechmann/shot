@@ -7,7 +7,7 @@ class ShotAuth(Auth):
     '''
     
     def shotwiki(self):
-        return self.wiki(render = 'multiple', menu_groups=['nobody'])
+        return self.wiki(render = 'multiple', menu_groups='nobody')
     
     def get_wiki_rendering(self, db = None, slug = None):
         '''

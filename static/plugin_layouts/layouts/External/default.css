@@ -43,12 +43,6 @@ fieldset {
 	border: none;
 }
 
-input, textarea {
-	padding: 5px;
-	border: 1px solid #626262;
-	font: normal 1em "Trebuchet MS", Arial, Helvetica, sans-serif;
-}
-
 h1, h1 a, h2, h2 a, h3, h3 a, h4, h4 a {
 	margin: 0;
 	text-decoration: none;
@@ -102,12 +96,10 @@ a {
 
 
 a.intext {
-text-decoration: none;
-border-bottom:2px dotted; 
-color: #000000;
+    border-bottom:2px dotted; 
 }
 
-a.intext:hover {
+a.intext:hover, p a:hover {
     color: #118111;
 }
 
@@ -120,6 +112,28 @@ img.left {
 	margin: 8px 20px 0px 0px;
 	border: 2px solid #434343; 
 }
+
+
+input, textarea {
+    padding: 5px;
+    border: 1px solid #626262;
+    font: normal 1em "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+input[type="submit"]:not(.btn-default):not([value=Search]):not([value="Create Page from Slug"]){
+    background:  #15A515;
+    color: #FFFFFF;
+    font-weight: bold;
+    border-right: 2px solid #108010;
+    border-bottom: 1px solid #108010;
+}
+
+input[type="submit"].irreversible {
+    background: #CC0000;
+    border-right: 2px solid #801010;
+    border-bottom: 1px solid #801010;
+}
+
 
 
 /* Header */
@@ -199,8 +213,11 @@ img.left {
 }
 
 #menu_public > ul > li.expand > a{
-	background: url(images/img_menu_down.png) no-repeat center 30px;
+	background: url(images/img_menu_down.png);
+	background-repeat: no-repeat;
+	background-position: center 30px;
 	background-size: 10px 6px;
+	background-color:transparent; /* internet explorer */
 }
 
 #menu_public li:hover {
@@ -317,20 +334,6 @@ img.left {
 	text-decoration: none;
 	color: #FFFFFF;
 	margin-right: 40px;
-}
-
-input[type="submit"] {
-    background:  #15A515;
-    color: #FFFFFF;
-    font-weight: bold;
-    border-right: 2px solid #108010;
-    border-bottom: 1px solid #108010;
-}
-
-input[type="submit"].irreversible {
-    background: #CC0000;
-    border-right: 2px solid #801010;
-    border-bottom: 1px solid #801010;
 }
 
 h2.debug{

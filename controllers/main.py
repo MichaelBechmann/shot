@@ -18,7 +18,6 @@ from urlutils import URLWiki
 T.force('de')
 
 
-
 def error():
     if config.enable_error_mail:
         ErrorMail().send()
@@ -50,12 +49,14 @@ def wiki():
     wiki_ctrl = Storage()
 
     if str(request.args(0)).startswith('_'):
-        wiki_ctrl.cmd = request.args(0)
-        wiki_ctrl.render = auth.get_wiki_rendering(shotdb, slug = request.args(1))
+        wiki_ctrl.cmd    = request.args(0)
+        wiki_ctrl.slug   = request.args(1)
+        wiki_ctrl.render = auth.get_wiki_rendering(shotdb, wiki_ctrl.slug )
     else:
         wiki_ctrl.slug = request.args(0)
-        
-    wiki['wiki_ctrl'] = wiki_ctrl
+    
+    if str(request.args(0)) != '_preview':
+        wiki['wiki_ctrl'] = wiki_ctrl
     
     return wiki
 

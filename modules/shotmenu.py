@@ -18,8 +18,6 @@ from urlutils import URLWiki, URLTable, URLUser
 
 def createMenu(auth):
     
-
-    
     menu = current.response.menu
     if not menu:
         wiki = auth.shotwiki()
@@ -105,16 +103,16 @@ def createStaffMenu(auth, wiki_ctrl = None):
         
         if 'wiki_editor' in auth.user_groups.values() or 'wiki_author' in auth.user_groups.values():
             wiki_menu = [['Manage pages', False, URLWiki('_pages')],
-                         ['Search pages', False, URLWiki('_search')],
+                         ['Search tags', False, URLWiki('_search')],
                         ]
             
             if 'wiki_author' in auth.user_groups.values():
                 wiki_menu.append(['Create new page', False, URLWiki('_create')])
                 wiki_menu.append(['Edit the menu',   False, URLWiki(('_edit', 'wiki-menu'))])
             
-            if wiki_ctrl and not wiki_ctrl['cmd']:
-                wiki_menu.append(['Edit this page', False, URLWiki(('_edit', wiki_ctrl['slug']))])
-                wiki_menu.append(['Edit page media', False, URLWiki(('_editmedia', wiki_ctrl['slug']))])
+            if wiki_ctrl and wiki_ctrl.slug:
+                wiki_menu.append(['Edit this page', False, URLWiki(('_edit', wiki_ctrl.slug))])
+                wiki_menu.append(['Edit page media', False, URLWiki(('_editmedia', wiki_ctrl.slug))])
             
             menu.extend([['Wiki', False, '#', wiki_menu]])
                 

@@ -1,14 +1,23 @@
-{{response.files.append(URL('static','wiki.css'))}}
-{{response.files.append(URL('static','js/web2py.js'))}}
-
+<script type="text/javascript"><!--
+    // These variables are used by the web2py_ajax_init function in web2py_ajax.js (which is loaded below).
+    var w2p_ajax_confirm_message = "{{=T('Are you sure you want to delete this object?')}}";
+    var w2p_ajax_disable_with_message = "{{=T('Working...')}}";
+    var w2p_ajax_date_format = "{{=T('%Y-%m-%d')}}";
+    var w2p_ajax_datetime_format = "{{=T('%Y-%m-%d %H:%M:%S')}}";
+    var ajax_error_500 = '{{=T.M('An error occured, please [[reload %s]] the page') % URL(args=request.args, vars=request.get_vars) }}'
+    //-->
+</script>
 {{
-  if wiki_ctrl.cmd == '_edit':
-    response.files.append(URL('static','js/wiki.js'))
-    response.files.append(URL('static','js/markitup/jquery.markitup.js'))
-    response.files.append(URL('static','js/markitup/sets/%s/set.js' % wiki_ctrl.render))
-    response.files.append(URL('static','js/markitup/sets/%s/style.css' % wiki_ctrl.render))
-    response.files.append(URL('static','js/markitup/skins/markitup/style.css'))
-    pass
+    if wiki_ctrl.cmd:
+        response.files.append(URL('static','wiki.css'))
+        if wiki_ctrl.cmd == '_edit':
+            response.files.append(URL('static','js/wiki.js'))
+            response.files.append(URL('static','js/markitup/jquery.markitup.js'))
+            response.files.append(URL('static','js/markitup/sets/%s/set.js' % wiki_ctrl.render))
+            response.files.append(URL('static','js/markitup/sets/%s/style.css' % wiki_ctrl.render))
+            response.files.append(URL('static','js/markitup/skins/markitup/style.css'))
+            pass
+        pass
 }}
 {{extend 'layout.html'}}
 {{=content}}
