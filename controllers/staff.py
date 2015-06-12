@@ -49,9 +49,10 @@ def person_summary():
         # redirect is necessary to pre-populate the form; didn't find another way
         redirect(URL('person_summary'))
     
+    
     p = Person(shotdb, pid)
     if p.record != None:
-        
+
         tu = TableUtils()
         
         # initialise flags indicating which email actions shall be available 
@@ -169,6 +170,7 @@ def person_summary():
                         session.mailform_message = None
                         redirect(URL('mail_sent'))
 
+
     else:
         name        = None
         info        = None
@@ -178,6 +180,7 @@ def person_summary():
         
     session.crud = Storage(return_page = 'person_summary', fix_ref_id = dict(person = pid, event = p.events.current.event.id))
 
+    #return dict(form = 1, mailform = 2, name = 3, info = 4, log = 5, data = 6)
     return dict(form = form, mailform = mailform, name = name, info = info, log = log, data = data)
 
 def mail_sent():

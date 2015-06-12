@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from gluon.tools import Auth
+from gluon.tools import Auth, Wiki
 
 class ShotAuth(Auth):
     '''
@@ -22,3 +22,6 @@ class ShotAuth(Auth):
             if row:
                 render = row.render
         return render
+    
+    def force_shotmenu(self):
+        Wiki(self, controller='main', function='wiki', menu_groups='nobody').automenu()

@@ -15,14 +15,10 @@ from gluon import current
 from urlutils import URLWiki, URLTable, URLUser
 
 
-
 def createMenu(auth):
-    
+    if not current.response.menu:
+        auth.force_shotmenu()
     menu = current.response.menu
-    if not menu:
-        wiki = auth.shotwiki()
-        menu = current.response.menu
-    
     if not config.enable_registration:
         for e in menu:
             if 'registration' in e[2]:
@@ -34,7 +30,7 @@ def createMenu(auth):
             if 'appropriation-start' in e[2]:
                 menu.remove(e)
                 break   
-    
+
     return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_public', _class='menu'))
 
 
