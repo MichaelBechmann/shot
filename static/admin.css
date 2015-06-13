@@ -95,9 +95,18 @@ table.caution td {
 .mh_comment{
 	padding: 0 0 5px 0;
 }
-.mh_person_list > tbody > tr > td{
-	padding: 0 25px 0 0;
+.mh_person_list td, .mh_person_list_denied td{
+	width: 340px;
 }
+
+.mh_person_list_denied {
+    margin: 10px 0 0 0;
+}
+
+.mh_person_list_denied a{
+    color: #999999;
+}
+
 .mh_msg_marker{
 	padding: 0 0 0 10px;
 	font-size: 0.8em;
@@ -105,8 +114,9 @@ table.caution td {
 	color: #AA3333;
 }
 
-.md_notes_list > tbody > tr > td{
-    padding: 0 15px 0 0;
+
+.md_notes_list  td{
+    padding: 0 25px 0 0;
 }
 .ctggltrig, .cexpand, .ccollapse{
     color: #7799FF;

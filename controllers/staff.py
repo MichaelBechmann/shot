@@ -344,9 +344,9 @@ def manage_donations():
     msg_list = c.get_persons_with_message()
     
     # details table
-    a_total, t_total = 0, 0
+    a_total, t_total, a_total_denied = 0, 0, 0
     data_elements = []
-    table = TABLE(*data_elements)
+
     for d in c.get_donations():
         a, t = d.actual_number, d.target_number
         a_total += a
@@ -364,6 +364,7 @@ def manage_donations():
                                  ))
         
         person_list = []
+        person_list_denied = []
         for p in c.get_bringer_list_for_donation(d.id):
             if p.bring.note:
                 note = ' (%s)' % p.bring.note
@@ -375,18 +376,25 @@ def manage_donations():
                 msg = SPAN('msg', _class = 'mh_msg_marker')
             else:
                 msg = ''
-            person_list.append(SPAN(link, msg))
+            if p.denied:
+                person_list_denied.append(SPAN(link, msg))
+                a_total_denied += 1
+            else:
+                person_list.append(SPAN(link, msg))
         
         table_row_list = __row_list(person_list, 2)
         table_row_list.insert(0, A('+', _href = URL('redirect_crud_add/bring/%d' % d.id), _class = 'mh_add_link'))
         
-        data_donation.append(DIV(
-                                   DIV(SPAN('assigned persons ('), SPAN(' toggle ', _class = config.cssclass.tggltrig), SPAN('):')),
-                                   DIV(TABLE(*table_row_list, _class = 'mh_person_list'),  _class = config.cssclass.tggl)
-                                   ))
+        table_list = [DIV(TABLE(*table_row_list),        _class = 'mh_person_list')]
+        if person_list_denied:
+            table_row_list_denied = __row_list(person_list_denied, 2)
+            table_list.append(DIV(DIV('denied persons (no sale number):'), TABLE(*table_row_list_denied), _class = 'mh_person_list_denied'))
         
+        table_row_list_denied = __row_list(person_list_denied, 2)
         
-        
+        data_donation.append(DIV(DIV(SPAN('assigned persons ('), SPAN(' toggle ', _class = config.cssclass.tggltrig), SPAN('):')),
+                                 DIV(*table_list, _class = config.cssclass.tggl)
+                                ))
         
         data_elements.append(TR(DIV(title, DIV(*data_donation, _class = 'mh_shift_body'))))
         
@@ -395,11 +403,14 @@ def manage_donations():
     # statistics table
     tu = TableUtils()
     data_stat = []
-    data_stat.append((TD('number of donations'), 
+    data_stat.append((TD('number of donation types'), 
                       TD(SPAN('%d (' % len(data_elements)), A(' + ', _href = URL('crud/donation/add'), _class = 'mh_add_link'), SPAN(')'))
                       ))
     ratio = getActNumberRatio(a_total, t_total)
-    data_stat.append((TD('number of assignments'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio['ratio']), _class = ratio['_class'])))
+    a_total_safe = a_total - a_total_denied
+    ratio_safe = getActNumberRatio(a_total_safe, t_total)
+    data_stat.append((TD('number of individual donations'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio['ratio']), _class = ratio['_class'])))
+    data_stat.append((TD('number of safe donations (with sale number)'), TD('%d / %d (%d%%)' % (a_total_safe, t_total, ratio_safe['ratio']), _class = ratio_safe['_class'])))
     data_stat.append((TD('number of assigned persons'), TD('%d' % len(c.get_bringer_list()))))
     
     table_stat = TABLE(*[TR(*x, _class = tu.get_class_evenodd()) for x in data_stat], _class = 'list')

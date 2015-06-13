@@ -727,7 +727,6 @@ class Contributions():
 
 
     def get_bringer_list(self):
-        
         # get all persons who bring something
         query  = (self.db.bring.person   == self.db.person.id)
         query &= (self.db.bring.donation == self.db.donation.id)
@@ -748,7 +747,15 @@ class Contributions():
         query &= (self.db.bring.donation  == did)
         
         rows = self.db(query).select(self.db.bring.note, self.db.person.id, self.db.person.name, self.db.person.forename, orderby = self.db.person.name)
-
+        
+        
+        l_denied = WaitList(self.db, self.eid).get_sorted_remaining_list()
+        
+        for row in rows:
+            if row.person.id in l_denied:
+                row.denied = True
+            else:
+                row.denied = False
         return rows
     
     def get_notes_list_for_donation(self, did):
@@ -821,10 +828,13 @@ class WaitList():
     '''
     This class collects code for the resolution of the wait list.
     '''
-    def __init__(self, db):
+    def __init__(self, db, eid = None):
         self._current_pos = {}
         self.db = db
-        self.eid = Events(db).current.event.id
+        if eid:
+            self.eid = eid
+        else:
+            self.eid = Events(db).current.event.id
     
         # get all wait list entries from the current event
         self.query_wait  = (db.wait.event == self.eid)
@@ -854,6 +864,9 @@ class WaitList():
             return rows
         else:
             return rows[:l]
+        
+    def _get_number_of_available(self):
+        return max([0,Numbers(self.db, self.eid).number_of_available()])
         
     def get_sorted_all(self):
         '''
@@ -889,8 +902,26 @@ class WaitList():
         rows = self.get_sorted_all()
         
         # negative numbers in slices do not work
-        r = rows[:max([0, Numbers(self.db, self.eid).number_of_available()])]
+        r = rows[: self._get_number_of_available()]
         return self._limit_rows(r, l)
+    
+    def get_sorted_remaining(self):
+        '''
+        This method returns the complement to get_sorted(l=0), i.e., a rows object containing all persons
+        who will NOT get a sale number.
+        '''
+        rows = self.get_sorted_all()
+        return rows[self._get_number_of_available():]
+    
+    def get_sorted_remaining_list(self):
+        '''
+        This method returns a list of person ids of all persons who will not get a sale number.
+        '''
+        l = []
+        for row in self.get_sorted_remaining():
+            l.append(row.person.id)
+        return l
+    
         
     def get_denials(self, l = 0):
         '''
