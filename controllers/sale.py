@@ -30,10 +30,13 @@ def __validateform(form):
     '''
     sale = Sale()
     sale.analyzecheckboxes(form.vars)
-    if sale.b_does_help == False and sale.b_cannot_help == False:
+    if not (sale.b_does_help or sale.b_wants_sale_number or sale.b_does_donate):
+        form.errors.msg = 'Sie haben angegeben, daß Sie weder eine Kommissionsnummer haben möchten noch helfen oder Kuchen spenden möchten. Bitte wählen Sie etwas aus!'
+    elif not sale.b_does_help and not sale.b_cannot_help and sale.b_wants_sale_number:
         form.errors.msg = 'Sie haben sich für keine Helferschicht eingetragen. Bitte bestätigen Sie, daß Sie nicht helfen können.'
-    elif sale.b_does_help == True and sale.b_cannot_help == True:
+    elif sale.b_does_help and sale.b_cannot_help:
         form.errors.msg = 'Sie haben widersprüchliche Angaben gemacht! Bitte tragen Sie sich entweder für eine Helferschicht ein oder markieren Sie, daß Sie nicht helfen können.'
+    
     
     for donation in sale.getdonations():
         if donation.name_note in form.vars:
@@ -85,7 +88,7 @@ def form():
     # construct the form from the database tables
     formelements = []
     
-    elem_sale_number = TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.sale_number, _checked = 'checked',_value = 'on'), 'Ich möchte eine Kommissionsnummer haben.'), _id = config.cssid.salenumberform)
+    elem_sale_number = TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.sale_number, _checked = 'checked',_value = 'on'),'Ich möchte eine Kommissionsnummer haben.'), _id = config.cssid.salenumberform)
     elem_status = TABLE(TR('Aktueller Status:', WaitList(shotdb).status_text(session.registration_person_id)), _id = config.cssid.salenumberstatus)
     formelements.append(DIV(elem_sale_number, elem_status,  _id = config.cssid.salenumber))
     
@@ -163,7 +166,7 @@ def form():
         if session.sale_vars:
             form.vars = session.sale_vars
         
-        if form.validate(onvalidation = __validateform):      
+        if form.validate(onvalidation = __validateform):
             session.sale_vars = form.vars
             redirect(URL('confirm'))
     
@@ -260,7 +263,7 @@ class Sale():
     
     argument: pid - person id
     '''
-    def __init__(self, pid = 0): 
+    def __init__(self, pid = 0):
         self.pid = pid
         
         e = Events(shotdb)
@@ -321,9 +324,10 @@ class Sale():
         The 'want sale number' and 'no contribution' checkbox translate to boolean.
         '''
         self.vars = vars
-        self.shifts_checked = []
-        self.b_does_help = False
+        self.shifts_checked    = []
         self.donations_checked = {}
+        self.b_does_help   = False
+        self.b_does_donate = False
         # iterate through the dictionary 'vars' containing the form elements
         # for the form elements which have been checked => decode the database table and the id from the key
         p = re.compile('^([a-z]+)\$([0-9]+)$')
@@ -338,6 +342,7 @@ class Sale():
                         self.b_does_help = True
                     elif table == config.formname.donation:
                         self.donations_checked[id] = None
+                        self.b_does_donate = True
                         
         p = re.compile('^{n}\$([0-9]+)$'.format(n = config.formname.note))
         for (k, v) in vars.iteritems():

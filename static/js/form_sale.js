@@ -18,6 +18,9 @@ $(document).ready(function(){
 		$('#isnumstatus').fadeToggle(600);
 	});
 	
+	if(!($('#isnumstatus input[name=fnsnum]').prop('checked'))){
+		$('#isnumstatus').hide();
+	}
 	
 	$('#shift_descr').hide();
 	$('#plclick').show();
