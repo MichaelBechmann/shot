@@ -59,7 +59,7 @@ def config_event():
     
     
     e = Events(shotdb)
-    le = e.get_all().keys()
+    le = e.get_all_labels_sorted()
     le.insert(0, ' Please select ...')
     
     copy_form = FORM(TABLE(TR('Source Event: ', SELECT(le, _name = 'event'),

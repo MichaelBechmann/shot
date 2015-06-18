@@ -457,7 +457,7 @@ def redirect_crud_add():
 class SimpleEventForm():
     def __init__(self):
         e = Events(shotdb)
-        le = e.get_all().keys()
+        le = e.get_all_labels_sorted()
         
         name_event  = 'selev'
         
@@ -600,7 +600,7 @@ class Filter():
           
         self.e = Events(shotdb)
         self.e.get_all()
-        le = self.e.all.keys()
+        le = self.e.get_all_labels_sorted()
         le.insert(0, label_all)
         
         ls = config.colsets[self.tablename]['sets'].keys()

@@ -65,6 +65,10 @@ class Events():
     '''
     This class provides information about the events.
     '''
+    
+    all = None
+    all_labels_sorted = None
+    
     def __init__(self, db):
         self.db = db
         
@@ -90,6 +94,23 @@ class Events():
         
         self.all = {self._form_label(r):r.event.id  for r in self.db(q).select()}
         return self.all
+    
+    def get_all_labels_sorted(self):
+        '''
+        This method returns a sorted list of all event labels.
+        '''
+        if not self.all_labels_sorted:
+            if not self.all:
+                self.get_all()
+            
+            all_swap = {}
+            for k, v in self.all.iteritems():
+                all_swap[v] = k
+            
+            self.all_labels_sorted = [all_swap[i] for i in sorted(all_swap.keys(), reverse = True)]
+        
+        return self.all_labels_sorted
+        
     
     def _form_label(self, e):
         return '%s, %s' % (e.event_type.label,e.event.date)
