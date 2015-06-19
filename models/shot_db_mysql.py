@@ -263,5 +263,6 @@ shotdb.define_table('config',
     Field('description',    'string')
 ) # end of config
 
-# perform initial update of the configuration parameters
-config.update_initial(shotdb)
+
+# perform update of the configuration parameters
+config.update(shotdb)

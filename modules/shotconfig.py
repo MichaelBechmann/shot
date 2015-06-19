@@ -61,9 +61,6 @@ class ConfigurationConstants:
         '''
         Initialize all parameters which are later updated from the database.
         '''
-        # flag to check whether of not the config object shall be updated after definition of the database model
-        self.initial_update = False #
-        
         self.enable_debug           = False # show debug output on each page
         self.enable_extended_menue  = False # expose additional menu items for staff members even when not logged in
         self.enable_registration    = False # expose registration menu item and activate registration.
@@ -83,16 +80,6 @@ class ConfigurationConstants:
             if not row.value and row.active != None:
                 # no value given => boolean parameter
                 setattr(self, row.name.strip(), row.active)
-
-        
-    def update_initial(self, db):
-        '''
-        The parameter update from the database can be done only after the database model has been executed!
-        This method is used to avoid that this update is done EVERY TIME the database model is executed.
-        '''
-        if not self.initial_update:
-            self.update(db)
-        self.initial_update = True
 
 
 config = ConfigurationConstants()
