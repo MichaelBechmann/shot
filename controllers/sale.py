@@ -252,10 +252,6 @@ def final():
 def final_wait():
     return dict()
 
-def no_numbers():
-    return dict()
-
-
 class Sale():
     '''
     This class provides methods for handling all sale related information like sale numbers or help information.

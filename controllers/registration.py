@@ -141,9 +141,7 @@ def check():
 
 
 def info():
-    url = URL('sale', 'form')
-    form = FORM(INPUT(_type = 'submit', _class = 'button', _value = 'Weiter zu den Helferschichten und Kommissionsnummern'), _action = url)
-    return dict(form = form)
+    return dict()
 
 
 def disable_mail(): 

@@ -2,18 +2,12 @@
 <link href="/static/form_sale.css" rel="stylesheet" type="text/css"/>
 <script src="/static/js/form_sale.js" type="text/javascript"></script>
 
-
-
 <h3>Anmeldung zum {{response.write(announcement)}}</h3>
-<p>
-Um diesen Markt realisieren zu können, sind wir auf viele ehrenamtliche Helfer angewiesen.
-Wir möchten daher zunächst unsere Helferschichten füllen, bevor wir den Großteil der Kommissionsnummern über die Warteliste vergeben.
-</p>
 
 {{if template_set == 'child':}}
-    {{include 'sale/form/form_explain_child.html'}}
+    {{=auth.wiki(slug='sale-form-explanation-child')}}
 {{elif template_set == 'toys':}}
-    {{include 'sale/form/form_explain_toys.html'}}
+    {{=auth.wiki(slug='sale-form-explanation-toys')}}
  {{pass}}
 
 {{
