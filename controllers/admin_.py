@@ -167,13 +167,17 @@ def __rectify_wiki():
     This function loops through all rows of table wiki_page. For each page the body is retrieved and then converted to html which is then stored in the database.
     This is necessary to fix all links all copying the database from some other site.
     '''
-    auth.shotwiki()
     slugs = []
     q = shotdb.wiki_page.id > 0
     for page in shotdb(q).select():
         
         renderer = auth._wiki.get_renderer()
-        shotdb(shotdb.wiki_page.id == page.id).update(html = renderer(page))
+        html = renderer(page)
+        
+        # do not spoil wiki tag links with admin_ controller
+        html = html.replace('admin_/actions', 'main/wiki')
+        
+        shotdb(shotdb.wiki_page.id == page.id).update(html = html)
         
         slugs.append(page.slug)
     

@@ -77,9 +77,12 @@ class ConfigurationConstants:
         This method retrieves ALL configuration parameters from the database and updates the attributes accordingly.
         '''
         for row in db(db.config.id > 0).select():
-            if not row.value and row.active != None:
+            if not row.value:
                 # no value given => boolean parameter
                 setattr(self, row.name.strip(), row.active)
+                
+            else:
+                setattr(self, row.name.strip(), row.value)
 
 
 config = ConfigurationConstants()
@@ -210,13 +213,3 @@ config.colsets_auth['group'] = ['auth_group.id', 'auth_group.role', 'auth_group.
 config.colsets_auth['permission'] = ['auth_permission.id', 'auth_permission.group_id', 'auth_permission.name', 'auth_permission.table_name', 'auth_permission.record_id']
 config.colsets_auth['membership'] = ['auth_membership.id', 'auth_membership.user_id', 'auth_membership.group_id']
 
-# waffle recipe
-config.recipe_list = (('300 g', 'Margarine'),
-                      ('200 g', 'Zucker'),
-                      ('2  Päckchen', 'Vanillezucker'),
-                      ('1 Prise', 'Salz'),
-                      ('6', 'Eier'), 
-                      ('500 g', 'Mehl'),
-                      ('2 Teelöffel', 'Backpulver'),
-                      ('500 ml', 'Wasser')
-                     )

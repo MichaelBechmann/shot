@@ -6,11 +6,13 @@ if 0:
     global response
     global session
     global shotdb
+    global auth
 
 from shotdbutil import Reminder
 from shotmail import ReminderMail
 from time import sleep
 from shotlogging import logger_bg
+from shotconfig import *
 
 '''
 This function sends a special reminder email to each person which helps at the current event
@@ -21,13 +23,13 @@ logger_bg.info('start with script "send_reminder_mail" ...')
 try:
     count = 0
     for row in Reminder(shotdb).get_all_persons():
-        m = ReminderMail(shotdb, row.id, mass = True)
+        m = ReminderMail(auth, row.id, mass = True)
         if count == 0:
             # output account settings
             logger_bg.info('The following account settings are used:')
             logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
         else:
-            sleep(10)
+            sleep(float(config.bulk_email_delay))
             
         m.send()
         count += 1 

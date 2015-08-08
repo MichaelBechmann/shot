@@ -105,14 +105,14 @@ def confirm():
             # The person is known but the email is to be verified.
             pe.update()
             shotdb.commit()
-            RegistrationMail(shotdb, pe.id).send() 
+            RegistrationMail(auth, pe.id).send() 
             nextpage = URL('final')  
             
         else:
             # person is not known yet.
             pe.insert()
             shotdb.commit()
-            RegistrationMail(shotdb, pe.id).send()
+            RegistrationMail(auth, pe.id).send()
             nextpage = URLWiki('registration-final')  
         
         redirect(nextpage)
@@ -133,15 +133,17 @@ def check():
     i = Ident(shotdb, code)
 
     if i.b_verified:
-        session.clear()
+        
+        # remove all data from session object in order to not mix up data from different persons in the following sale form
+        # Note: session.clear() must not be used because then the session file will not be written anymore and the id below will get lost!
+        keys = [k for k in session.iterkeys()]
+        for k in keys:
+            del session[k]
+            
         session.registration_person_id = i.id
-        redirect(URL('info'))
+        redirect(URLWiki('registration-email-cofirmed'))
    
     redirect(URLWiki('registration-check-error'))
-
-
-def info():
-    return dict()
 
 
 def disable_mail(): 

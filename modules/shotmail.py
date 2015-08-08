@@ -29,7 +29,12 @@ class EMail:
     The constructor argument selects the email account to be used (refer to class EMailAccount)
     """
     
-    def __init__(self, template, account_id, mass = False):
+    re_html = re.compile('<.*?>')
+    re_placeholder = re.compile('(<PLACEHOLDER_.*?>)')
+    escape_chars = {'ä': '&#228;', 'Ä': '&#196;', 'ö': '&#246;', 'Ö': '&#214;', 'ü': '&#252;', 'Ü': '&#220;', 'ß': '&#223;'}
+    
+    
+    def __init__(self, account_id, mass = False):
         self.account        = EMailAccount(account_id, mass)
         self.send_backup    = False
         self.subject_backup = 'backup'
@@ -38,30 +43,30 @@ class EMail:
         self.subs           = {'<PLACEHOLDER_APPENDIX>': ''}
         self.attachments    = []
         
+    def add_html_from_file(self, template):
         f = open(config.shotpath + template, 'r')
         self.html = f.read()
         f.close()
-   
+        
     def _convert_html_to_text(self):
         """
         This method extracts plain text from a passed html formatted text.
         It works by simply removing the html tags with a regex.
         """
-        p = re.compile('<[^>]*>')
-        text = p.sub('', self.html)
+        
+        text = self.re_html.sub('', self.html)
         return(text)
-   
+    
     def _escape(self, text):
         '''
         This method replaces Ü,ß, etc. with the xml encodings.
         usually text.encode('ascii', 'xmlcharrefreplace') would do fine, but somehow web2py detects an exception in the encode() function ...
         '''
-        sub = {'ä': '&#228;', 'Ä': '&#196;', 'ö': '&#246;', 'Ö': '&#214;', 'ü': '&#252;', 'Ü': '&#220;', 'ß': '&#223;'}
-        for k,v in sub.iteritems():
-            text = re.compile(k).sub(v,text)
+        for k,v in self.escape_chars.iteritems():
+            text = text.replace(k, v)
         return text
-
- 
+        
+    
     def attachpdf(self, filepath, name):
         """
         This method adds the specified pdf as attachment to the mail.
@@ -91,10 +96,17 @@ class EMail:
         
     def do_substitution(self):
         '''
-        This method substitutes all placeholder in the html mail text.
+        This method recursively substitutes all placeholder in the html mail text.
         '''
-        for k,s in self.subs.iteritems():
-            self.html = re.compile(k).sub(str(s), self.html)        
+        done = False
+        while not done:
+            done = True
+            m_all = self.re_placeholder.finditer(self.html)
+            for m in m_all:
+                k = m.group(1)
+                self.html = self.html.replace(k, str(self.subs[k]))
+                done = False
+        
         
     def add_body(self, s):
         '''
@@ -176,17 +188,20 @@ class ShotMail(EMail):
     Note: The constructor takes a dictionary representation of a persons database record.
           This is because the database is declared only in the application's controllers, not in the general modules.
     '''
-    re_waffle = re.compile('Waffel')
+    marker_waffle = 'Waffel'
+    marker_friday = 'Freitag'
     
-    recipe = SPAN('Wir möchten Sie bitten, den Waffelteig nach folgendem Rezept zu machen:', BR(), TABLE(*[TR(TD(x[0]), TD(x[1])) for x in config.recipe_list]))
     
-    def __init__(self, db, pid, template, account_id = 'team', mass = False):
+    def __init__(self, auth, pid, slug_base, account_id = 'team', mass = False):
+        EMail.__init__(self, account_id, mass)
+        
         self.pid = pid
-        self.db = db
+        self.auth = auth
+        self.db = auth.db
+        
         self.events = Events(self.db)
         
-        template_final = template.replace('TEMPLATE_SET', 'template_set_' + self.events.current.event.template_set)
-        EMail.__init__(self, template_final, account_id, mass)
+        self.html = current.response.render('email/email_base.html', dict(body = self.auth.get_shotwiki_page(slug_base)))
         
         self.person = self.db.person(pid)
         self.receiver = self.person['email']
@@ -196,7 +211,9 @@ class ShotMail(EMail):
         self.subs['<PLACEHOLDER_ENROL_DATE>']         = self.events.current.event.enrol_date
         self.subs['<PLACEHOLDER_FULLNAME>']           = self.person.forename + ' ' + self.person.name
         self.subs['<PLACEHOLDER_DISABLE_MAIL_URL>']   = config.shoturl + 'registration/disable_mail/' + str(self.person.id) + self.person.code
-
+        self.subs['<PLACEHOLDER_REGISTRATION_URL>']   = config.shoturl + 'registration/check/' + str(self.person.id) + self.person.code
+        
+    
     def add_sale_number(self):
         '''
         This methods retrieves the persons sale number from the database and adds it to the mail.
@@ -220,19 +237,31 @@ class ShotMail(EMail):
         elem = [TR(TD(r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity),
                    TD('('+r.shift.comment+')') if r.shift.comment not in [None, ''] else '')
                     for r in self.db(query).select()]
+        
+        elem = []
+        b_helps_friday = False
+        for r in self.db(query).select():
+            elem.append(TR(TD(r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity),
+                   TD('('+r.shift.comment+')') if r.shift.comment not in [None, ''] else ''))
+            
+            if self.marker_friday in r.shift.day:
+                b_helps_friday = True
+
         if len(elem) > 0:
             helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
-            helpersaletext = DIV(STRONG('Wie in jedem Jahr können Sie als Helfer schon vor dem Markt zwischen 8 Und 9 Uhr  bei uns "voreinkaufen". '),
-                                  SPAN('Hierzu wird ab 8 Uhr für die Helfer der Seiteneingang des Gemeindezentrums geöffnet.\
-                                  Der Vordereingang wird bis 9 Uhr geschlossen bleiben.')
-                                )
+            helpersaletext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-sale-text')
+            
         else:
-            helptext = DIV(SPAN('Sie können keine Helferschicht übernehmen.'))
+            helptext = DIV('Sie können keine Helferschicht übernehmen.')
             helpersaletext = ''
+        if b_helps_friday:
+            instructionshelperfriday = self.auth.get_shotwiki_page(slug_base = 'email-snippet-instructions-helper-friday')
+        else:
+            instructionshelperfriday = ''
  
-        self.subs['<PLACEHOLDER_HELP>']  = str(helptext)
-        self.subs['<PLACEHOLDER_HELPER_SALE>'] = str(helpersaletext)
-        
+        self.subs['<PLACEHOLDER_HELP>'] = str(DIV(helptext, _class = 'block_contribution'))
+        self.subs['<PLACEHOLDER_HELPER_SALE_TEXT>'] = str(helpersaletext)
+        self.subs['<PLACEHOLDER_INSTRUCTIONS_HELPER_FRIDAY>'] = str(instructionshelperfriday)
         
         # retrieve bring information
         query  = (self.db.donation.event == self.events.current.event.id)        
@@ -243,9 +272,9 @@ class ShotMail(EMail):
         b_add_recipe = False
         for r in self.db(query).select():
             d = r.donation.item
-            if self.re_waffle.search(d):
+            if self.marker_waffle in d:
                 b_add_recipe = True
-            if r.bring.note != None:
+            if r.bring.note:
                 d += ' (' + r.bring.note + ')'
             elem.append(d)   
                  
@@ -255,20 +284,17 @@ class ShotMail(EMail):
                 s = ' (sofern Sie eine Kommissionsnummer erhalten)'
             bringtext = DIV(SPAN('Sie haben sich bereit erklärt, für das Cafe folgendes zu spenden' + s + ':'), BR(), TABLE(*elem))
         else:
-            #bringtext = DIV(SPAN('Sie können keinen Kuchen für das Cafe mitbringen.'))
-            bringtext = DIV(SPAN('''
-            Sie haben angegeben, keinen Kuchen für das Cafe mitzubringen.
-            Allerdings fehlen uns diesmal leider noch einige Kuchen.
-            Falls Sie uns doch noch helfen möchten, können Sie sich direkt über unser '''),
-            A('Kontaktformular', _href = config.shoturl + 'contact/form/'),
-            SPAN(''' an uns wenden.
-            Wir würden Ihre Kuchenspende dann selbst in unsere Datenbank eintragen. Vielen herzlichen Dank!'''))
-            
+            if self.events.current.event.email_bring_request:
+                bringtext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-bring-request')
+            else:
+                bringtext = DIV('Sie möchten keinen Kuchen für das Cafe mitbringen.')
+        
         # add waffle recipe
         if b_add_recipe:
-            bringtext = DIV(bringtext, BR(), self.recipe)
+            recipe = self.auth.get_shotwiki_page(slug_base = 'email-snippet-recipe-waffle')
+            bringtext = DIV(bringtext, BR(), recipe)
 
-        self.subs['<PLACEHOLDER_BRING>']  = str(bringtext) 
+        self.subs['<PLACEHOLDER_BRING>']  = str(DIV(bringtext, _class = 'block_contribution') )
 
     def add_waitlist_position(self):
         '''
@@ -287,8 +313,8 @@ class  PlainMail(ShotMail):
     """
     This class defines a free text email for the person summary page.
     """
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/plain_de.html')
+    def __init__(self, auth, pid):
+        ShotMail.__init__(self, auth, pid, 'email-plain')
         self.subject = 'Info'
         self.send_backup = True
         self.subject_backup = 'backup plain mail: ' + self.person.name + ', ' + self.person.forename
@@ -298,20 +324,18 @@ class  RegistrationMail(ShotMail):
     """
     This class defines the email with the personal registration code link.
     """
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/registration_de.html')
+    def __init__(self, auth, pid):
+        ShotMail.__init__(self, auth, pid, 'email-registration')
                     
         self.subject = 'Registrierung als Verkäufer'
-        self.subs['<PLACEHOLDER_REGISTRATION_URL>'] = config.shoturl + 'registration/check/' + str(self.person.id) + self.person.code     
-
 
 
 class  InvitationMail(ShotMail):
     """
     This class defines the invitation email with the personal link to the registration form.
     """
-    def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/invitation_de.html', mass = mass)
+    def __init__(self, auth, pid, mass = False):
+        ShotMail.__init__(self, auth, pid, 'email-invitation', mass = mass)
                   
         self.subject = 'Einladung zum Markt'
         self.subs['<PLACEHOLDER_FORM_URL>'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
@@ -324,8 +348,8 @@ class NumberMail(ShotMail):
     '''
     This class defines the email with the person's sale number.
     '''
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/sale_number_de.html')
+    def __init__(self, auth, pid):
+        ShotMail.__init__(self, auth, pid, 'email-salenumber')
         
         self.add_sale_number()
         self.add_contributions()
@@ -339,8 +363,8 @@ class NumberFromWaitlistMail(ShotMail):
     '''
     This class defines the email with the person's sale number. It is sent when the wait list is resolved.
     '''
-    def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/sale_number_from_waitlist.html', mass = mass)
+    def __init__(self, auth, pid, mass = False):
+        ShotMail.__init__(self, auth, pid, 'email-salenumber-from-waitlist', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
@@ -354,8 +378,8 @@ class NumberFromWaitlistMailSuccession(ShotMail):
     '''
     This class defines the email with the person's sale number. It is sent when the wait list is resolved and the person has got a denial previously.
     '''
-    def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/sale_number_from_waitlist_succession.html', mass = mass)
+    def __init__(self, auth, pid, mass = False):
+        ShotMail.__init__(self, auth, pid, 'email-salenumber-from-waitlist-succession', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
@@ -369,8 +393,8 @@ class WaitMail(ShotMail):
     '''
     This class defines the email for persons put on the waitlist.
     '''
-    def __init__(self, db, pid):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/wait.html')
+    def __init__(self, auth, pid):
+        ShotMail.__init__(self, auth, pid, 'email-wait')
         
         self.add_contributions(b_condition = True)
         self.add_waitlist_position() # add_waitlist_position must be called after add_contributions because of the determination of the current event
@@ -383,8 +407,8 @@ class WaitDenialMail(ShotMail):
     '''
     This class defines the email for persons who got no number from the waitlist.
     '''
-    def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/wait_denial.html', mass = mass)
+    def __init__(self, auth, pid, mass = False):
+        ShotMail.__init__(self, auth, pid, 'email-wait-denial', mass = mass)
         
         self.subject = 'Sie haben leider keine Nummer :('       
         self.send_backup    = False
@@ -394,13 +418,13 @@ class ReminderMail(ShotMail):
     '''
     This class defines the email sent to all participants as a reminder short time before the event.
     '''
-    def __init__(self, db, pid, mass = False):
-        ShotMail.__init__(self, db, pid, 'static/mail_templates/TEMPLATE_SET/reminder.html', mass = mass)
+    def __init__(self, auth, pid, mass = False):
+        ShotMail.__init__(self, auth, pid, 'email-reminder', mass = mass)
         
         self.add_sale_number()
         self.add_contributions()
         
-        self.subject = 'Erinnerung'       
+        self.subject = 'Erinnerung'
         self.send_backup    = False
         self.subject_backup = 'person: ' + self.person.name + ', ' + self.person.forename
         
@@ -408,9 +432,9 @@ class AppropriationRequestMail(ShotMail):
     '''
     This class defines the email sent as a confirmation when a appropriation request is received.
     '''
-    def __init__(self, db, aid):
-        ar_row = db.request(aid)
-        ShotMail.__init__(self, db, ar_row.person, 'static/mail_templates/appropriation_request.html')
+    def __init__(self, auth, aid):
+        ar_row = auth.db.request(aid)
+        ShotMail.__init__(self, auth, ar_row.person, 'email-appropriation-request')
         
         self.subject = 'Ihr Antrag auf Fördermittel'       
         self.send_backup    = True
@@ -418,15 +442,14 @@ class AppropriationRequestMail(ShotMail):
         
         self.subs['<PLACEHOLDER_APPROPRIATION_REQUEST>']  = getAppRequestDataTale(ar_row)
         
-          
 class ContactMail(EMail):
     '''
     This class defines the email for the SHOT contact form.
     '''
     def __init__(self, category, msg, name, email):
-        EMail.__init__(self, 'static/mail_templates/contact_de.html', account_id = 'postmaster')
+        EMail.__init__(self, account_id = 'postmaster')
+        self.add_html_from_file('static/mail_templates/contact_de.html')
         self.receiver = config.mail.contactmail_to[category]
-        
         self.subject = 'Kontaktanfrage von ' + name
         self.subs['<PLACEHOLDER_MSG>']    = msg   
         self.subs['<PLACEHOLDER_NAME>']   = name
@@ -441,7 +464,8 @@ class ErrorMail(EMail):
     This class defines the email which is automatically sent to the system admin in case an error has been detected.
     ''' 
     def __init__(self, msg = 'no message'):
-        EMail.__init__(self, 'static/mail_templates/error.html', 'postmaster')
+        EMail.__init__(self, 'postmaster')
+        self.add_html_from_file('static/mail_templates/error.html')
         self.receiver = config.mail.error_to
         self.subject  = 'Error %s (%s)' % (str(current.request.vars.code), config.shoturl) #@UndefinedVariable
         self.add_debug_data()
@@ -453,5 +477,4 @@ class ErrorMail(EMail):
             self.subs['<PLACEHOLDER_TICKET>'] = A(url, _href = url)
         else:
             self.subs['<PLACEHOLDER_TICKET>'] = 'no ticket' 
-        
         

@@ -6,11 +6,13 @@ if 0:
     global response
     global session
     global shotdb
+    global auth
 
 from shotdbutil import WaitList, Numbers
 from shotmail import WaitDenialMail
 from time import sleep
 from shotlogging import logger_bg
+from shotconfig import *
 import sys
 
 '''
@@ -38,14 +40,14 @@ try:
             shotdb(shotdb.wait.id == row.id).update(denial_sent = True)
             shotdb.commit()
             
-            m = WaitDenialMail(shotdb, row.person, mass = True)
+            m = WaitDenialMail(auth, row.person, mass = True)
             if count == 0:
                 # output account settings
                 logger_bg.info('The following account settings are used:')
                 logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
             else:
                 # wait before sending next mail
-                sleep(10)          
+                sleep(float(config.bulk_email_delay))         
             
             m.send()
             count += 1

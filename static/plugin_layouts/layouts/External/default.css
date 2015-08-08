@@ -339,3 +339,8 @@ input[type="submit"].irreversible {
 h2.debug{
     color: #5555FF;
 }
+
+/* hide wiki tags */
+div.w2p_wiki_tags {
+    display: none;
+}

@@ -6,7 +6,6 @@ if 0:
     import gluon
     global request
     global response
-    global session
     global shotdb
     global auth
     
@@ -51,7 +50,7 @@ def wiki():
     if str(request.args(0)).startswith('_'):
         wiki_ctrl.cmd    = request.args(0)
         wiki_ctrl.slug   = request.args(1)
-        wiki_ctrl.render = auth.get_wiki_rendering(shotdb, wiki_ctrl.slug )
+        wiki_ctrl.render = auth.get_wiki_rendering(wiki_ctrl.slug )
     else:
         wiki_ctrl.slug = request.args(0)
     

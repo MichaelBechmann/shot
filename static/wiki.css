@@ -40,6 +40,7 @@ td.w2p_fl,td.w2p_fc {padding-top:4px}
 div.w2p_export_menu {margin:5px 0}
 div.w2p_export_menu a, div.w2p_wiki_tags a, div.w2p_cloud a {margin-left:5px; padding:2px 5px; background-color:#f1f1f1; border-radius:5px; -moz-border-radius:5px; -webkit-border-radius:5px;}
 
+
 div.w2p_export_menu{
 	font-size: 14px;
 	vertical-align: middle;
@@ -271,6 +272,16 @@ select, textarea, input[type="text"]{
     padding: 4px 6px;
     vertical-align: middle;
 }
+
+
+
+#wiki_page_title, #wiki_page_changelog, #no_table_from_template{
+	width: 100%;
+}
+
+ #no_table_slug{
+    width: 400px;
+ }
 
 .web2py_htmltable {
    width: 100%;

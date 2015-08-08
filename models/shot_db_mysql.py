@@ -13,12 +13,14 @@ T.force('de')
 shotdb = DAL(config.db_connection_string, pool_size=5)
 
 
-# Create all tables required for authentication
+# Create all tables required for authentication and the wiki
 auth = ShotAuth(shotdb, controller = "access", function = "user")
 auth.define_tables(username = True, signature = True)
 auth.settings.create_user_groups = None
 auth.settings.manager_actions = dict(db_admin=dict(role='admin',heading='Manage Database',tables = shotdb.tables))
 
+# define the wiki database tables
+auth.shotwiki(resolve = False)
 
 # The table 'event_type' allows the admin to add new classes of events.
 shotdb.define_table('event_type',
@@ -61,6 +63,9 @@ shotdb.define_table('event',
  
     # optional limit of sale numbers
     Field('numbers_limit', 'integer', label = T('numbers limit')),
+    
+    # option for the generation of emails: shall a request to bring something (wiki page snippet) be added via email PLACEHOLDER?
+    Field('email_bring_request',    'boolean',  label = T('insert bring request (email)')),
     
     # define how a record is represented if referenced from other tables
     #format='%(label)s, %(date)s'

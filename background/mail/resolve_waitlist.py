@@ -6,11 +6,13 @@ if 0:
     global response
     global session
     global shotdb
+    global auth
 
 from shotdbutil import *
 from shotmail import NumberFromWaitlistMail, NumberFromWaitlistMailSuccession
 from time import sleep
 from shotlogging import logger_bg
+from shotconfig import *
 import sys
 
 '''
@@ -37,7 +39,7 @@ try:
         if Numbers(shotdb, wl.eid).b_numbers_available():
             if count > 0:
                 # wait before sending next mail
-                sleep(10)
+                sleep(float(config.bulk_email_delay))
             
             count += 1
             msg = '#%d, id: %d\t%s, %s' % (count, row.id, row.person.name, row.person.forename)
@@ -58,7 +60,7 @@ try:
                     
                     msg = msg + ' (succession)'
                 else:
-                    m = NumberFromWaitlistMail(shotdb, row.person)
+                    m = NumberFromWaitlistMail(auth, row.person)
                     m.send()
                     if b_log_account_number_mail:
                         # output account settings

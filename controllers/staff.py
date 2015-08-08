@@ -156,7 +156,7 @@ def person_summary():
                 m = re.match('([ps])_(\d+)', p)
                 if m:
                     idx = int(m.group(2))
-                    mail = mail_conf[idx][2](shotdb, pid)
+                    mail = mail_conf[idx][2](auth, pid)
                     if idx == 0:
                         mail.add_body(request.vars['message'])
                     else:

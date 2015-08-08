@@ -11,25 +11,27 @@ if 0:
     global response
     global session
     global shotdb
+    global auth
 
 from shotmail import InvitationMail
 from shotlogging import logger_bg
+from shotconfig import *
 from time import sleep
 
 logger_bg.info('start with script "send_invitation_mail" ...')
 
 try:
     count = 0   
-    for row in shotdb(shotdb.person.id > 0).select():  
+    for row in shotdb(shotdb.person.id > 600).select():  
         if row.mail_enabled == None or row.mail_enabled == True:
             
-            m = InvitationMail(shotdb, row.id, mass = True)
+            m = InvitationMail(auth, row.id, mass = True)
             if count == 0:
                 # output account settings
                 logger_bg.info('The following account settings are used:')
                 logger_bg.info('server: %s, sender: %s' % (m.account.server, m.account.sender))
             else:
-                sleep(10)
+                sleep(float(config.bulk_email_delay))
             
             m.send()
             count += 1

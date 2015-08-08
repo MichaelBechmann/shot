@@ -174,7 +174,7 @@ def form():
             form.errors.msg = session.sale_error_msg
             session.sale_error_msg = None
     
-    return dict(announcement = sale.announcement, form = form, template_set = sale.template_set)
+    return dict(announcement = sale.announcement, form = form)
 
 
 def confirm():
@@ -234,7 +234,7 @@ def confirm():
         
     elif 'submit send' in request.vars:
         # Add the sale information to the database and send mail:
-            # Add submitted information to database record.
+        # Add submitted information to database record.
         sale.setdbentries()
         
         # prevent multiple database entries
@@ -265,7 +265,6 @@ class Sale():
         e = Events(shotdb)
         self.announcement = e.get_current_announcement(b_include_time = False)
         self.currentevent_id = e.current.event.id
-        self.template_set = e.current.event.template_set
         
         self.contrib = Contributions(shotdb, self.currentevent_id)
         
@@ -409,15 +408,15 @@ class Sale():
                 if NumberAssignment(shotdb, self.pid).assign_number() > 0:
                     # sale number has been assigned successfully or person already has a sale number
                     shotdb.commit()
-                    NumberMail(shotdb, self.pid).send()
+                    NumberMail(auth, self.pid).send()
                     self.b_sale_number_assigned = True
 
             if self.b_sale_number_assigned == False:
                 # person shall not be assigned a sale number or assignment failed (no free numbers left)
                 # send wait list mail
                 shotdb.commit()
-                WaitMail(shotdb, self.pid).send()
+                WaitMail(auth, self.pid).send()
         else:
             shotdb.commit()
-            NumberMail(shotdb, self.pid).send()
+            NumberMail(auth, self.pid).send()
         

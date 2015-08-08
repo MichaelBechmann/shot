@@ -113,7 +113,7 @@ def confirm():
         
         # send email
         shotdb.commit()
-        AppropriationRequestMail(shotdb, ar.aid).send()
+        AppropriationRequestMail(auth, ar.aid).send()
         
         redirect(URLWiki('appropriation-final'))
 

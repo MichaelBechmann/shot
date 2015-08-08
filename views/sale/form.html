@@ -4,11 +4,7 @@
 
 <h3>Anmeldung zum {{response.write(announcement)}}</h3>
 
-{{if template_set == 'child':}}
-    {{=auth.wiki(slug='sale-form-explanation-child')}}
-{{elif template_set == 'toys':}}
-    {{=auth.wiki(slug='sale-form-explanation-toys')}}
- {{pass}}
+{{=auth.get_shotwiki_page(slug_base = 'sale-form-explanation')}}
 
 {{
 if form.errors.msg != None:
