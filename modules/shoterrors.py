@@ -11,3 +11,6 @@ class ShotError(Exception):
         
     def __str__(self):
         return self.msg
+    
+class ShotMailError(ShotError):
+    pass

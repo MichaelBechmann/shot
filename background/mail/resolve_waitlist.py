@@ -51,7 +51,13 @@ try:
                 
                 if row.denial_sent:
                     m = NumberFromWaitlistMailSuccession(shotdb, row.person)
+                    m.set_error_handling_parameters(number_attempts = config.bulk_email_number_attempts,
+                                                    delay_next_attempt = config.bulk_email_number_delay_next_attempt)
                     m.send()
+                    if m.errors:
+                        logger_bg.warning('Intermediate errors occurred:')
+                        for error in m.errors:
+                            logger_bg.warning(error)
                     if b_log_account_number_mail_succ:
                         # output account settings
                         logger_bg.info('The following account settings are used (succession from wait list):')
@@ -61,7 +67,13 @@ try:
                     msg = msg + ' (succession)'
                 else:
                     m = NumberFromWaitlistMail(auth, row.person)
+                    m.set_error_handling_parameters(number_attempts = config.bulk_email_number_attempts,
+                                                    delay_next_attempt = config.bulk_email_number_delay_next_attempt)
                     m.send()
+                    if m.errors:
+                        logger_bg.warning('Intermediate errors occurred:')
+                        for error in m.errors:
+                            logger_bg.warning(error)
                     if b_log_account_number_mail:
                         # output account settings
                         logger_bg.info('The following account settings are used (number from wait list):')

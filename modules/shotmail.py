@@ -20,6 +20,8 @@ from formutils import getAppRequestDataTale
 from gluon.html import *
 from gluon import current
 import datetime
+from shoterrors import ShotError
+from time import sleep
 
 
 class EMail:
@@ -33,7 +35,6 @@ class EMail:
     re_placeholder = re.compile('(<PLACEHOLDER_.*?>)')
     escape_chars = {'ä': '&#228;', 'Ä': '&#196;', 'ö': '&#246;', 'Ö': '&#214;', 'ü': '&#252;', 'Ü': '&#220;', 'ß': '&#223;'}
     
-    
     def __init__(self, account_id, mass = False):
         self.account        = EMailAccount(account_id, mass)
         self.send_backup    = False
@@ -42,6 +43,14 @@ class EMail:
         self.subject        = 'default'
         self.subs           = {'<PLACEHOLDER_APPENDIX>': ''}
         self.attachments    = []
+        
+        # error handling
+        self.errors = []
+        self.set_error_handling_parameters()
+        
+    def set_error_handling_parameters(self, number_attempts = 3, delay_next_attempt = 5):
+        self.number_attempts = number_attempts
+        self.delay_next_attempt = delay_next_attempt
         
     def add_html_from_file(self, template):
         f = open(config.shotpath + template, 'r')
@@ -168,9 +177,21 @@ class EMail:
         msg['Subject']  = self.subject
         
         #  See http://docs.python.org/library/smtplib.html
-        s = smtplib.SMTP_SSL(self.account.server, self.account.port)
-        s.login(self.account.login, self.account.passwd)
-        s.sendmail(msg['From'], msg['To'], msg.as_string())
+        count = 0
+        while count < self.number_attempts:
+            try:
+                if count > 0:
+                    sleep(self.delay_next_attempt)
+                count += 1
+                s = smtplib.SMTP_SSL(self.account.server, self.account.port)
+                s.login(self.account.login, self.account.passwd)
+                s.sendmail(msg['From'], msg['To'], msg.as_string())
+                break
+            except Exception, e:
+                self.errors.append('Error while sending email to %s: %s' %(msg['to'], str(e)))
+        else:
+            self.errors.append('Give up after %d unseccessful attempts!' % count)
+            raise ShotError('\n'.join(self.errors))
         
         # backup mail
         if config.enable_backup_mail and self.send_backup:
@@ -178,7 +199,11 @@ class EMail:
             msg['To']       = config.mail.backup_to
             msg.__delitem__('Subject')
             msg['Subject']  = self.subject_backup
-            s.sendmail(msg['From'], msg['To'], msg.as_string())
+            try:
+                s.sendmail(msg['From'], msg['To'], msg.as_string())
+            except Exception, e:
+                # errors while sending backup mails shall not be perceivable for the user
+                self.errors.append('Error while sending backup mail: %s' % str(e))
         s.quit()
 
 

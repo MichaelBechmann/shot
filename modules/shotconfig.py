@@ -70,7 +70,6 @@ class ConfigurationConstants:
         self.enable_backup_mail     = False # send additional backup mails to test address
         self.enable_error_mail      = True  # send mail with debug information to admin
         self.redirect_to_ticket     = False # immediately display ticket page
-        
 
     def update(self, db):
         '''
@@ -89,6 +88,10 @@ config = ConfigurationConstants()
 
 config.db_connection_string = siteconfig.db_connection_string
 config.db_backup_command = siteconfig.db_backup_command
+
+# bulk email error handling
+config.bulk_email_number_attempts = 200
+config.bulk_email_number_delay_next_attempt = 30 # seconds
 
 
 config.shoturl          = siteconfig.shoturl
