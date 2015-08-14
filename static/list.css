@@ -19,22 +19,22 @@ table.list td {
 	border-style: solid;
 	border-color: #a0a0a0;
 }
-table.list tr.odd{
+table.list tr.even{
 	background-color: #ecffec;
 }
-table.list tr.even{
+table.list tr.odd{
 	background-color:#ffffff;
 }
 
-table.list td.true{
+table.list .true{
     text-align:center;
     color: green;
 }
-table.list td.false{
+table.list .false{
     text-align:center;
     color: red;
 }
-table.list td.none{
+table.list .none{
     text-align:center;
     color: #b0b0b0;
 }
@@ -43,4 +43,24 @@ form.test{
     padding: 8px;
     border-style: solid;
     border-color: #a0a0a0;  
+}
+
+.event_main_row td{
+	height: 24px;
+}
+
+.event_sub_row{
+	height: 18px;
+}
+
+.event_sub_row span.field{
+	margin: 0 0 0 32px;
+}
+
+.ctggltrig{
+	text-align:center;
+}
+
+.link_add_table_element{
+	margin: 8px 0;
 }

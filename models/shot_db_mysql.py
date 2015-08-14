@@ -25,7 +25,7 @@ auth.shotwiki(resolve = False)
 # The table 'event_type' allows the admin to add new classes of events.
 shotdb.define_table('event_type',
      
-    Field('label', 'string', label = T('name of the event type'), length=255, unique = True, requires = IS_NOT_EMPTY(error_message = T('Please enter a unique name for the event type.'))),
+    Field('label', 'string', label = T('Name of the event type'), length=255, unique = True, requires = IS_NOT_EMPTY(error_message = T('Please enter a unique name for the event type.'))),
      
     # define how a record is represented if referenced from other tables
     format='%(label)s'
@@ -35,37 +35,37 @@ shotdb.define_table('event_type',
 # The table 'event' contains all configuration data of the market events.
 shotdb.define_table('event',
         
-    Field('label',      'string',   label = T('event label'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a unique identifying label for the event.'))),
+    Field('label',      'string',   label = T('Event label'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a unique identifying label for the event.'))),
 
     # Some functions relate the current event to former events, sometimes only to those of the same type!
     Field('type',       shotdb.event_type),
     
     # Which templates (views, texts, email) shall be used?
-    Field('template_set',   'string',   label = T('template set'),  requires = IS_IN_SET(('child','toys'))),
+    Field('template_set',   'string',   label = T('Template set'),  requires = IS_IN_SET(('child','toys'))),
     
     # Is the event active, i.e., the current event?
-    Field('active',    'boolean',  label = T('active')),
+    Field('active',    'boolean',  label = T('Active')),
     
     # Is the event visible for visitors, i.e., shall the related dates be displayed?
-    Field('visible',    'boolean',  label = T('visible')),
+    Field('visible',    'boolean',  label = T('Visible')),
     
     # Date of the event
-    Field('date',  'string',   label = T('date'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 28. September 2013".'))),
+    Field('date',  'string',   label = T('Date'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 28. September 2013".'))),
     
     # Time of the event
-    Field('time',  'string',   label = T('time'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a time string, e.g., "9 - 12:30 Uhr".'))),
+    Field('time',  'string',   label = T('Time'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a time string, e.g., "9 - 12:30 Uhr".'))),
     
     # Date of the start of the enrolment of the vendors
-    Field('enrol_date',  'string',   label = T('enrol date'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 24. August 2013".'))),    
+    Field('enrol_date',  'string',   label = T('Enrol date'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 24. August 2013".'))),    
     
     # the available sale numbers; adjacent pairs define ranges
-    Field('number_ranges',    'string', label = T('number ranges'), requires = IS_NOT_EMPTY(error_message = T('Please enter pairs of numbers, like 200-250; 300-350.'))),
+    Field('number_ranges',    'string', label = T('Number ranges'), requires = IS_NOT_EMPTY(error_message = T('Please enter pairs of numbers, like 200-250; 300-350.'))),
  
     # optional limit of sale numbers
-    Field('numbers_limit', 'integer', label = T('numbers limit')),
+    Field('numbers_limit', 'integer', label = T('Numbers limit')),
     
     # option for the generation of emails: shall a request to bring something (wiki page snippet) be added via email PLACEHOLDER?
-    Field('email_bring_request',    'boolean',  label = T('insert bring request (email)')),
+    Field('email_bring_request',    'boolean',  label = T('Insert bring request (email)')),
     
     # define how a record is represented if referenced from other tables
     #format='%(label)s, %(date)s'

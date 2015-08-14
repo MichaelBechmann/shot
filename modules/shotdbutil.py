@@ -72,27 +72,31 @@ class Events():
     def __init__(self, db):
         self.db = db
         
+        self.q_events = self.db.event.type == self.db.event_type.id
+        
         # determine the current event
         q  = db.event.active == True
-        q_join_type = db.event.type == db.event_type.id
-        q &= q_join_type
+        q &= self.q_events
         # if there are multiple events active => select the last one to be the current event
         self.current = db(q).select(orderby=db.event.id).last()
         
         if self.current == None:
             # in case of an configuration error (no active event) => take first event to not damage too much
-            self.current = db(q_join_type).select().first()
+            self.current = db(self.q_events).select().first()
         
         self.current.form_label = self._form_label(self.current)
+        
+    def get_complete_table(self):
+        '''
+        This method returns the complete events db table as a rows object. This is used for the config event page.
+        '''
+        return self.db(self.q_events).select()
 
     def get_all(self):
         '''
         This method is used for event filter forms, e.g., in the view table pages
         '''
-        q  = self.db.event.id > 0
-        q &= self.db.event.type == self.db.event_type.id
-        
-        self.all = {self._form_label(r):r.event.id  for r in self.db(q).select()}
+        self.all = {self._form_label(r):r.event.id  for r in self.db(self.q_events).select()}
         return self.all
     
     def get_all_labels_sorted(self):
@@ -114,7 +118,6 @@ class Events():
     
     def _form_label(self, e):
         return '%s, %s' % (e.event_type.label,e.event.date)
-    
         
     def get_visible(self):
         '''

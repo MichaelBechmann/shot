@@ -1,27 +1,26 @@
 {{extend 'layout.html'}}
+<script src="/static/js/config_event.js" type="text/javascript"></script>
 
-{{
-response.write(H3('Configure the event!'))
+<h3>Configure the event!</h3>
+{{=DIV(response.flash, _class = 'flash')}}
+<h4>Sale form</h4>
+<p>Inspect the current appearance of the enrollment form:</p>
+{{=button_view_form}}
+<br />
+<br />
 
-response.write(P('Inspect the current appearance of the enrollment form:'))
-response.write(button_view_form)
-response.write(BR())
-response.write(BR())
+<h4>Event types</h4>
+{{=DIV(A('Click here to add new event type', _href = URL('crud', args = ['event_type', 'add'])), _class = 'link_add_table_element')}}
+{{=table_event_types}}
+<br />
+<br />
 
-response.write(P('Edit event types:'))
-response.write(A('Click here to add new event type', _href=URL('config', 'config_event/addeventtype')))
-response.write(crudeventtype_response)
-response.write(BR())
-response.write(BR())
+<h4>Events</h4>
+{{=DIV(A('Click here to add new add event', _href = URL('crud', args = ['event', 'add'])), _class = 'link_add_table_element')}}
+{{=table_events}}
+<br />
+<br />
 
-response.write(P('Edit events:'))
-response.write(A('Click here to add new add event', _href=URL('config', 'config_event/addevent')))
-response.write(crudevent_response)
-response.write(BR())
-response.write(BR())
-
-response.write(P('Copy configuration (shifts and donations) from former event to the current enevt:'))
-response.write(copy_form)
-response.write(DIV(response.flash, _class = 'flash'))
-
-}}
+<h4>Copy event configuration</h4>
+<p>Copy the event configuration, i.e. shifts and donations including all settings, from some former event to the current event:</p>
+{{=copy_form}}

@@ -312,7 +312,7 @@ def manage_help():
             data_shift.append(DIV(s.comment, _class = 'mh_comment'))
         
         data_shift.append(DIV(
-                                   DIV(SPAN('assigned persons ('), SPAN(' toggle ', _class = config.cssclass.tggltrig), SPAN('):')),
+                                   DIV(SPAN('assigned persons ('), SPAN(' details ', _class = config.cssclass.tggltrig), SPAN('):')),
                                    DIV(TABLE(*table_row_list, _class = 'mh_person_list'),  _class = config.cssclass.tggl)
                                    ))
         
@@ -620,7 +620,7 @@ class Filter():
             formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
         formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
         formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
-        formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('crud', args = [self.tablename, 'add']))))
+        formelements.append(DIV(BR(), A('Click here to add new entry!', _href=URL('crud', args = [self.tablename, 'add'])), _class = 'link_add_table_element'))
         self.form = FORM(*formelements)
 
         # extract selections from session object for use in the controller and pre-populate selectors

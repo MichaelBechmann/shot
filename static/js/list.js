@@ -6,11 +6,11 @@ $.extend($.expr[':'], {
 });
 $(document).ready(function(){
 	
-	$('td:containsExact(True)')
+	$('td:containsExact(True), span.value:containsExact(True)')
 	.addClass("true");	
-	$('td:containsExact(False)')
+	$('td:containsExact(False), span.value:containsExact(False)')
 	.addClass("false");	
-	$('td:containsExact(None)')
+	$('td:containsExact(None), span.value:containsExact(None)')
 	.addClass("none");	
     // Loop through all the div.thatSetsABackgroundWithAnIcon on your page
     $('#ps_data_table td > div').each(function(){

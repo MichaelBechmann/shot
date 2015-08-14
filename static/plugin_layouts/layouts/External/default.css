@@ -134,7 +134,9 @@ input[type="submit"].irreversible {
     border-bottom: 1px solid #801010;
 }
 
-
+form input[type="text"]{
+	width: 300px;
+}
 
 /* Header */
 

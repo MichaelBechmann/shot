@@ -113,4 +113,4 @@ class TableUtils():
         return self.evenoddclasses[self.state_evenodd%2]
 
     def reset(self):
-        self.state_evenodd = 1
+        self.state_evenodd = 0
