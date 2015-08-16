@@ -172,6 +172,8 @@ class Ident():
     The identification link shall not display the variables used. Instead a single identification string
     comprising the database id and the code shall be used.
     '''
+    re_code = re.compile('([0-9]+)')
+    
     
     def __init__(self, db = None, linkcode = None):
 
@@ -181,20 +183,49 @@ class Ident():
         self.b_verified = False
         self.person = None    
         
-        
         if self.linkcode != None:
             self._verify()
-        else:
-            self._getcode() 
 
 
-    def _getcode(self):
+    #===========================================================================
+    # def _getcode(self):
+    #     '''
+    #     This method generates a random identification code.
+    #     The code shall start with a letter, not a digit.
+    #     '''
+    #     char = string.ascii_lowercase + string.digits
+    #     self.code = random.choice(string.ascii_lowercase) + ''.join([random.choice(char) for i in range(12)])
+    #===========================================================================
+        
+    def getcode(self, s):
         '''
-        This method generates a random identification code.
-        The code shall start with a first letter, not a digit.
+        This method generates a checksum from the passed string.
+        it is used to get reproducible codes from the email adresses.
         '''
-        char = string.ascii_lowercase + string.digits
-        self.code = random.choice(string.ascii_lowercase) + ''.join([random.choice(char) for i in range(12)])
+        len_code = config.verification.codelen
+        seed = 0 # seed parameter (change when new codes shall be generated)
+        (p1, p2, p3) = config.verification.params
+        
+        len_s = len(s)
+        s = s.lower() # no distinction of case
+        cs = []
+        v = seed + len_s + len_code
+        for j in range(len_s + len_code):
+            idx = j % len_s
+            v += (p1 + p2*v + ord(s[idx])) % p3
+            
+            if j >= len_s:
+                if j == len_s:
+                    d = 97 + v % 26 # The first character shall be a letter (to separate code from person id during verification.
+                else:
+                    x = v % 36
+                    if x < 10:
+                        d = 48 + x # digit
+                    else:
+                        d = 87 + x # letter
+                cs.append(chr(d))
+                
+        return ''.join(cs)
         
         
     def _verify(self):
@@ -202,8 +233,7 @@ class Ident():
         This method checks if the code matches the data base entry referenced by the id.
         If so, the successful code verification is stored in the data base.
         '''
-        p = re.compile('([0-9]+)')
-        m = p.match(self.linkcode)
+        m = self.re_code.match(self.linkcode)
         if(m):
             self.id = int(m.group(0))
             c = self.linkcode.replace(m.group(0),'',1)
@@ -260,10 +290,10 @@ class PersonEntry():
         '''
         Creates a new database record for the person.
         '''
-        self.data['code'] = Ident().code  
+        self.data['code'] = Ident().getcode(self.data['email'])
         self.id = self.db.person.insert(**self.data)
         Log(self.db).person(self.id, 'initial')
-
+        
         
     def update(self):
         '''
@@ -291,7 +321,16 @@ class PersonEntry():
         '''
         self.data['mail_enabled'] = False
         self.update()
-
+        
+    def check_email_changed(self, pid, form):
+        '''
+        This method compares the email address of the persons current db entry with the new one in the form data.
+        '''
+        b_changed = True
+        if self.db.person(pid).email == form.vars.email:
+            b_changed = False
+        
+        return b_changed
 
 class Numbers():
     '''

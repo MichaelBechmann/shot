@@ -86,7 +86,7 @@ shotdb.define_table('person',
     Field('email',          'string',   label = T('email'),         requires=IS_EMAIL(    error_message = T('Please enter your valid email address.'))),                                                                                         
 
     # random string for verification of the email address
-    Field('code',           'string',   requires=IS_NOT_EMPTY()),
+    Field('code',           'string'),
     
     # id of the most recent event for which the email address has been verified with
     Field('verified',       'integer'),

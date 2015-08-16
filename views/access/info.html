@@ -1,11 +1,5 @@
 {{extend 'layout.html'}}
 <h3>Hallo {{=name}}!</h3>
-
-{{
-if response.flash:
-    response.write(P(response.flash, _class = 'message'))
-pass
-}}
 <p>
 Dir sind folgende Rollen zugewiesen:
 {{=roles}}

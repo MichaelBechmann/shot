@@ -134,7 +134,11 @@ input[type="submit"].irreversible {
     border-bottom: 1px solid #801010;
 }
 
-form input[type="text"]{
+form input[type="password"], form #auth_user_username{
+	width: 180px;
+}
+
+form input[type="text"] {
 	width: 300px;
 }
 

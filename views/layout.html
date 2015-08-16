@@ -19,7 +19,17 @@
         pass
 }}
 {{=createStaffMenu(auth, wiki_ctrl)}}
-<div id="page">  
-     {{include}}
-     {{include 'debug.html'}}
+<div id="page">
+    {{
+    if not response.flash_custom_display:
+        if response.flash_severity:
+            severity = response.flash_severity
+        else:
+            severity = 'info'
+        pass
+        response.write(DIV(response.flash, _class = 'flash', _severity = severity))
+    pass
+    }}
+    {{include}}
+    {{include 'debug.html'}}
 </div>

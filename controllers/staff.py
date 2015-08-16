@@ -74,7 +74,7 @@ def person_summary():
             email_enable_note = SPAN('inactive', _class = 'ps_email_inactive')
     
         info = TABLE(
-                     TR('Adress:', '%s, %s, %s %s' %(p.record.place, p.record.zip_code, p.record.street, p.record.house_number)),
+                     TR('Address:', '%s, %s, %s %s' %(p.record.place, p.record.zip_code, p.record.street, p.record.house_number)),
                      TR('Phone:', p.record.telephone),
                      TR('Email:', TD(SPAN('%s (' % (p.record.email)), email_verify_note, SPAN(', '), email_enable_note, SPAN(')'))),
                      )
@@ -527,6 +527,70 @@ def table():
     return dict(table = t, form = f.form, sqltab = f.sqltab)
 
 
+def __create_person_onvalidation(form):
+    pe = PersonEntry(shotdb, form.vars)
+    if pe.exists:
+        msg = 'Diese Persondaten müssen eindeutig sein!'
+        form.errors.name     = msg
+        form.errors.forename = msg
+        form.errors.email    = msg
+        response.flash = '''Fehler: Diese Persondaten können so nicht eingetragen werden.
+                                Es gibt bereits einen äquivalenten Eintrag in der Datenbank (d.h., Name und E-Mail-Adresse stimmen überein)!'''
+    else:
+        i = Ident()
+        form.vars.code = i.getcode(form.vars.email)
+
+        
+def __update_person_onvalidation(form):
+    # This function is called before the ondelete and onaccept functions below.
+    
+    pid = int(request.get_vars['id'])
+    pe = PersonEntry(shotdb, form.vars)
+    
+    # check if id of any matching person entry is DIFFERENT from current crud person id:
+    if pe.exists and pe.id != pid:
+        msg = 'Diese Persondaten müssen eindeutig bleiben!'
+        form.errors.name     = msg
+        form.errors.forename = msg
+        form.errors.email    = msg
+        response.flash = '''Fehler: Diese Persondaten können so nicht geändert werden.
+                            Es gibt bereits einen äquivalenten Eintrag in der Datenbank (d.h., Name und E-Mail-Adresse stimmen überein)!
+                            Der existierende Eintrag hat die id %d.
+                            ''' % pe.id
+        response.flash_severity = 'error'
+        
+    else:
+        # check if email changed
+        person_representation = '%s %s (%s)' % (form.vars.forename, form.vars.name, form.vars.place)
+        
+        if pe.check_email_changed(pid, form):
+            i = Ident()
+            form.vars.code = i.getcode(form.vars.email)
+            form.vars.verified = None
+            msg = '''Die Daten von %s wurden geändert.
+                     Achtung: Die E-Mail-Adresse und der zugehörige Verifikationscode haben sich geändert.
+                     Falls schon Einladungen für den kommenden Markt versandt wurden, muß dieser Person eine neue Einladungs-E-Mail (mit neuem Anmeldelink) zugesandt werden!.
+                  ''' % person_representation
+        else:
+            msg = 'Die Daten von %s wurden geändert.' % person_representation
+                                
+        # These messages must be forwarded to the onaccept function below. Any flash message set by this onvalidation function will be replaced with the crud standard message!                        
+        form.updatemsg = msg
+        form.deletemsg = 'Die Daten von %s wurden gelöscht.' % person_representation
+        form.record_deleted = None # This attribute must be created (used in onaccept function). Form is no storage object?
+        
+
+def __update_person_ondelete(form):
+    # This function is  called before the onaccept function below.
+    form.record_deleted = True
+    
+def __update_person_onaccept(form):
+    if form.record_deleted:
+        response.flash = form.deletemsg
+    else:
+        response.flash = form.updatemsg
+
+
 @auth.requires_membership('staff')
 def crud():
     
@@ -562,6 +626,20 @@ def crud():
             shotdb.help.shift.requires = IS_IN_DB(shotdb(shotdb.shift.event == event_id), 'shift.id', '%(activity)s, %(day)s, %(time)s')
         elif tablename == 'bring':
             shotdb.bring.donation.requires = IS_IN_DB(shotdb(shotdb.donation.event == event_id), 'donation.id', '%(item)s')
+    
+    if tablename == 'person':
+        crud.settings.create_onvalidation = __create_person_onvalidation
+        crud.settings.update_onvalidation = __update_person_onvalidation
+        crud.settings.update_onaccept     = __update_person_onaccept
+        crud.settings.update_ondelete     = __update_person_ondelete
+        shotdb.person.code.writable = False
+        shotdb.person.verified.writable = False
+        crud.messages.record_created = None
+    else:
+        # default flash messages
+        crud.messages.record_created = None
+        crud.messages.record_updated = None
+        crud.messages.record_deleted = 'Der Datenbankeintrag wurde gelöscht.'
     
     if(action == 'add'):            
         crud_response = crud.create(tablename)

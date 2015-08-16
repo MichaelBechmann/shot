@@ -29,21 +29,22 @@ auth.settings.retrieve_username_next      = URL('msg')
 account = EMailAccount('postmaster')
 auth.settings.mailer.settings.server = account.server
 auth.settings.mailer.settings.sender = account.sender
-auth.settings.mailer.settings.login = '%s:%s' % (account.login, account.passwd)
+auth.settings.mailer.settings.login  = '%s:%s' % (account.login, account.passwd)
 
 auth.settings.login_after_registration = False
 auth.settings.registration_requires_approval = True
 auth.settings.remember_me_form = False
 
-auth.messages.invalid_login = 'Ihr Anmeldeversuch ist fehlgeschlagen. Prüfen Sie Benutzername und Paßwort.'
+auth.messages.invalid_login        = 'Ihr Anmeldeversuch ist fehlgeschlagen. Prüfen Sie Benutzername und Paßwort.'
 auth.messages.registration_pending = 'Sie haben sich erfolgreich als Secondhand-Teammitglied registriert. Ihr Benutzerkonto muß noch vom Administrator aktiviert werden.'
-auth.messages.profile_updated = 'Ihr Profil wurde aktualisiert.'
-auth.messages.password_changed = 'Ihr Paßwort wurde geändert.'
-auth.messages.email_sent = 'An die angegebene Adresse wurde eine E-Mail gesandt. Bitte folgen Sie den Instruktionen darin, um den Vorgang zu beenden.'
+auth.messages.profile_updated      = 'Ihr Profil wurde aktualisiert.'
+auth.messages.password_changed     = 'Ihr Paßwort wurde geändert.'
+auth.messages.email_sent           = 'An die angegebene Adresse wurde eine E-Mail gesandt. Bitte folgen Sie den Instruktionen darin, um den Vorgang zu beenden.'
 
 auth.settings.actions_disabled = ['impersonate', 'verify_email']
 
 def user():
+    response.flash_custom_display = True #prevent standard display of flash message
     return dict(form=auth())
 
 def msg():
@@ -51,6 +52,7 @@ def msg():
 
 @auth.requires_login()
 def info():
+    response.flash_custom_display = True
     u = User(shotdb, auth.user.id)
         
     roles = SQLTABLE(u.get_groups(),

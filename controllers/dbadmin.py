@@ -22,11 +22,12 @@ def _renew_ver_codes():
     
     for row in shotdb(shotdb.person.id > 0).select():
         c  = row.code
-        id = row.id
+        id_ = row.id
+        email = row.email
         if c != None:
             l = 'code renewed by admin (was: ' + c + ')'
-            Log(shotdb).person(id, l) 
-            row.update_record(code = Ident().code)
+            Log(shotdb).person(id_, l) 
+            row.update_record(code = Ident().getcode(email))
             
     redirect(URL('staff', 'personlist')) 
     

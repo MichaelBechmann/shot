@@ -35,6 +35,10 @@ class ConfigurationConstants:
         pass
     mail = ConfigMail()
     
+    class ConfigVerification:
+        pass
+    verification = ConfigVerification()
+    
     class ConfigNumbers:
         pass    
     numbers = ConfigNumbers()
@@ -104,6 +108,8 @@ config.mail.backup_to       = siteconfig.email_backup_to
 config.mail.error_to        = siteconfig.email_error_to
 config.mail.contactmail_to  = siteconfig.email_contactmail_to
 
+config.verification.params   = siteconfig.verification_params
+config.verification.codelen  = siteconfig.verification_codelen
 
 # strings used as identifying names of form input elements
 config.formname.no_contrib      = 'fnnoco'
