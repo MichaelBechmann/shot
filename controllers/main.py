@@ -44,6 +44,7 @@ def redirect_https():
 
 
 def wiki():
+    
     wiki = auth.shotwiki()
     wiki_ctrl = Storage()
 
@@ -51,11 +52,18 @@ def wiki():
         wiki_ctrl.cmd    = request.args(0)
         wiki_ctrl.slug   = request.args(1)
         wiki_ctrl.render = auth.get_wiki_rendering(wiki_ctrl.slug )
+        response.flash_custom_display = True # hide default wiki flash messages
     else:
         wiki_ctrl.slug = request.args(0)
+        
+        if wiki_ctrl.slug == 'start':
+            if config.display_flash_schedule:
+                response.flash = auth.get_shotwiki_page(slug_base = 'market-schedule')
+            #response.flash_content_type = 'schedule'
     
     if str(request.args(0)) != '_preview':
         wiki['wiki_ctrl'] = wiki_ctrl
+        
     
     return wiki
 

@@ -130,20 +130,22 @@ table.caution td {
 
 
 /* styles for flash messages, taken from wiki.css */
-div.flash[severity = "info"]{
-    color: #fffff;
+div.flash[content_type = "info"]{
     border-color: #15a515;
+    font-weight:bold;
 }
 
-div.flash[severity = "error"]{
+div.flash[content_type = "info"] td{
+	font-size:1.2em
+}
+
+div.flash[content_type = "error"]{
 	color: #ff0000;
 	border-color: #ff0000;
+	font-weight:bold;
 }
 
-
-
 div.flash{
-    font-weight:bold;
     display:none;
     position:absolute;
     padding:10px;

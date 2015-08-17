@@ -557,7 +557,7 @@ def __update_person_onvalidation(form):
                             Es gibt bereits einen äquivalenten Eintrag in der Datenbank (d.h., Name und E-Mail-Adresse stimmen überein)!
                             Der existierende Eintrag hat die id %d.
                             ''' % pe.id
-        response.flash_severity = 'error'
+        response.flash_content_type = 'error'
         
     else:
         # check if email changed

@@ -22,12 +22,12 @@
 <div id="page">
     {{
     if not response.flash_custom_display:
-        if response.flash_severity:
-            severity = response.flash_severity
+        if response.flash_content_type:
+            content_type = response.flash_content_type
         else:
-            severity = 'info'
+            content_type = 'info'
         pass
-        response.write(DIV(response.flash, _class = 'flash', _severity = severity))
+        response.write(DIV(response.flash, _class = 'flash', _content_type = content_type))
     pass
     }}
     {{include}}
