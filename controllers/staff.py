@@ -599,7 +599,7 @@ def crud():
     event_id = request.get_vars['eid']
     record_id = request.get_vars['id']
     
-    if session.crud.return_page:
+    if session.crud and session.crud.return_page:
         return_page = URL(session.crud.return_page)
         
     else:
@@ -742,7 +742,7 @@ class Filter():
             self.query &= queryevent    
 
         # get the sorting column from the selected column head   
-        if request.vars.orderby:                
+        if request.vars.orderby and session.sort_column:                
             if session.sort_column.has_key(self.tablename) and session.sort_column[self.tablename]== request.vars.orderby:
                 # table is already sorted for this very column => sort in reverse order
                 # due to the '~' operator for reverse sorting the database field must be constructed (no better solution so far)

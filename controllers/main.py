@@ -59,7 +59,6 @@ def wiki():
         if wiki_ctrl.slug == 'start':
             if config.display_flash_schedule:
                 response.flash = auth.get_shotwiki_page(slug_base = 'market-schedule')
-            #response.flash_content_type = 'schedule'
     
     if str(request.args(0)) != '_preview':
         wiki['wiki_ctrl'] = wiki_ctrl

@@ -8,8 +8,9 @@
 
 {{
 if form.errors.msg != None:
+    response.flash_custom_display = True # hide default wiki flash messages
     response.write(CENTER(T('Attention! The form contains errors! See below!'), _id = 'error_alarm'))
-    response.write(CENTER(form.errors.msg, _class = 'error', _id = 'error_response'))    
+    response.write(CENTER(form.errors.msg, _class = 'error', _id = 'error_response'))
     pass
     
 response.write(form)

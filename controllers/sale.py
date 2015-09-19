@@ -169,10 +169,8 @@ def form():
         if form.validate(onvalidation = __validateform):
             session.sale_vars = form.vars
             redirect(URL('confirm'))
-    
-        if session.sale_error_msg:
-            form.errors.msg = session.sale_error_msg
-            session.sale_error_msg = None
+            
+        response.flash_custom_display = True # hide default wiki flash messages
     
     return dict(announcement = sale.announcement, form = form)
 
@@ -185,21 +183,21 @@ def confirm():
     
     # construct display of data to be confirmed
     de = [] # de: data elements
-    de.append(TR('Ich bin:', sale.person_name))
+    de.append(TR('Ich bin:', STRONG(sale.person_name)))
     
     sale.analyzecheckboxes(session.sale_vars)
     
     if sale.b_wants_sale_number:
         de.append(TR('', 'Ich möchte eine Kommissionsnummer haben für den %s.' % sale.announcement))
         if sale.b_cannot_help:
-            de.append(TR('', TD('(Hinweis: %s)' % WaitList(shotdb).status_text(session.registration_person_id), _class = config.cssclass.confirmcomment)))
+            de.append(TR('', TD('(Hinweis: %s)' % WaitList(shotdb).status_text(session.registration_person_id)), _class = config.cssclass.confirmcomment))
     else:
         de.append(TR('', TD('Ich möchte ', STRONG('keine'), ' Kommissionsnummer haben.')))
     
     for s in sale.getcheckedshifts():
         de.append(TR(TD('Hier helfe ich:'), TD(s.day + ', ' + s.time + ', ' + s.activity)))
         if(s.comment != None and s.comment != ''):
-            de.append(TR('', TD('('+s.comment+')', _class = config.cssclass.shiftcomment)))
+            de.append(TR('', TD('('+s.comment+')'), _class = config.cssclass.shiftcomment))
     
     if sale.b_cannot_help:
         de.append(TR('', TD('Ich kann leider keine Helferschicht übernehmen.')))        
@@ -224,7 +222,7 @@ def confirm():
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
     form = FORM(TABLE(TR(
                          INPUT(_type = 'submit', _class = 'button', _name = 'submit back', _value = T('back')),
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = T('go!')), _id = config.cssid.waitmsgtrig)
+                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = T('jetzt anmelden!')), _id = config.cssid.waitmsgtrig)
                         ),
                 DIV(T(config.msg.wait), _id = config.cssid.waitmsg)
                 )

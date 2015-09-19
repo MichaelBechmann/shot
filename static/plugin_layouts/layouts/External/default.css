@@ -115,9 +115,17 @@ img.left {
 
 
 input, textarea {
+    border-radius: 4px;
     padding: 5px;
+    margin-bottom: 6px;
     border: 1px solid #626262;
     font: normal 1em "Trebuchet MS", Arial, Helvetica, sans-serif;
+}
+
+textarea:focus, input[type="text"]:focus, input[type="password"]:focus{
+    border-color: rgba(21, 165, 21, 0.8); /* #15A515; */
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 8px rgba(21, 165, 21, 0.6);
+    outline: 0 none;
 }
 
 input[type="submit"]:not(.btn-default):not([value=Search]):not([value="Create Page from Slug"]){

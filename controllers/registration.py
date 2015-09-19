@@ -106,14 +106,14 @@ def confirm():
             pe.update()
             shotdb.commit()
             RegistrationMail(auth, pe.id).send() 
-            nextpage = URL('final')  
+            nextpage = URLWiki('registration-final')
             
         else:
             # person is not known yet.
             pe.insert()
             shotdb.commit()
             RegistrationMail(auth, pe.id).send()
-            nextpage = URLWiki('registration-final')  
+            nextpage = URLWiki('registration-final')
         
         redirect(nextpage)
 
