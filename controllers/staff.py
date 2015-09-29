@@ -23,8 +23,8 @@ T.force('de')
 def person_summary():
     
     form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
-                           buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')]
-                           )
+                           buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')],
+                           _class = 'admin_ctrl_form')
     form.custom.widget.person['_class'] = 'autosubmit'
     
     # prepopulate form
@@ -461,7 +461,7 @@ class SimpleEventForm():
         
         name_event  = 'selev'
         
-        self.form = FORM(SPAN(T('Event: '),   SELECT(le, _name = name_event, _class = 'autosubmit')))
+        self.form = FORM(SPAN(T('Event: '),   SELECT(le, _name = name_event, _class = 'autosubmit')), _class = 'admin_ctrl_form')
         
         # extract selections from session object for use in the controller and pre-populate selectors
         # event filter selection
@@ -686,20 +686,13 @@ class Filter():
         # provide edit links
         shotdb[self.tablename].id.represent = lambda id, row: A(id,_href=URL('crud', args =[self.tablename, 'edit'], vars = dict(id = id)))
         
-        # provide links to person summary
-        if self.tablename == 'person':
-            shotdb[self.tablename].name.represent     = lambda x, row: A(x,_href=URL('person_summary', args = [row.id]))
-            shotdb[self.tablename].forename.represent = lambda x, row: A(x,_href=URL('person_summary', args = [row.id]))
-        elif 'person' in shotdb[self.tablename]:
-            shotdb[self.tablename].person.represent = lambda x, row: A('%s, %s'%(row.person.name, row.person.forename),_href=URL('person_summary', args = [row.person.id]))
-        
         formelements = []
         if self.displayeventfilter:
-            formelements.append(SPAN(T('event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
-        formelements.append(SPAN(T('column set:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
+            formelements.append(SPAN(T('Event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
+        formelements.append(SPAN(T('View:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
         formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
         formelements.append(DIV(BR(), A('Click here to add new entry!', _href=URL('crud', args = [self.tablename, 'add'])), _class = 'link_add_table_element'))
-        self.form = FORM(*formelements)
+        self.form = FORM(*formelements, _class = 'admin_ctrl_form')
 
         # extract selections from session object for use in the controller and pre-populate selectors
         # event filter selection
@@ -717,11 +710,25 @@ class Filter():
         
         # column set selection    
         if session.selected_colsets != None and session.selected_colsets.has_key(self.tablename):
-            cs = session.selected_colsets[self.tablename]           
+            colset_selected = session.selected_colsets[self.tablename]           
         else:
-            cs = config.colsets[self.tablename]['default']
-        self.form.vars[name_colset] = cs
-        self.colset = config.colsets[self.tablename]['sets'][cs]
+            colset_selected = config.colsets[self.tablename]['default']
+        self.form.vars[name_colset] = colset_selected
+        self.colset = config.colsets[self.tablename]['sets'][colset_selected]
+        
+        
+        # provide links to person summary
+        if self.tablename == 'person':
+            shotdb[self.tablename].name.represent     = lambda x, row: A(x,_href=URL('person_summary', args = [row.id]))
+            shotdb[self.tablename].forename.represent = lambda x, row: A(x,_href=URL('person_summary', args = [row.id]))
+        elif 'person' in shotdb[self.tablename]:
+            if colset_selected == 'plain to copy':
+                shotdb[self.tablename].person.represent = lambda x, row: SPAN('%s, %s'%(row.person.name, row.person.forename))
+                if self.tablename == 'bring':
+                    shotdb[self.tablename].note.represent = lambda x, row: SPAN('' if row.bring.note == None else row.bring.note)
+            else:
+                shotdb[self.tablename].person.represent = lambda x, row: A('%s, %s'%(row.person.name, row.person.forename),_href=URL('person_summary', args = [row.person.id]))
+        
         
         # process form
         if self.form.process().accepted:

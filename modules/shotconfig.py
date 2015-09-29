@@ -172,15 +172,17 @@ config.colsets['wait'] = { 'sets':{'edit':      ['wait.id', 'wait.person', 'sale
                            'default': 'default'
                          }
 
-config.colsets['bring'] = { 'sets':{'edit':     ['bring.id', 'bring.person', 'person.place', 'donation.item', 'bring.note'], 
-                                   'default':   ['bring.person', 'person.place', 'donation.item', 'bring.note'],
-                                   'event':     ['donation.event', 'bring.person', 'person.place', 'donation.item', 'bring.note']
+config.colsets['bring'] = { 'sets':{'edit':         ['bring.id', 'bring.person', 'person.place', 'donation.item', 'bring.note'], 
+                                   'default':       ['bring.person', 'person.place', 'donation.item', 'bring.note'],
+                                   'event':         ['donation.event', 'bring.person', 'person.place', 'donation.item', 'bring.note'],
+                                   'plain to copy': ['bring.person', 'donation.item', 'bring.note']
                                    },
                            'default': 'default'
                          }
-config.colsets['help'] = { 'sets':{'edit':      ['help.id', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'], 
-                                   'default':   ['help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'],
-                                   'event':     ['shift.event', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time']
+config.colsets['help'] = { 'sets':{'edit':          ['help.id', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'], 
+                                   'default':       ['help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'],
+                                   'event':         ['shift.event', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'],
+                                   'plain to copy': ['help.person', 'shift.activity', 'shift.day', 'shift.time']
                                    },
                            'default': 'default'
                          }
@@ -209,7 +211,7 @@ config.colsets['shift'] = { 'sets':{'config':  ['shift.id', 'shift.activity', 's
                            'default': 'config'
                          }
 config.colsets['donation'] = { 'sets':{'config': ['donation.id', 'donation.item', 'donation.target_number', 'donation.enable_notes'],
-                                       'event':  ['donation.event', 'donation.item', 'donation.target_number', 'donation.enable_notes'],
+                                       'event':  ['donation.event', 'donation.item', 'donation.target_number', 'donation.enable_notes']
                                    },
                            'default': 'config'
                          }
