@@ -1,16 +1,35 @@
-{{extend 'plugin_layouts/External/External.html'}}
-<link href="/static/admin.css" rel="stylesheet" type="text/css" />
-<link href="/static/text.css" rel="stylesheet" type="text/css" />
-<link href="/static/list.css" rel="stylesheet" type="text/css" />
-
-<script src="/static/js/jquery.js" type="text/javascript"></script>
-<script src="/static/js/jquery.ba-outside-events.min.js" type="text/javascript"></script>
-<script src="/static/js/menu.js" type="text/javascript"></script>
-<script src="/static/js/list.js" type="text/javascript"></script>
-<script src="/static/js/dropdown_autosubmit.js" type="text/javascript"></script>
-<script src="/static/js/web2py.js" type="text/javascript"></script>
-
-{{response.include_files()}}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+ <head>
+  <link rel="shortcut icon" href="{{=URL('static','_%s/img/shot.ico' % response.static_version)}}" type="image/x-icon">
+  
+  {{response.files.append(URL('static','css/default.css'))}}
+  {{response.files.append(URL('static','css/admin.css'))}}
+  {{response.files.append(URL('static','css/text.css'))}}
+  {{response.files.append(URL('static','css/list.css'))}}
+  
+  {{response.files.insert(0, URL('static','js/jquery.js'))}}
+  {{response.files.append(URL('static','js/jquery.ba-outside-events.min.js'))}}
+  {{response.files.append(URL('static','js/menu.js'))}}
+  {{response.files.append(URL('static','js/list.js'))}}
+  {{response.files.append(URL('static','js/dropdown_autosubmit.js'))}}
+  {{response.files.append(URL('static','js/web2py.js'))}}
+  
+  {{response.include_files()}}
+  
+  <title>
+   Secondhand Ottersweier
+  </title>
+  
+  <!--  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> -->
+  
+ </head>
+ <body>
+   <div id="header">
+     <h1>
+      Secondhand Ottersweier
+     </h1>
+   </div>
 {{from shotmenu import *}}
 {{=createMenu(auth)}}
 {{
@@ -33,3 +52,14 @@
     {{include}}
     {{include 'debug.html'}}
 </div>
+
+   <div id="footer">
+    <p> 
+        {{= A(T('Legal Details'), _href=URLWiki('impressum'))}}
+        Powered by <a href="http://www.web2py.com/"> web2py</a>
+        Design by  <a href="http://www.freecsstemplates.org/"> Free CSS Templates</a>
+    </p>
+   </div>
+  </div>
+ </body>
+</html>

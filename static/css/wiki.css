@@ -373,7 +373,7 @@ span.buttontext{
 }
 
 [class^="icon-"], [class*=" icon-"] {
-    background-image: url("./glyphicons-halflings.png");
+    background-image: url("../img/glyphicons-halflings.png");
 }
 .icon-music                 {background-position:-24px 0}
 .icon-search                {background-position:-48px 0}

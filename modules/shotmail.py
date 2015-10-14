@@ -259,9 +259,6 @@ class ShotMail(EMail):
         query &= (self.db.help.shift == self.db.shift.id)
         query &= (self.db.help.person == self.pid)
         
-        elem = [TR(TD(r.shift.day + ', ' + r.shift.time + ', ' + r.shift.activity),
-                   TD('('+r.shift.comment+')') if r.shift.comment not in [None, ''] else '')
-                    for r in self.db(query).select()]
         
         elem = []
         b_helps_friday = False

@@ -70,12 +70,13 @@ table.ctblconfdat td{
 }
 
 .ctblconfdat td:first-child{
-	width: 140px;
+	width: 150px;
 	padding: 0.6em 1em 0 0em;
 }
 
 .ctblconfdat td.fullrow{
 	padding: 0.8em 0.2em 0.2em 1em;
+	width: auto;
 }
 
 .ctblconfdat tr.csftcomment td{

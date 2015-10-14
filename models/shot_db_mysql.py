@@ -2,6 +2,8 @@
 if 0: 
     from gluon.languages import translator as T
     from gluon import *
+    global response
+    global auth
 
 
 from shotconfig import *
@@ -85,7 +87,7 @@ shotdb.define_table('person',
     Field('telephone',      'string',   label = T('telephone'),     requires=IS_NOT_EMPTY(error_message = T('Please enter your telephone number.'))),
     Field('email',          'string',   label = T('email'),         requires=IS_EMAIL(    error_message = T('Please enter your valid email address.'))),                                                                                         
 
-    # random string for verification of the email address
+    # checksum string for verification of the email address
     Field('code',           'string'),
     
     # id of the most recent event for which the email address has been verified with
@@ -271,3 +273,6 @@ shotdb.define_table('config',
 
 # perform update of the configuration parameters
 config.update(shotdb)
+
+# version number for static assets
+response.static_version = '0.0.1'

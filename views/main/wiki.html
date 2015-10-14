@@ -9,7 +9,7 @@
 </script>
 {{
     if wiki_ctrl.cmd:
-        response.files.append(URL('static','wiki.css'))
+        response.files.append(URL('static','css/wiki.css'))
         if wiki_ctrl.cmd == '_edit':
             response.files.append(URL('static','js/wiki.js'))
             response.files.append(URL('static','js/markitup/jquery.markitup.js'))
