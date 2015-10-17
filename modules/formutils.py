@@ -98,6 +98,22 @@ def getAppRequestDataTale(vars):
     return TABLE(*data_items, _class = config.cssclass.tblconfirmdata)
 
 
+def TableCtrlHead(tablename,
+                  crud_function = 'crud',
+                  addlinktext = 'Click here to add new entry',
+                  sorttext = 'Click column head to sort'):
+    '''
+    This function returns a DIV container with the control elements for typical SQL tables.
+    '''
+    elem = []
+    if addlinktext:
+        addlink = A(addlinktext, _href=URL(crud_function, args = [tablename, 'add']))
+        elem.extend([SPAN('+', _class = 'symbol'), SPAN(addlink, _class = 'text')])
+    if sorttext:
+        elem.extend([SPAN(XML('&darr;'), _class = 'symbol'), SPAN(sorttext, _class = 'text')])
+    
+    return(DIV(*elem, _class = 'table_ctrl'))
+
 
 class TableUtils():
     '''
@@ -114,3 +130,6 @@ class TableUtils():
 
     def reset(self):
         self.state_evenodd = 0
+        
+        
+        

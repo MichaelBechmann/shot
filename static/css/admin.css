@@ -218,10 +218,12 @@ table.number_status_map td.unknown {
 }
 
 .admin_ctrl_form select{
-    background-color: #ffffff;
+    /*background-color: #ffffff;*/
+    background-color: #ecffec;
     border: 1px solid #a0a0a0;
     border-radius: 4px;
     font-size: 1.1em;
+    /*font-weight: bold;*/
     /*height: 24px;*/
     /*line-height: 20px;*/
     padding: 2px 2px;

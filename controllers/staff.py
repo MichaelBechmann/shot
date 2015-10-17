@@ -524,7 +524,7 @@ def table():
     f = Filter(t, query, **options)
     session.crud = Storage(return_page = 'table/' + t, fix_ref_id = dict(event = f.event_id)) 
     
-    return dict(table = t, form = f.form, sqltab = f.sqltab)
+    return dict(table = t, form = f.form, sqltab = f.sqltab, tabctrl = f.tabctrl)
 
 
 def __create_person_onvalidation(form):
@@ -691,7 +691,6 @@ class Filter():
             formelements.append(SPAN(T('Event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
         formelements.append(SPAN(T('View:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
         formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
-        formelements.append(DIV(BR(), A('Click here to add new entry!', _href=URL('crud', args = [self.tablename, 'add'])), _class = 'link_add_table_element'))
         self.form = FORM(*formelements, _class = 'admin_ctrl_form')
 
         # extract selections from session object for use in the controller and pre-populate selectors
@@ -770,5 +769,10 @@ class Filter():
                                columns = self.colset,
                                headers = 'fieldname:capitalize', orderby = 'dummy', _class = 'list',
                                truncate = None)
+        
+        # table control bar
+        self.tabctrl = TableCtrlHead(self.tablename,
+                                     addlinktext = 'Klicken Sie hier, um ein neues Element anzulegen.',
+                                     sorttext    = 'Zum Sortieren klicken Sie auf den Spaltentitel.')
 
         

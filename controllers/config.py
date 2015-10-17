@@ -55,6 +55,7 @@ def config_event():
     table_event_types = SQLTABLE(shotdb(shotdb.event_type.id > 0).select(),
                                  headers='fieldname:capitalize',
                                  _class = 'list')
+    tabctrl_event_types = TableCtrlHead('event_type', sorttext = None)
 
 
     # construct the config events main table
@@ -78,7 +79,7 @@ def config_event():
         event_rows.extend([main_row, sub_row])
         
     table_events = TABLE(event_rows, _class = 'list')
-
+    tabctrl_events = TableCtrlHead('event', sorttext = None)
 
     # form to copy event canfiguration
     le = event_obj.get_all_labels_sorted()
@@ -103,8 +104,10 @@ def config_event():
             response.flash = 'Inserted or updated %d shifts and %d donations.' % (n_s, n_d)
 
 
-    return dict(table_event_types = table_event_types,
-                table_events      = table_events,
-                button_view_form  = button_view_form,
-                copy_form         = copy_form)
+    return dict(table_event_types   = table_event_types,
+                table_events        = table_events,
+                tabctrl_event_types = tabctrl_event_types,
+                tabctrl_events      = tabctrl_events,
+                button_view_form    = button_view_form,
+                copy_form           = copy_form)
     

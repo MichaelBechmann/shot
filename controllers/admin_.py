@@ -11,9 +11,13 @@ if 0:
     global auth
 
 from shotconfig import config
+from formutils import TableCtrlHead
 from gluon.tools import Crud
 from benchmark import *
 from gluon.storage import Storage
+
+
+
 
 @auth.requires_membership('admin')
 def manage_users():
@@ -23,14 +27,13 @@ def manage_users():
         table_id = session.manage_users_table_id
     else:
         table_id = 'user'
-    
+
     table_ids = ('user', 'group', 'membership', 'permission', 'event')
     
     formelements = []
     formelements.append(SPAN(T('Auth table:'),  SELECT(table_ids, _name = 'table_id', _class = 'autosubmit')))
     formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
-    formelements.append(DIV(BR(), A('Click here to add new entry!',_href=URL('crud', args = ['auth_' + table_id, 'add']))))
-    form = FORM(*formelements)
+    form = FORM(*formelements, _class = 'admin_ctrl_form')
     
     form.vars['table_id'] = table_id
     
@@ -40,25 +43,69 @@ def manage_users():
         session.manage_users_table_id = table_id
         
         # redirect is necessary to pre-populate the form; didn't find another way
-        redirect(request.env.request_uri.split('/')[-1])
+        redirect(URL('manage_users'))
     
-    # provide edit links
-    table = 'auth_' + table_id
-    shotdb[table].id.represent = lambda id_, row: A(id_, _href=URL('crud', args = [table, 'edit', id_]))
+    table_name = 'auth_' + table_id
+    table_object = shotdb[table_name]
+    
+    # queries
+    if table_id in ['user', 'group']:
+        query = table_object.id > 0
+        
+    elif table_id == 'permission':
+        query  = table_object.group_id  == shotdb.auth_group.id
+        
+    else:
+        query  = table_object.user_id  == shotdb.auth_user.id
+        
+        if table_id == 'membership':
+            query &= table_object.group_id == shotdb.auth_group.id
+    
+    # provide representations
+    table_name = 'auth_' + table_id
+    table_object.id.represent = lambda id_, row: A(id_, _href=URL('crud', args = [table_name, 'edit', id_]))
+    
+    if 'user_id' in table_object:
+        table_object.user_id.represent = lambda x, row: SPAN('%s (%s, %s)'%(row.auth_user.username, row.auth_user.last_name, row.auth_user.first_name))
+        
+    if 'group_id' in table_object:
+        table_object.group_id.represent = lambda x, row: SPAN('%s'%(row.auth_group.role))
     
     # generate table
     if table_id in config.colsets_auth:
         colset = config.colsets_auth[table_id]
     else:
         colset = None
-    sqltab = SQLTABLE(shotdb(shotdb[table].id > 0).select(),
+        
+        
+    # get the sorting column from the selected column head   
+    if request.vars.orderby and session.sort_column:                
+        if session.sort_column.has_key(table_name) and session.sort_column[table_name] == request.vars.orderby:
+            # table is already sorted for this very column => sort in reverse order
+            # due to the '~' operator for reverse sorting the database field must be constructed (no better solution so far)
+            aux = request.vars.orderby.split('.')
+            orderby = ~getattr(getattr(shotdb,aux[-2]),aux[-1])
+            del session.sort_column[table_name]
+        else:
+            # here the string is sufficient
+            orderby = request.vars.orderby
+            session.sort_column[table_name] = request.vars.orderby
+    else:
+        orderby = table_object.id
+        session.sort_column = {table_name: table_name + '.id'} 
+    
+    
+    sqltab = SQLTABLE(shotdb(query).select(orderby = orderby),
                                columns = colset,
-                               headers = 'fieldname:capitalize', _class = 'list',
+                               headers = 'fieldname:capitalize', orderby = 'dummy', _class = 'list',
                                truncate = None)
     
     session.crud = Storage(return_page = URL('admin_', 'manage_users'))
     
-    return dict(form = form, sqltab = sqltab)
+    
+    tabctrl = TableCtrlHead(table_name)
+    
+    return dict(form = form, tabctrl = tabctrl, sqltab = sqltab)
 
 @auth.requires_membership('admin')
 def configuration():
