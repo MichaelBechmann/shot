@@ -251,7 +251,7 @@ class PersonEntry():
     '''
     This class provides methods to insert and update the records of the table "person".
     '''
-    def __init__(self, db, data):
+    def __init__(self, db, data, pid = None):
         '''
         "data" is a reference to a dictionary containing the the form/database fields of the person record.
         Note that data may contain more fields (from forms combining several tables).
@@ -267,9 +267,10 @@ class PersonEntry():
         if self.data.has_key('id'):
             del self.data['id']
             
-        self.id       = None
-        self.exists   = False
-        self.verified = False
+        self.id            = None
+        self.exists        = False
+        self.email_changed = False
+        self.verified      = False
         
         # check if person is already known to the database      
         q  = db.person.name     == self.data['name']
@@ -285,6 +286,13 @@ class PersonEntry():
             ev = rows[0].verified # event number of verification
             if (ev != None and ev > 0):
                 self.verified = True
+        elif pid:
+            # check if only the email changed compared to the identified person data
+            p = db.person(pid)
+            if p.name == self.data['name'] and p.forename == self.data['forename']:
+                self.id = pid
+                self.exists = True
+                self.email_changed = True
                 
     def insert(self):
         '''
@@ -311,6 +319,9 @@ class PersonEntry():
         
         self.db(self.db.person.id == self.id).update(**self.data)
         Log(self.db).person(self.id, s)
+        
+    def reset_verification(self):
+        self.data['verified'] = 0
         
     def set_mail_enabled(self):
         self.data['mail_enabled'] = True

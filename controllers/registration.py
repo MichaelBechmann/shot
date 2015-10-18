@@ -10,6 +10,7 @@ if 0:
     global session
     global shotdb    
     global config
+    global auth
 
 
 from shotconfig import * 
@@ -32,7 +33,7 @@ def form():
     # check if registration  is enabled    
     if config.enable_registration == False:
         redirect(URLWiki('registration-locked'))
-
+        
         
     display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email']
     form = SQLFORM(shotdb.person, fields = display_fields, submit_button = T('submit'))
@@ -48,6 +49,8 @@ def form():
         del form.vars['id']
         # prevent wrong initialization of the later sale form when several users register from the same machine 
         session.sale_vars = None
+        # store verified person id to facilitate modification of essential person data
+        session.registration_person_id = i.id
         
     elif session.registration_person:
         # pre-populate the form in case of re-direction from confirmation page (back button pressed)
@@ -59,7 +62,6 @@ def form():
     # see http://osdir.com/ml/web2py/2011-11/msg00467.html
     if form.validate(onvalidation = regularizeFormInputPersonorm):
         session.registration_person = form.vars
-        session.b_registration_active = True
         redirect(URL('registration','confirm'))
         
     return dict(form=form)
@@ -68,7 +70,6 @@ def confirm():
     # check if there is personal information to be confirmed
     if session.registration_person == None:
         redirect(URLWiki('start'))
-
     # construct display of data to be confirmed
     data = getPersonDataTable(session.registration_person)          
     
@@ -81,13 +82,12 @@ def confirm():
                        ),
                 DIV(T(config.msg.wait), _id = config.cssid.waitmsg)
                 )
-
         
     if 'submit back' in request.vars:
         redirect(URL('form'))
     elif 'submit send' in request.vars:
             
-        pe = PersonEntry(shotdb, session.registration_person)
+        pe = PersonEntry(shotdb, session.registration_person, session.registration_person_id)
         # By default, every registration of a person (new or update) (re-) enables round mails.
         pe.set_mail_enabled()
         
@@ -95,22 +95,26 @@ def confirm():
         # Note: The reference to the object session.registration_person can be deleted here.
         # The data persist in memory and the object pe contains a duplicate private reference.
         session.registration_person = None 
-        if (pe.verified):
+        if pe.verified:
             # The person is known and the email has been verified already.
             pe.update()
             session.registration_person_id = pe.id
             nextpage = URL('sale', 'form')
                 
-        elif (pe.exists):
-            # The person is known but the email is to be verified.
+        elif pe.exists:
+            # The person is known but the email is yet to be verified.
+            if pe.email_changed :
+                pe.reset_verification()
             pe.update()
+            session.registration_person_id = None
             shotdb.commit()
-            RegistrationMail(auth, pe.id).send() 
+            RegistrationMail(auth, pe.id).send()
             nextpage = URLWiki('registration-final')
             
         else:
             # person is not known yet.
             pe.insert()
+            session.registration_person_id = None
             shotdb.commit()
             RegistrationMail(auth, pe.id).send()
             nextpage = URLWiki('registration-final')
