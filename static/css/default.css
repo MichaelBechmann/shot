@@ -114,7 +114,7 @@ img.left {
 }
 
 
-input, textarea {
+input, textarea, span.btn_inactive{
     border-radius: 4px;
     padding: 5px;
     margin-bottom: 6px;
@@ -134,12 +134,22 @@ input[type="submit"]:not(.btn-default):not([value=Search]):not([value="Create Pa
     font-weight: bold;
     border-right: 2px solid #108010;
     border-bottom: 1px solid #108010;
+    margin-bottom: 0;
 }
 
 input[type="submit"].irreversible {
-    background: #CC0000;
-    border-right: 2px solid #801010;
-    border-bottom: 1px solid #801010;
+    background: #CC0000 !important;
+    border-right: 2px solid #801010 !important;
+    border-bottom: 1px solid #801010 !important;
+}
+
+span.btn_inactive{
+	background:  #AAAAAA;
+    color: #FFFFFF;
+    font-weight: bold;
+    border-right: 2px solid #888888;
+    border-bottom: 1px solid #888888;
+    margin-bottom: 0;
 }
 
 form input[type="password"], form #auth_user_username{

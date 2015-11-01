@@ -149,7 +149,7 @@ def form():
 
     formelements.append(TABLE(TR(
                                  T('My message:'), TEXTAREA(_type = 'text', _name = config.formname.person_message, _cols = 50, _rows = 3),
-                                 INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = T('submit'))
+                                 INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = 'Weiter')
                                  ), _id = config.cssid.tblsubmit))
       
     form = FORM(*formelements)   
@@ -221,12 +221,13 @@ def confirm():
     
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
     form = FORM(TABLE(TR(
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit back', _value = T('back')),
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = T('jetzt anmelden!')), _id = config.cssid.waitmsgtrig)
+                         INPUT(_type = 'submit', _class = 'button', _name = 'submit back', _value = 'Zurück'),
+                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = 'Jetzt anmelden!'), _id = config.cssid.waitmsgtrig)
                         ),
                 DIV(T(config.msg.wait), _id = config.cssid.waitmsg)
                 )
-        
+    
+    
     if 'submit back' in request.vars:
         redirect(URL('form'))
         

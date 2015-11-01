@@ -12,9 +12,24 @@ table.caution td {
     border-color: #808080;
 }
 
+
 #task_status {
 	font-weight: normal;
-	font-size: 1.0em;
+	font-size: 1.2em;
+	margin: 18px 0 12px 0;
+}
+
+#task_status span {
+	margin: 0 4px 0 0;
+}
+
+#task_status span.item {
+    margin: 0 24px 0 0;
+}
+
+#task_status span.title {
+    margin: 0 24px 0 0;
+    font-weight: bold;
 }
 
 #task_status .active{
@@ -25,6 +40,19 @@ table.caution td {
     font-weight: normal;
     color: #33AA33;
 }
+
+#task_form{
+	width: 100%;
+}
+
+#task_form input[type="text"] {
+    width: 3em;
+}
+
+#task_form tr:last-child td:last-child{
+    text-align: right;
+}
+
 
 /* person summary */
 #ps_name {

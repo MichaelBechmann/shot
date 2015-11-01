@@ -23,7 +23,7 @@ logger_bg.info('start with script "send_reminder_mail" ...')
 try:
     count = 0
     for row in Reminder(shotdb).get_all_persons():
-        m = ReminderMail(auth, row.id, mass = True)
+        m = ReminderMail(auth, row.person.id, mass = True)
         m.set_error_handling_parameters(number_attempts = config.bulk_email_number_attempts,
                                         delay_next_attempt = config.bulk_email_number_delay_next_attempt)
         if count == 0:
@@ -35,7 +35,7 @@ try:
             
         m.send()
         count += 1 
-        logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.id, row.name, row.forename))
+        logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.person.id, row.person.name, row.person.forename))
         if m.errors:
             logger_bg.warning('Intermediate errors occurred:')
             for error in m.errors:

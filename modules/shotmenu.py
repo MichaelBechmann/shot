@@ -74,7 +74,14 @@ def createStaffMenu(auth, wiki_ctrl = None):
             menu.extend([['Config Event', False, URL('config','config_event')]])
             
         if 'task executor' in auth.user_groups.values():
-            menu.extend([['Tasks', False, URL('tasks','start')]])
+            menu.extend([['Tasks', False, '',
+                          [['Einladungen senden',   False, URL('tasks', 'start', args = ['send_invitation'])],
+                           ['Warteliste auflösen',  False, URL('tasks', 'start', args = ['resolve_waitlist'])],
+                           ['Absagen senden',       False, URL('tasks', 'start', args = ['send_denial'])],
+                           ['Erinnerungen senden',  False, URL('tasks', 'start', args = ['send_reminder'])]
+                          ]
+                         ]
+                        ])
 
         if 'admin' in auth.user_groups.values():
             menu.extend([['Admin', False, '',

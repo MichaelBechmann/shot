@@ -24,20 +24,27 @@ def extractTableFields(table, data):
     return data_red
 
 
-def removeDuplicates(db, rows):
+def removeDuplicates(rows, table = None):
     '''
     This function removes duplicate ids from the rows objects.
+    If the table argument (string) is passed the id of this table is used to identify duplicates.
+    Otherwise row.id is used directly.
     '''
-    # For some reason the db argument is required for SQLTABLE to work properly.
-    rows_compact = Rows(db)
-    rows_compact.records = []
+    
+    records = []
     id_list = []
     for row in rows:
-        if row.id not in id_list:
-            rows_compact.records.append(row)
-            id_list.append(row.id)
-                    
-    return rows_compact
+        if table:
+            id_ = row[table].id
+        else:
+            id_ = row.id
+        if id_ not in id_list:
+            records.append(row)
+            id_list.append(id_)
+    
+    rows.records = records
+
+    
 
 
 class Log:
@@ -435,16 +442,28 @@ class Numbers():
         s = s_conf - s_assigned_previous
         return s
     
+    def _check_event_number_limit(self, n):
+        '''
+        This auxiliary function applies the global limit (if there is any) to a number of (free) sale numbers.
+        '''
+        if self.event.numbers_limit > 0:
+            # number limit is set
+            n = min(n, self.event.numbers_limit - len(self.assigned()))
+        return n
         
     def number_of_available(self):
         '''
         This method returns the number of sale numbers still available.
         '''
         n = len(self.free())
-        if self.event.numbers_limit > 0:
-            # number limit is set
-            n = min(n, self.event.numbers_limit - len(self.assigned()))
-        return n
+        return self._check_event_number_limit(n)
+    
+    def number_of_available_not_reserved(self):
+        '''
+        This method returns the number of available sale numbers which shall not be reserved for a fromer helper.
+        '''
+        n = len(self.free() - self.helper(self.previous_eid))
+        return self._check_event_number_limit(n)
     
     def b_numbers_available(self):
         '''
@@ -557,13 +576,14 @@ class NumberAssignment():
     This class collects everything needed to determine and to assign sale numbers.
     All operations are generally done for the current event.
     '''
-    def __init__(self, db, pid):
+    def __init__(self, db, pid, b_option_use_helper_numbers = False):
         '''
         pid is the person id
         '''
         self.db = db
         self.pid = pid
-        self.e = Events(self.db)      
+        self.b_option_use_helper_numbers = b_option_use_helper_numbers
+        self.e = Events(self.db)
                  
 
     def get_old_number(self, pid = None):
@@ -611,13 +631,14 @@ class NumberAssignment():
         note possible conflict: Who helped at the previous event will get ones old number even if one did not have a number at the previous event.
         
         For the determination of the sale number the following rules are applied:
-        0) If there are no numbers available any more => assign 0
-        1) If the old number of the person is not yet assigned and the person helped at the previous event => assign old number
-           It is possible that this old number is not in the range of configured numbers!
-        2) If the old number of the person is not yet assigned and not a number of a helper from the previous event => assign old number
-        3) If person has no old number or the old number is already assigned => assign one of the free numbers
-        4) If there are free numbers which were not assigned at the previous event => choose one of those
-        5) Assign numbers of helpers at the previous event not before all other free numbers (block previous helper numbers).
+        0)  If there are no numbers available any more => assign 0
+        1)  If the old number of the person is not yet assigned and the person helped at the previous event => assign old number
+            It is possible that this old number is not in the range of configured numbers!
+        2)  If the old number of the person is not yet assigned and not a number of a helper from the previous event => assign old number
+        3)  If person has no old number or the old number is already assigned => assign one of the free numbers
+        4)  If there are free numbers which were not assigned at the previous event => choose one of those
+        5a) Option 'b_option_use_helper_numbers' == False: Assign numbers of helpers at the previous event not before all other free numbers (block/reserve previous helper numbers).
+        5b) Option 'b_option_use_helper_numbers' == True:  Helper numbers shall be used (usually when the wait list is resolved).
         6) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
         '''
         
@@ -638,6 +659,9 @@ class NumberAssignment():
         
         # get list of potential (= free) sale numbers
         s_free = self.numbers.free()
+        
+        # get set of old helper numbers for multiple use in the following
+        s_ohn = self.numbers.helper(self.previousevent)
 
         on = self.get_old_number()
         
@@ -645,8 +669,7 @@ class NumberAssignment():
         if (on > 0 and on not in self.numbers.assigned()):
             if (self.b_helped_previous_event):
                 sn = on
-            else:
-                if on not in self.numbers.helper(self.previousevent):
+            elif on not in s_ohn or self.b_option_use_helper_numbers:
                     sn = on
 
         if sn == 0:
@@ -655,18 +678,27 @@ class NumberAssignment():
             if len(s_free_and_free_previous) > 0:
                 s_current = s_free_and_free_previous
             else:
-                # get all free numbers which shall not be blocked for previous helpers
-                s_ohn_removed = s_free - self.numbers.helper(self.previousevent)
-                if len(s_ohn_removed) > 0:
-                    s_current = s_ohn_removed
+                if not self.b_option_use_helper_numbers:
+                    # get all free numbers which shall not be blocked for previous helpers
+                    s_ohn_removed = s_free - s_ohn
+                    if len(s_ohn_removed) > 0:
+                        s_current = s_ohn_removed
+                    else:
+                        s_current = s_free
                 else:
                     s_current = s_free
                 
             # take into account old numbers of persons on the wait list
             onwl = self.get_old_numbers_of_wait_list_persons()
             s_onwl_removed = s_current - set(onwl)
+            
             if len(s_onwl_removed) > 0:
-                sn = min(s_onwl_removed)
+                # try to still keep old helper numbers
+                s_onwl_ohn_removed = s_onwl_removed - s_ohn
+                if len(s_onwl_ohn_removed) > 0:
+                    sn = min(s_onwl_ohn_removed)
+                else:
+                    sn = min(s_onwl_removed)
             else:
                 # Set operations cannot be used here anymore because the order old numbers of the wait list persons have to be taken into account!
                 for n in reversed(onwl):
@@ -783,9 +815,11 @@ class Contributions():
         query &= (self.db.help.shift  == self.db.shift.id)
         query &= (self.db.shift.event == self.eid)
         
-        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
-
-        return removeDuplicates(self.db, rows)
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
+        rows.compact = False # disable shortcut notation to ensure compatibility
+        removeDuplicates(rows, 'person')
+        return rows
+    
     
     def get_helper_list_for_shift(self, sid):
         '''
@@ -806,9 +840,10 @@ class Contributions():
         query &= (self.db.bring.donation == self.db.donation.id)
         query &= (self.db.donation.event == self.eid)
         
-        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
-
-        return removeDuplicates(self.db, rows)
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
+        rows.compact = False # disable shortcut notation to ensure compatibility
+        removeDuplicates(rows, 'person')
+        return rows
     
     
     def get_bringer_list_for_donation(self, did):
@@ -914,7 +949,7 @@ class WaitList():
         self.query_wait  = (db.wait.event == self.eid)
         self.query_wait &= (db.wait.person == db.person.id)
 
-        self.rows_all = db(self.query_wait).select(db.wait.id, db.wait.person, db.wait.denial_sent)
+        self.rows_all = db(self.query_wait).select(db.wait.id, db.wait.person, db.person.id, db.person.name, db.person.forename, db.person.place, db.wait.denial_sent)
         
         # get all wait list entries which already have a sale assigned
         query_sale  = self.query_wait
@@ -927,7 +962,7 @@ class WaitList():
             lsale.append(row.id)
             
         # create auxiliary rows object containing all wait list entries without sale
-        self.rows_wait = self.rows_all.find(lambda row: row.id not in lsale)
+        self.rows_wait = self.rows_all.find(lambda row: row.wait.id not in lsale)
         
     def _limit_rows(self, rows, l):
         '''
@@ -939,8 +974,12 @@ class WaitList():
         else:
             return rows[:l]
         
-    def _get_number_of_available(self):
-        return max([0,Numbers(self.db, self.eid).number_of_available()])
+    def _get_number_of_available(self, b_option_use_helper_numbers = False):
+        numbers = Numbers(self.db, self.eid)
+        if b_option_use_helper_numbers:
+            return max([0,numbers.number_of_available()])
+        else:
+            return max([0,numbers.number_of_available_not_reserved()])
         
     def get_sorted_all(self):
         '''
@@ -949,7 +988,6 @@ class WaitList():
         '''
         # get all wait list entries which additionally are linked to shifts
         query_help  = self.query_wait
-        query_help &= (self.db.person.id == self.db.wait.person)
         query_help &= (self.db.person.id == self.db.help.person)
         query_help &= (self.db.shift.id  == self.db.help.shift)
         query_help &= (self.db.shift.event == self.eid)
@@ -966,26 +1004,25 @@ class WaitList():
 
         # sort helpers in front
         # Note: sort method of rows object does not operate in place!
-        return self.rows_wait.sort(lambda row: row.id if row.id in lhelp else row.id + offset)
+        return self.rows_wait.sort(lambda row: row.wait.id if row.wait.id in lhelp else row.wait.id + offset)
 
-    def get_sorted(self, l = 0):
+    def get_sorted(self, limit = 0, b_option_use_helper_numbers = False):
         '''
         This method returns only as many rows as numbers are available
-        parameter l: specifies the length of the returned rows object  
+        parameter limit: specifies the maximum length of the returned rows object  
         '''
         rows = self.get_sorted_all()
         
         # negative numbers in slices do not work
-        r = rows[: self._get_number_of_available()]
-        return self._limit_rows(r, l)
+        r = rows[: self._get_number_of_available(b_option_use_helper_numbers)]
+        return self._limit_rows(r, limit)
     
     def get_sorted_remaining(self):
         '''
-        This method returns the complement to get_sorted(l=0), i.e., a rows object containing all persons
-        who will NOT get a sale number.
+        This method returns a rows object containing all persons who will NOT get a sale number.
         '''
         rows = self.get_sorted_all()
-        return rows[self._get_number_of_available():]
+        return rows[self._get_number_of_available(b_option_use_helper_numbers = True):]
     
     def get_sorted_remaining_list(self):
         '''
@@ -1003,11 +1040,11 @@ class WaitList():
         and have got no denial mail so far.
         parameter l: specifies the length of the returned rows object
         '''
-        rows = self.rows_wait.find(lambda row: row.denial_sent != True)
+        rows = self.rows_wait.find(lambda row: row.wait.denial_sent != True)
         # sort in reverse order to limit from the desired end of the list
-        rows = rows.sort(lambda row: -row.id)
+        rows = rows.sort(lambda row: -row.wait.id)
         rows_limit = self._limit_rows(rows, l)
-        return rows_limit.sort(lambda row: row.id)
+        return rows_limit.sort(lambda row: row.wait.id)
 
     def get_pos_current(self, pid):
         '''
@@ -1088,13 +1125,21 @@ class WaitListPos():
             
 class Person():
     '''
-    This class provides methods related to the person summary.
+    This class provides methods related to the data of a single person
     '''
     def __init__(self, db, pid):
-        self.record = db(db.person.id == pid).select().first()
+        self.db = db
+        self.pid = pid
+        self.record = self.db(self.db.person.id == self.pid).select().first()
+        
+        
+    def generate_summary(self):
+        '''
+        This method generates all data required for the person summary (all events).
+        '''
         
         self.data = {}
-        e = Events(db)
+        e = Events(self.db)
         self.events = e
         
         for label, eid in e.get_all().iteritems():
@@ -1103,23 +1148,23 @@ class Person():
                 self.data[eid]['current'] = True 
         
         # retrieve all sale numbers
-        query =  (db.event.id == db.sale.event)
-        query &= (db.person.id == db.sale.person)
-        query &= (db.person.id == pid)
+        query =  (self.db.event.id == self.db.sale.event)
+        query &= (self.db.person.id == self.db.sale.person)
+        query &= (self.db.person.id == self.pid)
         
-        for row in db(query).select(db.event.id, db.sale.id, db.sale.number):
+        for row in self.db(query).select(self.db.event.id, self.db.sale.id, self.db.sale.number):
             self.data[row.event.id]['numbers'].append((row.sale.id, row.sale.number))
         
         # retrieve all entries in waitlist
-        query =  (db.event.id == db.wait.event)
-        query &= (db.person.id == db.wait.person)
-        query &= (db.person.id == pid)
+        query =  (self.db.event.id == self.db.wait.event)
+        query &= (self.db.person.id == self.db.wait.person)
+        query &= (self.db.person.id == self.pid)
         
-        for row in db(query).select():
-            self.data[row.event.id]['wait entries'].append((row.wait.id, 'enrollment position: %d' %(WaitListPos(db, pid, row.event.id).pos)))
+        for row in self.db(query).select():
+            self.data[row.event.id]['wait entries'].append((row.wait.id, 'enrollment position: %d' %(WaitListPos(self.db, self.pid, row.event.id).pos)))
             
             if row.event.id ==e.current.event.id:
-                current_pos = WaitList(db).get_pos_current(pid)
+                current_pos = WaitList(self.db).get_pos_current(self.pid)
                 if current_pos > 0:
                     self.data[e.current.event.id]['wait entries'].append((row.wait.id, 'current wait position: %d' % current_pos))
                     
@@ -1128,21 +1173,21 @@ class Person():
 
 
         # retrieve all helps
-        query =  (db.event.id == db.shift.event)
-        query &= (db.help.shift == db.shift.id)
-        query &= (db.help.person == db.person.id)
-        query &= (db.person.id == pid)
+        query =  (self.db.event.id == self.db.shift.event)
+        query &= (self.db.help.shift == self.db.shift.id)
+        query &= (self.db.help.person == self.db.person.id)
+        query &= (self.db.person.id == self.pid)
         
-        for row in db(query).select(db.event.id, db.help.id, db.shift.activity, db.shift.day, db.shift.time):
+        for row in self.db(query).select(self.db.event.id, self.db.help.id, self.db.shift.activity, self.db.shift.day, self.db.shift.time):
             self.data[row.event.id]['shifts'].append((row.help.id, '%(shift.activity)s, %(shift.day)s, %(shift.time)s' % row))       
         
         # retrieve all brings
-        query =  (db.event.id == db.donation.event)
-        query &= (db.bring.donation == db.donation.id)
-        query &= (db.bring.person == db.person.id)
-        query &= (db.person.id == pid)
+        query =  (self.db.event.id == self.db.donation.event)
+        query &= (self.db.bring.donation == self.db.donation.id)
+        query &= (self.db.bring.person == self.db.person.id)
+        query &= (self.db.person.id == self.pid)
         
-        for row in db(query).select(db.event.id, db.bring.id, db.donation.item, db.bring.note):
+        for row in self.db(query).select(self.db.event.id, self.db.bring.id, self.db.donation.item, self.db.bring.note):
             eid = row.event.id
             s = row.donation.item
             if row.bring.note not in ('', None):
@@ -1150,11 +1195,11 @@ class Person():
             self.data[eid]['donations'].append((row.bring.id, s))      
         
         # retrieve messages
-        query =  (db.event.id == db.message.event)
-        query &= (db.person.id == db.message.person)
-        query &= (db.person.id == pid)
+        query =  (self.db.event.id == self.db.message.event)
+        query &= (self.db.person.id == self.db.message.person)
+        query &= (self.db.person.id == self.pid)
         
-        for row in db(query).select(db.event.id, db.message.id, db.message.text):
+        for row in self.db(query).select(self.db.event.id, self.db.message.id, self.db.message.text):
             eid = row.event.id
             self.data[eid]['messages'].append((row.message.id, '%(message.text)s' % row))
             
@@ -1224,12 +1269,36 @@ class Reminder():
         # create list of all persons with a sale
         query  = (self.db.sale.person == self.db.person.id)
         query &= (self.db.sale.event == c.eid)
-        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename)
-        rows_s = removeDuplicates(self.db, rows)
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
         
-        rows_compact = rows_h | rows_b | rows_s# | removes duplicates!
+        rows.compact = False # see comment in class InvitationList
+        removeDuplicates(rows, 'person')
+
+        rows_final = rows_h | rows_b | rows # | removes duplicates!
         
-        return rows_compact
+        return rows_final
+    
+class InvitationList():
+    '''
+    This class provides methods related to sending the invitation emails to all known persons.
+    '''
+    def __init__(self, db):
+        self.db = db
+        
+    def get_all_persons(self):
+        '''
+        This method constructs a rows object containing all known persons whos email is not disabled (i.e., field mail_enabled is True or None).
+        '''
+        # Note: The simpler query self.db.person.mail_enabled != False missed the entries 'None'!
+        query  = self.db.person.mail_enabled == True
+        query |= self.db.person.mail_enabled == None
+        rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place, self.db.person.email, self.db.person.mail_enabled)
+        
+        # This is necessary to disable the shortcut notation row.id in favor of the more general notation row.person.id! The query above includes only one single table.
+        # The general notation is required in the handling of the background task previews.
+        rows.compact = False 
+        
+        return rows
 
 
 class CopyConfig():

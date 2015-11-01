@@ -37,10 +37,10 @@ try:
         count = 0
         for row in wl.get_denials(limit):
             
-            shotdb(shotdb.wait.id == row.id).update(denial_sent = True)
+            shotdb(shotdb.wait.id == row.wait.id).update(denial_sent = True)
             shotdb.commit()
             
-            m = WaitDenialMail(auth, row.person, mass = True)
+            m = WaitDenialMail(auth, row.person.id, mass = True)
             m.set_error_handling_parameters(number_attempts = config.bulk_email_number_attempts,
                                             delay_next_attempt = config.bulk_email_number_delay_next_attempt)
             if count == 0:
@@ -53,7 +53,7 @@ try:
             
             m.send()
             count += 1
-            logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.id, row.person.name, row.person.forename))
+            logger_bg.info('#%d, id: %d\t%s, %s' % (count, row.person.id, row.person.name, row.person.forename))
             if m.errors:
                 logger_bg.warning('Intermediate errors occurred:')
                 for error in m.errors:

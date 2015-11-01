@@ -49,10 +49,10 @@ def person_summary():
         # redirect is necessary to pre-populate the form; didn't find another way
         redirect(URL('person_summary'))
     
-    
     p = Person(shotdb, pid)
+    p.generate_summary()
     if p.record != None:
-
+        
         tu = TableUtils()
         
         # initialise flags indicating which email actions shall be available 

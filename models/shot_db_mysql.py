@@ -275,4 +275,4 @@ shotdb.define_table('config',
 config.update(shotdb)
 
 # version number for static assets
-response.static_version = '0.0.2'
+response.static_version = '0.0.3'

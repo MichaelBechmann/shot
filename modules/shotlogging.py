@@ -16,7 +16,7 @@ fh = logging.FileHandler(filename = filename)
 formatter = logging.Formatter('%(asctime)s (%(levelname)s): %(message)s')
 fh.setFormatter(formatter)
 logger_bg = logging.getLogger()
-logger_bg.setLevel(logging.DEBUG)
+logger_bg.setLevel(logging.INFO)
 
 # remove standard logger (otherwise everything is poured into error.log
 logger_bg.removeHandler(logger_bg.handlers[0])

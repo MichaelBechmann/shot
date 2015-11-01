@@ -24,33 +24,46 @@ logger_bg.info('start with script "resolve_waitlist" ...')
 logger_bg.info('command line arguments: ' + str(sys.argv))
 
 # extract limit from parameter
-if len(sys.argv) > 1:
-    limit = int(sys.argv[1])
-else:
-    limit = 0
+# The code below relies on a matching implementation of the task parameterization in the controller function.
+limit          = int(sys.argv[1])
+option_helpers = sys.argv[2]
+logger_bg.info('    limit = %d' % limit)
+logger_bg.info('    option_helpers = %s' % option_helpers)
+
 
 b_log_account_number_mail       = True
 b_log_account_number_mail_succ  = True
 
+if option_helpers == 'use':
+    b_option_use_helper_numbers = True
+else:
+    b_option_use_helper_numbers = False
+
 try:
     wl = WaitList(shotdb)
     count = 0
-    for row in wl.get_sorted(limit):
+    for row in wl.get_sorted(limit, b_option_use_helper_numbers):
         if Numbers(shotdb, wl.eid).b_numbers_available():
             if count > 0:
                 # wait before sending next mail
                 sleep(float(config.bulk_email_delay))
             
             count += 1
-            msg = '#%d, id: %d\t%s, %s' % (count, row.id, row.person.name, row.person.forename)
-            sid = NumberAssignment(shotdb, row.person).assign_number()
+            logger_bg.debug('Start with row number %d' % count)
+            
+            msg = '#%d, id: %d\t%s, %s' % (count, row.person.id, row.person.name, row.person.forename)
+            sid = NumberAssignment(shotdb, row.person.id, b_option_use_helper_numbers).assign_number()
+            
+            logger_bg.debug('Sale number has been determined successfully! sid = %d' %sid)
+            
             if sid > 0:
                 shotdb.commit()
-
+                logger_bg.debug('Database has been commited.')
+                
                 msg = msg + ', sale id: ' + str(sid)
                 
-                if row.denial_sent:
-                    m = NumberFromWaitlistMailSuccession(shotdb, row.person)
+                if row.wait.denial_sent:
+                    m = NumberFromWaitlistMailSuccession(auth, row.person.id, mass = True)
                     m.set_error_handling_parameters(number_attempts = config.bulk_email_number_attempts,
                                                     delay_next_attempt = config.bulk_email_number_delay_next_attempt)
                     m.send()
@@ -66,7 +79,7 @@ try:
                     
                     msg = msg + ' (succession)'
                 else:
-                    m = NumberFromWaitlistMail(auth, row.person)
+                    m = NumberFromWaitlistMail(auth, row.person.id, mass = True)
                     m.set_error_handling_parameters(number_attempts = config.bulk_email_number_attempts,
                                                     delay_next_attempt = config.bulk_email_number_delay_next_attempt)
                     m.send()
