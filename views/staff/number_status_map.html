@@ -5,7 +5,12 @@
 Diese Seite gibt eine Übersicht zu den vergebenen und noch freien Kommissionsnummern.
 </p>
 {{=form}}
-<b />
+<br />
+
+Für diesem Markt sind folgende <b>{{=n_assigned}}</b> Kommissionsnummern vergeben worden:
+
+{{=table}}
+<br />
 {{
 legend = TABLE(
     TR(TD('Diese Nummer ist noch frei.', _class = 'free')),
@@ -18,7 +23,4 @@ legend = TABLE(
     _class = 'number_status_map', _id = 'number_status_map_legend'
 )
 }}
-<br />
-{{=table}}
-<br />
 {{=legend}}

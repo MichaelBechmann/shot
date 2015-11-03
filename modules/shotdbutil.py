@@ -369,6 +369,8 @@ class Numbers():
         self.previous_eid = e.previous_id(self.eid)
         self.event_type = e.type(self.eid)
         
+        self._number_of_assigned = None
+        
     def _s_assigned(self, eid = 0):
         '''
         This method returns a set (not a list) of all assigned numbers.
@@ -396,7 +398,9 @@ class Numbers():
         '''
         This method returns the number of sale numbers still already assigned.
         '''
-        return len(self.assigned())
+        if not self._number_of_assigned:
+            self._number_of_assigned = len(self.assigned())
+        return self._number_of_assigned
 
     def _decode(self, s):
         '''

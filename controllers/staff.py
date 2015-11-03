@@ -229,7 +229,9 @@ def number_summary():
 @auth.requires_membership('team')
 def number_status_map():
     sef = SimpleEventForm()
-    status_map = Numbers(shotdb, sef.event_id).status_map()
+    numbers = Numbers(shotdb, sef.event_id)
+    
+    status_map = numbers.status_map()
     
     # construct table
     width = 10 # number of items in each table row
@@ -248,7 +250,7 @@ def number_status_map():
         rows.append(TR(row))
     
     table = TABLE(*rows, _class = 'number_status_map')
-    return dict(form = sef.form, table = table)
+    return dict(form = sef.form, table = table, n_assigned = numbers.number_of_assigned())
 
 
 @auth.requires_membership('team')
