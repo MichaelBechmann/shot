@@ -1,0 +1,10 @@
+<h3>Absagen versenden</h3>
+<p>
+Jeder Person auf der Warteliste, der keine Kommissionsnummer erhalten hat, wird eine Absage gesandt. 
+Vorher muß man natürlich die {{=A('Warteliste auflösen', _href = URL('tasks', 'start', args = ['resolve_waitlist']), _class = 'intext')}}!
+</p>
+<p>
+Wenn nur den weiter hinten platzierten Personen eine Absage gesandt werden soll, kann die optionale Limitierung verwendet werden. 
+Bei einem positiven Wert, z.B. 20, bekommen die <strong>letzten</strong> 20 Personen auf der Warteliste Absagen. 
+Bei einem negative Wert, z.B. -5, werden die <strong>ersten</strong> 5 Personen ausgelassen, alle restlichen bekommen Absagen   .
+</p>

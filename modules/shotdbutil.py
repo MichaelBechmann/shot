@@ -588,17 +588,20 @@ class NumberAssignment():
         self.pid = pid
         self.b_option_use_helper_numbers = b_option_use_helper_numbers
         self.e = Events(self.db)
-                 
+        self.event_of_old_number_of_waitlist_person = {}
+        self.numbers = Numbers(self.db, self.e.current.event.id)
 
-    def get_old_number(self, pid = None):
+    def get_old_number_with_event(self, pid = None):
         '''
         This method tries to identify the most recent sale number the person had.
         Only events of the same type as the current event are considered!
+        returns: tuple (old sale number, id of latest event the person had this sale number)
         '''
         if not pid:
             pid = self.pid
         
         n = 0
+        eid = 0
         query  = (self.db.event.type == self.e.current.event_type.id)
         query &= (self.db.sale.event == self.db.event.id)
         query &= (self.db.sale.person == pid)
@@ -606,6 +609,17 @@ class NumberAssignment():
         if rows:
             r = rows.sort(lambda row: row.event.id).last()
             n = r.sale.number
+            eid = r.event.id
+            
+        return (n, eid)
+    
+    def get_old_number(self, pid = None):
+        '''
+        This method tries to identify the most recent sale number the person had.
+        Only events of the same type as the current event are considered!
+        returns: only the old number
+        '''
+        n, eid = self.get_old_number_with_event(pid)
         
         return n
     
@@ -613,15 +627,46 @@ class NumberAssignment():
         '''
         This method returns a sorted list containing the old numbers of all persons of the wait list.
         The list is in the same order as the wait list would be resolved (helpers first)
+        
+        Side effect: This function creates a dictionary:
+            {old number of wait list person: latest event with this number}
         '''
+        
+        number_of_available = self.numbers.number_of_available()
+        
         l = []
         rows = WaitList(self.db).get_sorted_all()
+        row_count = 0
         for row in rows:
-            n = self.get_old_number(int(row.person.id))
+            row_count = row_count + 1
+            n, eid = self.get_old_number_with_event(int(row.person.id))
             if n != 0:
                 l.append(n)
-
+                
+                # create dict {old number: associated event}
+                if row_count <= number_of_available:
+                    # consider only persons with a position on the waitlist which will yield a sale number (at least currently; waitlist may shift due to further helpers)
+                    if n in self.event_of_old_number_of_waitlist_person:
+                        if eid > self.event_of_old_number_of_waitlist_person[n]:
+                            # more recent event detected
+                            self.event_of_old_number_of_waitlist_person[n] = eid
+                    else:
+                        # n is not in dict yet
+                        self.event_of_old_number_of_waitlist_person[n] = eid
         return l
+    
+    def get_event_of_old_number_of_waitlist_persons(self, n):
+        '''
+        This special function returns the id of the latest event at which the sale number n belonged to the person on the waitlist.
+        This function requires a preceeding call of the function get_event_of_old_number_of_waitlist_persons().
+        '''
+        if n in self.event_of_old_number_of_waitlist_person:
+            eid = self.event_of_old_number_of_waitlist_person[n]
+        else:
+            eid = 0
+            
+        return eid
+        
     
     
     def determine_number(self):
@@ -646,7 +691,6 @@ class NumberAssignment():
         6) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
         '''
         
-        self.numbers = Numbers(self.db, self.e.current.event.id)
         if self.numbers.b_numbers_available() == False:
             return 0
         
@@ -666,14 +710,22 @@ class NumberAssignment():
         
         # get set of old helper numbers for multiple use in the following
         s_ohn = self.numbers.helper(self.previousevent)
+        
+        # get list of numbers needed for the persons on the waitlist
+        # note: this function has an important side effect: it creates a dictionary with the correlation number - latest event needed below
+        onwl = self.get_old_numbers_of_wait_list_persons()
 
-        on = self.get_old_number()
+        on, on_eid = self.get_old_number_with_event()
         
         sn = 0
         if (on > 0 and on not in self.numbers.assigned()):
             if (self.b_helped_previous_event):
                 sn = on
             elif on not in s_ohn or self.b_option_use_helper_numbers:
+                # get latest event this number was given to person on the waitlist
+                owln_eid = self.get_event_of_old_number_of_waitlist_persons(on)
+                if on_eid >= owln_eid: # Must use operator >= because this person may well be on the waitlist herself!
+                    # There is no one on the waitlist who was given the same sale number more recently.
                     sn = on
 
         if sn == 0:
@@ -693,7 +745,6 @@ class NumberAssignment():
                     s_current = s_free
                 
             # take into account old numbers of persons on the wait list
-            onwl = self.get_old_numbers_of_wait_list_persons()
             s_onwl_removed = s_current - set(onwl)
             
             if len(s_onwl_removed) > 0:
@@ -704,7 +755,7 @@ class NumberAssignment():
                 else:
                     sn = min(s_onwl_removed)
             else:
-                # Set operations cannot be used here anymore because the order old numbers of the wait list persons have to be taken into account!
+                # Set operations cannot be used here anymore because the order of old numbers of the wait list persons have to be taken into account!
                 for n in reversed(onwl):
                     if n in s_current:
                         sn = n
