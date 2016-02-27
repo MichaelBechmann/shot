@@ -19,7 +19,11 @@ shotdb = DAL(config.db_connection_string, pool_size=5)
 auth = ShotAuth(shotdb, controller = "access", function = "user")
 auth.define_tables(username = True, signature = True)
 auth.settings.create_user_groups = None
-auth.settings.manager_actions = dict(db_admin=dict(role='admin',heading='Manage Database',tables = shotdb.tables))
+auth.settings.manager_actions = dict(db_admin=dict(role='admin', heading='Manage Database',tables = shotdb.tables))
+
+# This error message is deliberately defined here and not in controller access
+auth.messages.access_denied = 'Zugriff verweigert!' 
+
 
 # define the wiki database tables
 auth.shotwiki(resolve = False)

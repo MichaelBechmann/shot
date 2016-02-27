@@ -482,10 +482,14 @@ class SimpleEventForm():
             # redirect is necessary to pre-populate the form; didn't find another way
             redirect(request.env.request_uri.split('/')[-1]) 
 
-@auth.requires_membership('staff')
+@auth.requires_membership('team')
 def table():
     options = {}
     t = request.args(0)
+    
+    if not (auth.has_permission('update', t) or auth.has_permission('read', t)):
+        redirect(URL('access', 'user', 'not_authorized'))
+    
     if(t == 'person'):
         query = shotdb.person.id > 0
         options['displayeventfilter'] = False
@@ -606,7 +610,6 @@ def crud():
         
     else:
         return_page = URL('table/' + tablename)
-        
      
     crud = Crud(shotdb)
     crud.settings.auth = auth   # ensures access control via permissions

@@ -44,31 +44,48 @@ def createStaffMenu(auth, wiki_ctrl = None):
         else:
             return ''
     else:
-        if 'team' in auth.user_groups.values():
+        user_groups = auth.user_groups.values()
+        
+        if 'team' in user_groups:
             menu.extend([['Dashboard',        False, URL('staff','dashboard')]])
         
-        if 'staff' in auth.user_groups.values():
-            menu.extend([['Organize', False, '',
-                          [['Person summary',    False, URL('staff', 'person_summary')],
-                           ['Number summary',    False, URL('staff', 'number_summary')],
-                           ['Number status map', False, URL('staff', 'number_status_map')],
-                           ['Manage help',       False, URL('staff', 'manage_help')],
-                           ['Manage donations',  False, URL('staff', 'manage_donations')]
-                       ]
-                      ],
-                      ['Tables', False, '',
-                        [['Persons',   False, URLTable('person')],
-                         ['Sale',      False, URLTable('sale')],    
-                         ['Wait',      False, URLTable('wait')],   
-                         ['Help',      False, URLTable('help')],
-                         ['Bring',     False, URLTable('bring')],
-                         ['Shifts',    False, URLTable('shift')],
-                         ['Donations', False, URLTable('donation')],
-                         ['Messages',  False, URLTable('message')],
-                         ['Requests',  False, URLTable('request')]
-                        ]
-                      ]
-                     ])
+        
+        items_organize = []
+        if 'staff' in user_groups:
+            items_organize = [
+                              ['Person summary',    False, URL('staff', 'person_summary')],
+                              ['Number summary',    False, URL('staff', 'number_summary')],
+                              ['Number status map', False, URL('staff', 'number_status_map')],
+                              ['Manage help',       False, URL('staff', 'manage_help')],
+                              ['Manage donations',  False, URL('staff', 'manage_donations')] 
+                            ]
+            items_tables   = [
+                              ['Persons',   False, URLTable('person')],
+                              ['Sale',      False, URLTable('sale')],
+                              ['Wait',      False, URLTable('wait')],
+                              ['Help',      False, URLTable('help')],
+                              ['Bring',     False, URLTable('bring')],
+                              ['Shifts',    False, URLTable('shift')],
+                              ['Donations', False, URLTable('donation')],
+                              ['Messages',  False, URLTable('message')],
+                              ['Requests',  False, URLTable('request')]
+                            ] 
+            
+        else:
+            items_organize = [
+                              ['Number status map', False, URL('staff', 'number_status_map')]
+                            ]
+            
+            items_tables   = [
+                              ['Requests',  False, URLTable('request')]
+                            ]
+            
+            
+        
+        if 'staff' in user_groups or 'team' in user_groups:
+            menu.extend([['Organize', False, '', items_organize],
+                         ['Tables',   False, '', items_tables]
+                        ])
 
         if 'configurator' in auth.user_groups.values():
             menu.extend([['Config Event', False, URL('config','config_event')]])
