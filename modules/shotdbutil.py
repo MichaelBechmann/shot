@@ -1301,7 +1301,6 @@ class User():
         
         return self.db(query).select()
 
-
 class Reminder():
     '''
     This class provides methods related to the reminder mails.
@@ -1313,15 +1312,14 @@ class Reminder():
 
     def get_all_persons(self):
         '''
-        This method constructs the list of persons (vendors, helpers, bringers) who shall be reminded.
+        This method constructs the list of persons (vendors, helpers) who shall be reminded.
         '''
-        # get a list of all helpers and bringers
+        # get a list of all helpers (ignore bringers: donations shall not be a criterion for a reminder mail (see issue #103
         c = Contributions(self.db)
         
         rows_h = c.get_helper_list()
-        rows_b = c.get_bringer_list()
         
-        # create list of all persons with a sale
+        # create list of all persons with a sale number
         query  = (self.db.sale.person == self.db.person.id)
         query &= (self.db.sale.event == c.eid)
         rows = self.db(query).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place)
@@ -1329,7 +1327,7 @@ class Reminder():
         rows.compact = False # see comment in class InvitationList
         removeDuplicates(rows, 'person')
 
-        rows_final = rows_h | rows_b | rows # | removes duplicates!
+        rows_final = rows_h | rows # | removes duplicates!
         
         return rows_final
     
