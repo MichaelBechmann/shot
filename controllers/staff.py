@@ -503,6 +503,7 @@ def table():
         query =  (shotdb.bring.person   == shotdb.person.id)
         query &= (shotdb.bring.donation == shotdb.donation.id)
         options['eventtable'] = 'donation'
+        options['left'] = shotdb.sale.on((shotdb.bring.person == shotdb.sale.person) & (shotdb.donation.event == shotdb.sale.event))
         
     elif(t == 'message'):
         query = (shotdb.message.person == shotdb.person.id)

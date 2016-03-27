@@ -173,9 +173,9 @@ config.colsets['wait'] = { 'sets':{'edit':      ['wait.id', 'wait.person', 'sale
                          }
 
 config.colsets['bring'] = { 'sets':{'edit':         ['bring.id', 'bring.person', 'person.place', 'donation.item', 'bring.note'], 
-                                   'default':       ['bring.person', 'person.place', 'donation.item', 'bring.note'],
+                                   'default':       ['bring.person', 'person.place', 'donation.item', 'bring.note', 'sale.number'],
                                    'event':         ['donation.event', 'bring.person', 'person.place', 'donation.item', 'bring.note'],
-                                   'plain to copy': ['bring.person', 'donation.item', 'bring.note']
+                                   'plain to copy': ['bring.person', 'donation.item', 'bring.note', 'sale.number']
                                    },
                            'default': 'default'
                          }
