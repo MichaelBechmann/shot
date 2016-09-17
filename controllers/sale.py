@@ -11,6 +11,7 @@ if 0:
     global response
     global session
     global shotdb
+    global auth
     
 from shotmail import *
 from shotdbutil import *
@@ -200,8 +201,8 @@ def confirm():
             de.append(TR('', TD('('+s.comment+')'), _class = config.cssclass.shiftcomment))
     
     if sale.b_cannot_help:
-        de.append(TR('', TD('Ich kann leider keine Helferschicht übernehmen.')))        
-    
+        de.append(TR('', TD('Ich kann leider keine Helferschicht übernehmen.')))
+        
     for d in sale.getcheckeddonations():
         out =  d.item
         if d.note != None:
@@ -214,10 +215,13 @@ def confirm():
     
     if session.sale_vars[config.formname.person_message]:
         de.append(TR('Meine Nachricht:', session.sale_vars[config.formname.person_message]))
-
+    
+    if not sale.b_cannot_help:
+        de.append(TR(STRONG('Unser Hinweis:'), auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text')))
+    
     
     data = TABLE(*de, _class = config.cssclass.tblconfirmdata)
-        
+    
     
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
     form = FORM(TABLE(TR(

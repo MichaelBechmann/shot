@@ -77,10 +77,17 @@ h4{
     margin-bottom: 0.2em;
 }
 
+
 p, table.intext {
     font-size: 1.2em;
     margin: 0 0 1em 0;
     line-height: 180%;
+}
+
+.ctblconfdat p{
+    font-size: 1em;
+    margin: 0;
+    line-height: 100%
 }
 
 blockquote {
@@ -271,7 +278,7 @@ form input[type="text"] {
 }
 
 #menu_public ul ul a{
-    padding: 10px 15px 10px 10px;
+    padding: 10px 10px 10px 10px;
     font-size: 1.0em;
 }
 

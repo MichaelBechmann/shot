@@ -18,7 +18,9 @@ $(document).ready(function(){
 		$('#isnumstatus').fadeToggle(600);
 	});
 	
-	if(!($('#isnumstatus input[name=fnsnum]').prop('checked'))){
+	if($('#isnumform input[name=fnsnum]').prop('checked')){
+		$('#isnumstatus').show();
+	}else{
 		$('#isnumstatus').hide();
 	}
 	

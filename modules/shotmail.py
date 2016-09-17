@@ -271,17 +271,21 @@ class ShotMail(EMail):
 
         if len(elem) > 0:
             helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
+            helpergeneraltext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text')
             helpersaletext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-sale-text')
             
         else:
             helptext = DIV('Sie können keine Helferschicht übernehmen.')
+            helpergeneraltext = ''
             helpersaletext = ''
+            
         if b_helps_friday:
             instructionshelperfriday = self.auth.get_shotwiki_page(slug_base = 'email-snippet-instructions-helper-friday')
         else:
             instructionshelperfriday = ''
  
         self.subs['<PLACEHOLDER_HELP>'] = str(DIV(helptext, _class = 'block_contribution'))
+        self.subs['<PLACEHOLDER_HELPER_GENERAL_TEXT>'] = str(helpergeneraltext)
         self.subs['<PLACEHOLDER_HELPER_SALE_TEXT>'] = str(helpersaletext)
         self.subs['<PLACEHOLDER_INSTRUCTIONS_HELPER_FRIDAY>'] = str(instructionshelperfriday)
         
@@ -305,7 +309,9 @@ class ShotMail(EMail):
             if b_condition:
                 s = ' (sofern Sie eine Kommissionsnummer erhalten)'
             bringtext = DIV(SPAN('Sie haben sich bereit erklärt, für das Cafe folgendes zu spenden' + s + ':'), BR(), TABLE(*elem))
+            bringergeneraltext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-bringer-general-text')
         else:
+            bringergeneraltext = ''
             if self.events.current.event.email_bring_request:
                 bringtext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-bring-request')
             else:
@@ -317,6 +323,7 @@ class ShotMail(EMail):
             bringtext = DIV(bringtext, BR(), recipe)
 
         self.subs['<PLACEHOLDER_BRING>']  = str(DIV(bringtext, _class = 'block_contribution') )
+        self.subs['<PLACEHOLDER_BRINGER_GENERAL_TEXT>'] = str(bringergeneraltext)
 
     def add_waitlist_position(self):
         '''

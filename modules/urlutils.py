@@ -11,8 +11,8 @@ from gluon.html import URL
 def URLWiki(args = 'start'):
     return URL('main', 'wiki', args = args)
 
-def URLTable(args = 'wait'):
-    return URL('staff','table', args = args)
+def URLTable(args = 'wait', vars = None):
+    return URL('staff','table', args = args, vars = vars)
 
 def URLUser(args = 'profile'):
     return URL('access','user', args = args)
