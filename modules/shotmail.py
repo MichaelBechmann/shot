@@ -489,11 +489,12 @@ class ContactMail(EMail):
     def __init__(self, category, msg, name, email):
         EMail.__init__(self, account_id = 'postmaster')
         self.add_html_from_file('static/mail_templates/contact_de.html')
+        self.add_timestamp()
         self.receiver = config.mail.contactmail_to[category]
         self.subject = 'Kontaktanfrage von ' + name
-        self.subs['<PLACEHOLDER_MSG>']    = msg   
-        self.subs['<PLACEHOLDER_NAME>']   = name
-        self.subs['<PLACEHOLDER_EMAIL>']  = email
+        self.subs['<PLACEHOLDER_MSG>']        = msg   
+        self.subs['<PLACEHOLDER_NAME>']       = name
+        self.subs['<PLACEHOLDER_EMAIL>']      = email
         if category == 'tech':
             self.add_debug_data()
         else:
