@@ -9,21 +9,22 @@ if 0:
     global auth
 
 from shotdbutil import Reminder
-from shotmail import ReminderMail
+from shotmail import AfterMarketMail
 from time import sleep
 from shotlogging import logger_bg
 from shotconfig import *
 
 '''
-This function sends a special reminder email to each person who partizipates in the current event.
+This function sends an email with thanks and after market information to each person who partizipates in the current event.
+Note: The receivers are the same as for the reminder email.
 '''
 
-logger_bg.info('start with script "send_reminder_mail" ...')
+logger_bg.info('start with script "send_after_market_mail" ...')
 
 try:
     count = 0
     for row in Reminder(shotdb).get_all_persons():
-        m = ReminderMail(auth, row.person.id, mass = True)
+        m = AfterMarketMail(auth, row.person.id, mass = True)
         m.set_error_handling_parameters(number_attempts = config.bulk_email_number_attempts,
                                         delay_next_attempt = config.bulk_email_number_delay_next_attempt)
         if count == 0:

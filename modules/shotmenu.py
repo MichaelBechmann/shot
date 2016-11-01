@@ -95,7 +95,8 @@ def createStaffMenu(auth, wiki_ctrl = None):
                           [['Einladungen senden',   False, URL('tasks', 'start', args = ['send_invitation'])],
                            ['Warteliste auflösen',  False, URL('tasks', 'start', args = ['resolve_waitlist'])],
                            ['Absagen senden',       False, URL('tasks', 'start', args = ['send_denial'])],
-                           ['Erinnerungen senden',  False, URL('tasks', 'start', args = ['send_reminder'])]
+                           ['Erinnerungen senden',  False, URL('tasks', 'start', args = ['send_reminder'])],
+                           ['Infos danach senden',  False, URL('tasks', 'start', args = ['send_infos_after_market'])]
                           ]
                          ]
                         ])
@@ -122,8 +123,9 @@ def createStaffMenu(auth, wiki_ctrl = None):
         # wiki menue
         
         if 'wiki_editor' in auth.user_groups.values() or 'wiki_author' in auth.user_groups.values():
-            wiki_menu = [['Manage pages', False, URLWiki('_pages')],
-                         ['Search tags', False, URLWiki('_search')],
+            wiki_menu = [['Guidlines',    False, URL('main', 'wiki', args = ['wiki-guidelines'])],
+                         ['Manage pages', False, URLWiki('_pages')],
+                         ['Search tags',  False, URLWiki('_search')],
                         ]
             
             if 'wiki_author' in auth.user_groups.values():

@@ -12,5 +12,16 @@ class ShotError(Exception):
     def __str__(self):
         return self.msg
     
-class ShotMailError(ShotError):
+class ShotErrorMail(ShotError):
     pass
+
+class ShotErrorInvalidPage(ShotError):
+    def __init__(self, page = None):
+        
+        if page:
+            s = ' (%s)' % page
+        else:
+            s = ''
+            
+        self.msg = 'Invalid page reference%s!' %s
+        

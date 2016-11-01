@@ -336,7 +336,7 @@ class ShotMail(EMail):
 
         self.subs['<PLACEHOLDER_WAIT_POSITION>'] = str(pos)
         self.subs['<PLACEHOLDER_WAIT_STATUS>'] = wl.status_text(self.pid)
-
+        
 
 class  PlainMail(ShotMail):
     """
@@ -369,7 +369,7 @@ class  InvitationMail(ShotMail):
         self.subject = 'Einladung zum Markt'
         self.subs['<PLACEHOLDER_FORM_URL>'] = config.shoturl + 'registration/form/' + str(self.person.id) + self.person.code
         
-        self.send_backup    = True
+        self.send_backup    = False
         self.subject_backup = 'backup invitation: ' + self.person.name + ', ' + self.person.forename
 
          
@@ -455,7 +455,18 @@ class ReminderMail(ShotMail):
         
         self.subject = 'Erinnerung'
         self.send_backup    = False
-        self.subject_backup = 'person: ' + self.person.name + ', ' + self.person.forename
+        
+        
+class AfterMarketMail(ShotMail):
+    '''
+    This class defines the email sent to all participants after the market with thanks, link to lost & found page, etc.
+    '''
+    def __init__(self, auth, pid, mass = False):
+        ShotMail.__init__(self, auth, pid, 'email-after-market', mass = mass)
+        
+        self.subject = 'Herzlichen Dank!'
+        self.send_backup    = False
+        
         
 class AppropriationRequestMail(ShotMail):
     '''

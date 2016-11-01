@@ -19,6 +19,7 @@ if 0:
 
 from shotdbutil import *
 import subprocess
+from shoterrors import ShotErrorInvalidPage
 
 @auth.requires_membership('task executor')
 def start():
@@ -99,6 +100,13 @@ def start():
             rows = rm.get_all_persons()
             colset = ['person.name', 'person.place']
             
+    elif task_id == 'send_infos_after_market':
+        script = 'background/mail/send_after_market_mail.py'
+        parameters = []
+        if b_preview:
+            rm = Reminder(shotdb) # after market information mail goes to the same group of person as the reminder mail
+            rows = rm.get_all_persons()
+            colset = ['person.name', 'person.place']
             
     elif task_id == 'resolve_waitlist':
         script = 'background/mail/resolve_waitlist.py'
@@ -121,6 +129,9 @@ def start():
             colset = ['person.name', 'person.place']
         elif b_execute:
             parameters = [str(n_limit)]
+    
+    else:
+        raise ShotErrorInvalidPage('task "%s"' % task_id)
     
     
     if b_preview:

@@ -133,6 +133,7 @@ def person_summary():
                      (6, 'Wait list denial mail',                       WaitDenialMail,                     b_person_is_on_waitlist),
                      (7, 'Sale number from waitlist mail',              NumberFromWaitlistMail,             b_person_is_on_waitlist),
                      (8, 'Sale number from waitlist as successor mail', NumberFromWaitlistMailSuccession,   b_person_is_on_waitlist),
+                     (9, 'After market information and thanks mail',    AfterMarketMail,                    b_person_helps_or_brings or b_person_has_number),
                      )
 
         rows = [TR(m[1],
@@ -598,7 +599,7 @@ def __update_person_onaccept(form):
         response.flash = form.updatemsg
 
 
-@auth.requires_membership('staff')
+@auth.requires_membership('team')
 def crud():
     
     tablename = request.args(0)

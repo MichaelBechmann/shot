@@ -8,9 +8,7 @@ class ShotAuth(Auth):
     '''
     This class provides a customized version of the web2py Auth class with some standard settings. 
     '''
-    
     re_wiki_tag = re.compile('<div class="w2p_wiki_tags">.*?</div>')
-    
     
     def __init__(self, db, controller, function):
         self.db = db
@@ -63,4 +61,17 @@ class ShotAuth(Auth):
                 
         return self.wiki(slug)
         
+    def get_lost_and_found_slug(self):
+        '''
+        This method determines and returns the most recent existing lost-and-found slug, i.e., the one with the highest event number.
+        '''
+        
+        for id in range(Events(self.db).current.event.id, 0, -1):
+            slug = 'lost-and-found-event-%d' % id
+            if self.wiki(slug):
+                break
+            else:
+                slug = None
+        
+        return slug
         

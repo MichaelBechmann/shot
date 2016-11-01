@@ -1148,7 +1148,7 @@ class WaitList():
         if x > 15:
             msg = 'Es sind noch genügend Kommissionsnummern frei. Sie werden sicher eine Nummer erhalten, sobald unsere Warteliste aufgelöst wird.'
         elif x >= 0:
-            msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen. Ob Sie dann eine Nummer erhalten, hängt davon ab, wie viele Helfer wir noch gewinnen können. Um ganz sicher eine Nummer zu erhalten, tragen Sie sich für eine Helferschicht ein.'
+            msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen.' #Ob Sie dann eine Nummer erhalten, hängt davon ab, wie viele Helfer wir noch gewinnen können.' # Um ganz sicher eine Nummer zu erhalten, tragen Sie sich für eine Helferschicht ein.'
         elif x >= -10:
             msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine über die Warteliste erhalten, ohne zu helfen.'
         else:

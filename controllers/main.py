@@ -14,6 +14,7 @@ from shotmail import ErrorMail
 from shotconfig import config
 from gluon.storage import Storage
 from urlutils import URLWiki
+from shoterrors import ShotErrorInvalidPage
 T.force('de')
 
 
@@ -63,14 +64,20 @@ def wiki():
     if str(request.args(0)) != '_preview':
         wiki['wiki_ctrl'] = wiki_ctrl
         
-    
     return wiki
+
+def wiki_snippet():
+    slug = request.args(0)
+    if slug:
+        return auth.get_shotwiki_page(slug, False)
+    else:
+        return 'Bitte verwenden Sie einen gültigen slug: @{component:main/wiki_snippet/the_slug}'
 
 def announcement_events():
     announcements = Events(shotdb).get_visible()
     if announcements:
         return TABLE([TD('%s am %s, %s' % (r.label, r.date, r.time)) for r in announcements], _id="tbl_next_event_date")
-
+    
     else:
         return SPAN('Die Termine für die nächsten Märkte stehen noch nicht fest.')
 
@@ -80,4 +87,17 @@ def announcement_enroll():
         return TABLE([TD('ab ', SPAN(r.enrol_date, _id = 'enrol_date'), ' für den %s  am %s' % (r.label, r.date)) for r in enrol_dates], _id = 'tbl_enrol_dates')
     else:
         return 'Die Anmeldetermine für die nächsten Märkte stehen noch nicht fest.'
+    
+def lost_and_found():
+    '''
+    This auxiliary function redirects to the most recent existing lost-and-found page wiki page.
+    '''
+    slug = auth.get_lost_and_found_slug()
+    if slug:
+        redirect(URLWiki(slug))
+    else:
+        raise ShotErrorInvalidPage('most recent lost-and-found page')
+    
+    
+    
 
