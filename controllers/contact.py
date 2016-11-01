@@ -15,6 +15,7 @@ if 0:
 from shotmail import *
 from formutils import regularizeName
 from urlutils import URLWiki
+from shoterrors import ShotErrorRobot
 
 T.force('de')
 
@@ -24,7 +25,7 @@ def __regularize_form_input(form):
     '''
     for field in ('forename', 'name'):
         form.vars[field] = regularizeName(form.vars[field])
-
+        
 def form():
     '''
     To reuse the fields and validator messages from the database SQLForm is used instead of FORM.
@@ -45,12 +46,14 @@ def form():
     form[0].insert(-1, TR('',   TEXTAREA(_type = 'text', _name='message', _cols = 50, _rows = 8)))
      
         
-        
-    if form.validate(onvalidation = __regularize_form_input): 
-        cat   = form.vars.category 
+    if form.validate(onvalidation = __regularize_form_input):
         name  = form.vars.forename + ' ' + form.vars.name
         msg   = form.vars.message
         email = form.vars.email
+        
+        if not form.vars.category:
+            raise ShotErrorRobot('no category selection in contact form; name: %s, email: %s, msg: %s' % (name, email, msg))
+        cat   = form.vars.category
 
         ContactMail(cat, msg, name, email).send()
         redirect(URLWiki('contact-final'))

@@ -16,6 +16,9 @@ class ShotErrorMail(ShotError):
     pass
 
 class ShotErrorInvalidPage(ShotError):
+    '''
+    This error shall be raised some requested page does not exist or if page arguments are invalid.
+    '''
     def __init__(self, page = None):
         
         if page:
@@ -25,3 +28,16 @@ class ShotErrorInvalidPage(ShotError):
             
         self.msg = 'Invalid page reference%s!' %s
         
+        
+class ShotErrorRobot(ShotError):
+    '''
+    This error shall be raised if robots are detected filling the forms.
+    '''
+    def __init__(self, comment = None):
+        
+        if comment:
+            s = ' (%s)' % comment
+        else:
+            s = ''
+            
+        self.msg = 'A robot has been detected filling a form%s!' % s
