@@ -621,7 +621,7 @@ def crud():
     crud.settings.update_deletable = True
     crud.settings.showid = True
 
-    if session.crud.fix_ref_id:
+    if session.crud and session.crud.fix_ref_id:
         for ref_table, ref_id in session.crud.fix_ref_id.iteritems():
             if ref_id > 0 and ref_table in shotdb[tablename]:
                     shotdb[tablename][ref_table].default = ref_id
