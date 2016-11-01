@@ -17,7 +17,7 @@ from shotconfig import *
 from shotmail import *
 from shotdbutil import *
 from gluon.storage import Storage
-from shoterrors import ShotError
+from shoterrors import ShotError, ShotErrorRobot
 from formutils import regularizeFormInputPersonorm, getPersonDataTable
 from urlutils import URLWiki
 import re
@@ -26,8 +26,11 @@ T.force('de')
 
 
 def form():
-
-    # do the identity check first so that users can verify their email contact by clicking on the invitation link
+    # detect robots
+    if len(request.args) > 1:
+        raise ShotErrorRobot('registration form called with too many arguments: %s' % ', '.join(request.args))
+    
+    # do the identity check first so that users can verify their email contact by clicking on the invitation link even if the registration is closed.
     i = Ident(shotdb, *request.args)
     
     # check if registration  is enabled    
