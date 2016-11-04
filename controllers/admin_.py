@@ -15,6 +15,7 @@ from formutils import TableCtrlHead
 from gluon.tools import Crud
 from benchmark import *
 from gluon.storage import Storage
+from shotdbutil import Persons
 
 
 
@@ -198,8 +199,12 @@ def actions():
     
     actions = ((DIV(SPAN('Rectify wiki links'), 
                     BR(), 
-                    SPAN('(Necessary after the database has been imported from another site!)')),
+                    SPAN('(This is necessary after the database has been imported from another site!)')),
                 __rectify_wiki),
+               (DIV(SPAN('Identify duplicate person entries'), 
+                    BR(), 
+                    SPAN('(The person data are scanned for possible duplicates based on name, forename, and place.)')),
+                __check_for_duplicate_persons),
               )
     
     rows = [TR(actions[i][0],
@@ -211,7 +216,6 @@ def actions():
         f = actions[int(k)][1]
         result = f()
         break
-    
     return dict(form = form, result = result)
 
 
@@ -238,5 +242,20 @@ def __rectify_wiki():
     result = DIV(P('The following pages have been rectified:'),BEAUTIFY(slugs))
     
     return result
+
+def __check_for_duplicate_persons():
+    '''
+    This function tries to identify duplicate person entries.
+    '''
+    rows = Persons(shotdb).get_duplicates()
+    shotdb.person.name.represent  = lambda x, row: A('%s, %s' % (row.person.name, row.person.forename), _href=URL('staff', 'person_summary', args = [row.person.id]))
+    shotdb.person.place.represent = lambda x, row: SPAN('%s, %s %s' % (row.person.place, row.person.street, row.person.house_number))
+    sql_table = SQLTABLE(rows,
+                    columns = ['person.id', 'person.name', 'person.email', 'person.mail_enabled', 'person.verified', 'person.place', 'person.telephone'],
+                    headers = 'fieldname:capitalize', _class = 'list',
+                    truncate = None
+                    )
+    return DIV(P('The following ', STRONG(len(rows)), ' person entries might be duplicates:'), sql_table)
+    
 
 

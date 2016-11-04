@@ -1284,6 +1284,29 @@ class Person():
         for eid in sorted(self.data.keys(), reverse=True):
             self.eventdata.append(self.data[eid])
             
+class Persons():
+    '''
+    This class comprises methods to check or modify the person data.
+    '''
+    def __init__(self, db):
+        self.db = db
+        
+    def get_duplicates(self):
+        '''
+        This method returns a rows object containing possibly duplicate person entries.
+        '''
+        ids = []
+        rows = self.db(self.db.person.id > 0).select()
+        for r1 in rows:            
+            for r2 in rows:
+                if r1.id != r2.id:
+                    if ((r1.name == r2.name and r1.forename == r2.forename) or (r1.name == r2.forename and r1.forename == r2.name)) and (r1.place == r1.place):
+                        ids.extend([r1.id, r2.id])
+        rows = self.db(self.db.person.id.belongs(ids)).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place,
+                                                              self.db.person.email, self.db.person.street, self.db.person.house_number, self.db.person.telephone, 
+                                                              self.db.person.mail_enabled, self.db.person.verified, orderby = self.db.person.name)
+        rows.compact = False # see comment in class InvitationList
+        return rows
 
 class  AppropriationRequestEntry():
     '''
