@@ -77,20 +77,31 @@ def form():
     if session.form_passive:
         # The form shall be displayed for configuration purposes only.
         # Database manipulations are not intended! 
-        sale = Sale()
+        sale = Sale(shift_scope = session.shift_scope)
     elif session.registration_person_id == None:
         # Something went wrong.
         redirect(URLWiki('start'))
         #raise ShotError('Sale form entered without identified person.') # see issue #43
     else:
         # The form is active.
-        sale = Sale(session.registration_person_id)
+        if session.registration_person_id:
+            sale = Sale(session.registration_person_id)
+        else:
+            raise ShotError('Session object does not contain a valid person id!')
             
     # construct the form from the database tables
     formelements = []
     
     elem_sale_number = TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.sale_number, _checked = 'checked',_value = 'on'),'Ich möchte eine Kommissionsnummer haben.'), _id = config.cssid.salenumberform)
-    elem_status = TABLE(TR('Aktueller Status:', WaitList(shotdb).status_text(session.registration_person_id)), _id = config.cssid.salenumberstatus)
+    
+    if sale.shift_scope == 'team':
+        status_text = 'Als Mitglied des Secondhand-Team Ottersweier erhalten Sie sofort Ihre Nummer.'
+    else:
+        status_text = WaitList(shotdb).status_text(session.registration_person_id)
+    
+    elem_status = TABLE(TR('Aktueller Status:', status_text), _id = config.cssid.salenumberstatus)
+    
+    
     formelements.append(DIV(elem_sale_number, elem_status,  _id = config.cssid.salenumber))
     
     formelements.append(TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.no_contrib), 'Ich kann leider keine Helferschicht übernehmen.'), _id = config.cssid.nocontrib))
@@ -190,7 +201,7 @@ def confirm():
     
     if sale.b_wants_sale_number:
         de.append(TR('', 'Ich möchte eine Kommissionsnummer haben für den %s.' % sale.announcement))
-        if sale.b_cannot_help:
+        if sale.b_cannot_help and not sale.b_is_team_member:
             de.append(TR('', TD('(Hinweis: %s)' % WaitList(shotdb).status_text(session.registration_person_id)), _class = config.cssclass.confirmcomment))
     else:
         de.append(TR('', TD('Ich möchte ', STRONG('keine'), ' Kommissionsnummer haben.')))
@@ -262,8 +273,21 @@ class Sale():
     
     argument: pid - person id
     '''
-    def __init__(self, pid = 0):
+    def __init__(self, pid = 0, shift_scope = None):
         self.pid = pid
+        if self.pid == 0:
+            self.shift_scope = shift_scope
+            if self.shift_scope == 'team':
+                self.b_is_team_member = True
+            else:
+                self.b_is_team_member = False
+        else:
+            # determine whether or not the person is a team member
+            self.b_is_team_member = Team(shotdb).IsMember(pid)
+            if self.b_is_team_member:
+                self.shift_scope = 'team'
+            else:
+                self.shift_scope = 'public'
         
         e = Events(shotdb)
         self.announcement = e.get_current_announcement(b_include_time = False)
@@ -283,7 +307,7 @@ class Sale():
         '''
         This function retrieves all shifts belonging to the current event and adds some evaluated properties.
         '''
-        rows = self.contrib.get_shifts()
+        rows = self.contrib.get_shifts(scope = self.shift_scope)
         for r in rows:
             r.timelabel = r.day + ', ' + r.time
             r.label     = r.day + ', ' + r.time + ', ' + r.activity
@@ -406,8 +430,8 @@ class Sale():
         if self.b_wants_sale_number:
             # set person on wait list
             shotdb.wait.update_or_insert(event = self.currentevent_id, person = self.pid)
-            if (self.b_does_help):
-                # person gets sale number
+            if (self.b_does_help or self.b_is_team_member):
+                # person gets sale number immediately
                 if NumberAssignment(shotdb, self.pid).assign_number() > 0:
                     # sale number has been assigned successfully or person already has a sale number
                     shotdb.commit()

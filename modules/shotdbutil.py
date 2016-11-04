@@ -369,9 +369,11 @@ class Numbers():
         self.previous_eid = e.previous_id(self.eid)
         self.event_type = e.type(self.eid)
         
+        self.team = Team(db)
+        
         self._number_of_assigned = None
         
-    def _s_assigned(self, eid = 0):
+    def assigned(self, eid = 0):
         '''
         This method returns a set (not a list) of all assigned numbers.
         '''
@@ -385,14 +387,6 @@ class Numbers():
         if None in s:
             s.remove(None)
         return s
-
-    def assigned(self):
-        '''
-        Create a list of all sale numbers already assigned for the given event.
-        '''
-        l = list(self._s_assigned())
-        l.sort()
-        return l
     
     def number_of_assigned(self):
         '''
@@ -423,25 +417,30 @@ class Numbers():
     
     def config(self):
         '''
-        This method returns a list of all numbers available to the public
+        This method returns a set of all numbers available according to the configured number ranges.
         '''
-        return self._decode(self.event.number_ranges)
-
+        return set(self._decode(self.event.number_ranges))
+    
+    def reserved_team(self):
+        '''
+        This method yields a set of all sale numbes reserved for team members.
+        '''
+        return set(self.team.get_reserved_numbers())
     
     def free(self):
         '''
         This method returns a set of the free numbers.
         '''        
         c = self.config()
-        s = set(c) - self._s_assigned()
-
+        r = self.reserved_team()
+        s = c - r - self.assigned()
         return s
     
     def free_at_previous_event(self):
         '''
         This method returns a set of sale numbers which are configured for the current event but were not assigned at the previous event.
         '''
-        s_assigned_previous = self._s_assigned(self.previous_eid)
+        s_assigned_previous = self.assigned(self.previous_eid)
         s_conf = set(self.config())
         s = s_conf - s_assigned_previous
         return s
@@ -564,12 +563,19 @@ class Numbers():
         This method yields a sorted list of tuples with status information of all sale numbers.
         format: [(number, class), (522, 'free'), ...]
         '''
+        s_assigned = self.assigned()
+        
         # handle all numbers which are already assigned
-        l = [(n, self._status_assigned(n)) for n in self.assigned()]
+        l = [(n, self._status_assigned(n)) for n in s_assigned]
+        
+        # handle numbers reserved for team members
+        s_reserved_team = (self.reserved_team() & self.config()) - s_assigned
+        l.extend([(n, 'reserved_team') for n in s_reserved_team])
         
         # handle all still free numbers
         s_helper = self.helper(self.previous_eid)
         l.extend([(n, 'reserved' if n in s_helper else 'free') for n in self.free()])
+        
         l.sort(key = lambda x: x[0])
 
         return l
@@ -590,6 +596,7 @@ class NumberAssignment():
         self.e = Events(self.db)
         self.event_of_old_number_of_waitlist_person = {}
         self.numbers = Numbers(self.db, self.e.current.event.id)
+        self.team = Team(self.db)
 
     def get_old_number_with_event(self, pid = None):
         '''
@@ -680,6 +687,7 @@ class NumberAssignment():
         note possible conflict: Who helped at the previous event will get ones old number even if one did not have a number at the previous event.
         
         For the determination of the sale number the following rules are applied:
+        0)  If the person is a team member => assign old number
         0)  If there are no numbers available any more => assign 0
         1)  If the old number of the person is not yet assigned and the person helped at the previous event => assign old number
             It is possible that this old number is not in the range of configured numbers!
@@ -690,6 +698,11 @@ class NumberAssignment():
         5b) Option 'b_option_use_helper_numbers' == True:  Helper numbers shall be used (usually when the wait list is resolved).
         6) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
         '''
+        
+        if self.team.IsMember(self.pid):
+            on = self.get_old_number(self.pid)
+            if on > 0:
+                return on
         
         if self.numbers.b_numbers_available() == False:
             return 0
@@ -842,15 +855,23 @@ class Contributions():
         else:
             self.eid = eid
             
-        self.rows_shifts = None
+        self.rows_shifts    = None
+        self.scope          = None
         self.rows_donations = None
             
-    def get_shifts(self):
+    def get_shifts(self, scope = None):
         '''
         This method returns a rows object off all shifts for the selected event.
+        
+        scope: This argument allows to restrict the result to a single scope. If left away the scope attibute is ignored.
         '''
-        if self.rows_shifts == None:
-            self.rows_shifts = self.db(self.db.shift.event == self.eid).select()
+        if self.rows_shifts == None or scope != self.scope:
+            self.scope = scope
+            query = self.db.shift.event == self.eid
+            
+            if scope:
+                query &= self.db.shift.scope == scope
+            self.rows_shifts = self.db(query).select()
         return self.rows_shifts
     
     def get_donations(self):
@@ -972,14 +993,14 @@ class Contributions():
         n['open'] = n['total'] - n['taken']
         return n
 
-    def get_number_of_shifts(self):
+    def get_number_of_shifts(self, scope = None):
         '''
         This method determines the current numbers of shifts and returns a dictionary with the following fields
             'open'  - number of still open shifts, that is, number of still needed helpers
             'taken' - number of shifts already taken by some helper (not equal to the number of helpers as one helper may have taken more than one shift)
             'total' - total number of configured shifts
         '''
-        return self.__extract_numbers_from_rows(self.get_shifts())
+        return self.__extract_numbers_from_rows(self.get_shifts(scope))
     
     def get_number_of_donations(self):
         '''
@@ -1136,7 +1157,7 @@ class WaitList():
         if pid != None and NumberAssignment(self.db, pid).get_number(self.eid) > 0:
             return 'Sie haben bereits eine Kommissionsnummer für den kommenden Markt.'
         
-        n = Contributions(self.db, self.eid).get_number_of_shifts()
+        n = Contributions(self.db, self.eid).get_number_of_shifts(scope = 'public')
 
         # determine or prognost position on the wait list
         pos = self.get_pos_current(pid)
@@ -1314,7 +1335,7 @@ class Reminder():
         '''
         This method constructs the list of persons (vendors, helpers) who shall be reminded.
         '''
-        # get a list of all helpers (ignore bringers: donations shall not be a criterion for a reminder mail (see issue #103
+        # get a list of all helpers (ignore bringers: donations shall not be a criterion for a reminder mail (see issue #103)
         c = Contributions(self.db)
         
         rows_h = c.get_helper_list()
@@ -1394,3 +1415,34 @@ class CopyConfig():
             
     def copy_shifts(self):
         return self.__copy_rows(self.db.shift)
+    
+class Team():
+    '''
+    This class contains code related to the distinction of team members from ordinary people.
+    '''
+    def __init__(self, db):
+        self.db = db
+    
+    def IsMember(self, pid):
+        '''
+        This method determines whether or not the person with the given id is a team member, i.e., is referenced from the auth_user table.
+        '''
+        b_is_member = False
+        query = self.db.auth_user.person == pid
+        rows = self.db(query).select()
+        if len(rows) > 0:
+            b_is_member = True
+        return b_is_member
+    
+    def get_reserved_numbers(self):
+        '''
+        This method generates a list of all sale numbers reserved for the team members.
+        '''
+        l = []
+        rows = self.db(self.db.auth_user.id > 0).select()
+        for row in rows:
+            if row.sale_numbers:
+                l.extend(row.sale_numbers)
+        return l
+        
+        

@@ -112,6 +112,9 @@ table.caution td {
 .mh_activity{
 	font-size: 1.2em;
 }
+.mh_shift_scope{
+	color: #7f7f7f;
+}}
 .mh_shift_body{
 	padding: 5px 0px 5px 20px;
 }
@@ -228,7 +231,10 @@ table.number_status_map td.free {
 	background: #ffffff;
 }
 table.number_status_map td.reserved {
-    background: #ffff99;
+    background: #ffffbb;
+}
+table.number_status_map td.reserved_team {
+    background: #ffff00;
 }
 table.number_status_map td.new {
     background: #99ddff;

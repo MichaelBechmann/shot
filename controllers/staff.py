@@ -12,7 +12,6 @@ if 0:
 from shotdbutil import *
 from gluon.tools import Crud
 from gluon.storage import Storage
-from shoterrors import ShotError
 from formutils import *
 from shotmail import *
 import re
@@ -72,12 +71,16 @@ def person_summary():
             email_enable_note = SPAN('active', _class = 'ps_email_active')
         else:
             email_enable_note = SPAN('inactive', _class = 'ps_email_inactive')
+            
+        info_elems = [TR('Address:', '%s, %s, %s %s' %(p.record.place, p.record.zip_code, p.record.street, p.record.house_number)),
+                      TR('Phone:', p.record.telephone),
+                      TR('Email:', TD(SPAN('%s (' % (p.record.email)), email_verify_note, SPAN(', '), email_enable_note, SPAN(')')))
+                      ]
+        if Team(shotdb).IsMember(pid):
+            info_elems.append(TR(TD('Member of "Secondhand-Team Ottersweier"', _colspan = "2")))
     
-        info = TABLE(
-                     TR('Address:', '%s, %s, %s %s' %(p.record.place, p.record.zip_code, p.record.street, p.record.house_number)),
-                     TR('Phone:', p.record.telephone),
-                     TR('Email:', TD(SPAN('%s (' % (p.record.email)), email_verify_note, SPAN(', '), email_enable_note, SPAN(')'))),
-                     )
+        info = TABLE(*info_elems)
+
         log = DIV(p.record.log, _id = 'ps_log')
         
         # table with person activity data
@@ -181,7 +184,6 @@ def person_summary():
         
     session.crud = Storage(return_page = 'person_summary', fix_ref_id = dict(person = pid, event = p.events.current.event.id))
 
-    #return dict(form = 1, mailform = 2, name = 3, info = 4, log = 5, data = 6)
     return dict(form = form, mailform = mailform, name = name, info = info, log = log, data = data)
 
 def mail_sent():
@@ -269,7 +271,8 @@ def dashboard():
                 n_assigned      = n.number_of_assigned(),
                 n_wait          = w.length(),
                 n_limit         = n_limit,
-                n_shifts        = c.get_number_of_shifts(),
+                n_shifts_public = c.get_number_of_shifts('public'),
+                n_shifts_team   = c.get_number_of_shifts('team'),
                 n_donations     = c.get_number_of_donations(),
                 wl_status_text  = w.status_text(0),
                 shifts          = c.get_shifts(),
@@ -284,23 +287,28 @@ def manage_help():
     msg_list = c.get_persons_with_message()
     
     # details table
-    a_total, t_total = 0, 0
+    totals = {}
     data_elements = []
     for s in c.get_shifts():
         a, t = s.actual_number, s.target_number
-        a_total += a
         if not t:
             t = 0
-        t_total += t
+        if s.scope not in totals:
+            totals[s.scope] = {'count': 0, 'actual': 0, 'target': 0, 'persons': []}
+        totals[s.scope]['count']  += 1
+        totals[s.scope]['actual'] += a
+        totals[s.scope]['target'] += t
         title = A(TABLE(
                     TR(TD('%s, %s:' % (s.day, s.time)), 
                        TD(s.activity, _class = 'mh_activity'),
-                       TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class'])
+                       TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class']),
+                       TD(', %s' % s.scope if s.scope else '', _class = 'mh_shift_scope')
                        ), _class = 'mh_shift_title'), _href = URL('crud/shift/edit', vars = dict(id = s.id)))
         
         data_shift = []
         person_list = []
         for p in c.get_helper_list_for_shift(s.id):
+            totals[s.scope]['persons'].append(p.id)
             link = A('%s, %s (%s)' %(p.name, p.forename, p.place), _href = URL('person_summary', args = [p.id]))
             if p.id in msg_list:
                 msg = SPAN('msg', _class = 'mh_msg_marker')
@@ -325,15 +333,23 @@ def manage_help():
     
     # statistics table
     tu = TableUtils()
-    data_stat = []
-    data_stat.append((TD('number of shifts'), 
-                      TD(SPAN('%d (' % len(data_elements)), A(' + ', _href = URL('crud/shift/add'), _class = 'mh_add_link'), SPAN(')'))
-                      ))
-    ratio = getActNumberRatio(a_total, t_total)
-    data_stat.append((TD('number of assignments'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio['ratio']), _class = ratio['_class'])))
-    data_stat.append((TD('number of assigned persons'), TD('%d' % len(c.get_helper_list()))))
+    data_stat_header     = [TH('')]
+    data_stat_number     = [TD('Number of shifts')]
+    data_stat_assignment = [TD('Number of assignments')]
+    data_stat_persons    = [TD('Number of assigned persons')]
+    for k, v in totals.iteritems():
+        data_stat_header.append(TH(k if k else 'scope: %s' %k)) # prefix 'scope' if  scope in None (for old events)
+        data_stat_number.append(TD(SPAN('%d (' % v['count']), A(' + ', _href = URL('crud/shift/add'), _class = 'mh_add_link'), SPAN(')')))
+        ratio = getActNumberRatio(v['actual'], v['target'])
+        data_stat_assignment.append(TD('%d / %d (%d%%)' % (v['actual'], v['target'], ratio['ratio']), _class = ratio['_class']))
+        data_stat_persons.append(TD(len(set(v['persons']))))
     
-    table_stat = TABLE(*[TR(*x, _class = tu.get_class_evenodd()) for x in data_stat], _class = 'list')
+    table_stat = TABLE(THEAD(TR(*data_stat_header, _class = tu.get_class_evenodd())),
+                       TR(*data_stat_number, _class = tu.get_class_evenodd()),
+                       TR(*data_stat_assignment, _class = tu.get_class_evenodd()),
+                       TR(*data_stat_persons, _class = tu.get_class_evenodd()),
+                       _class = 'list'
+                       )
     
     session.crud = Storage(return_page = 'manage_help', fix_ref_id = dict(event = sef.event_id))
     

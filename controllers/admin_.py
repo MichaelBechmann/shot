@@ -70,6 +70,12 @@ def manage_users():
         
     if 'group_id' in table_object:
         table_object.group_id.represent = lambda x, row: SPAN('%s'%(row.auth_group.role))
+        
+    if 'person' in table_object:
+        table_object.person.represent = lambda x, row: A(row.person,_href=URL('staff', 'person_summary', args = [row.person])) if x else ''
+    
+    if 'sale_numbers' in table_object:
+        table_object.sale_numbers.represent = lambda l, row: SPAN(', '.join([str(n) for n in l]) if l else '')
     
     # generate table
     if table_id in config.colsets_auth:

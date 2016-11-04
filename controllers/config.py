@@ -11,6 +11,7 @@ if 0:
 from gluon.tools import Crud
 from shotdbutil import Events, CopyConfig
 from formutils import *
+from shotconfig import config
 
 
 @auth.requires_membership('configurator')
@@ -39,15 +40,23 @@ def crud():
 @auth.requires_membership('configurator')
 def config_event():
     
-    if 'submit_view_form' in request.vars:
-        session.form_passive = True
-        redirect(URL('sale', 'form'))
+    for scope in config.shift_scopes:
+        _name = 'submit_view_form_%s' % scope
+        if _name in request.vars:
+            session.form_passive = True
+            session.shift_scope  = scope
+            redirect(URL('sale', 'form'))
     
     
     event_obj = Events(shotdb)
     
+    
+    # Generate table of 'view form' buttons
     # The _name arguments are important as the one of the pressed button will appear in request.vars.
-    button_view_form = FORM(INPUT(_type = 'submit', _class = 'button', _name = 'submit_view_form', _value = T('view form')))
+    elems = []
+    for scope in config.shift_scopes:
+        elems.append(INPUT(_type = 'submit', _class = 'button', _name = 'submit_view_form_%s' % scope, _value = 'View form (%s)' % scope))
+    button_view_form = FORM(TABLE(TR(elems)))
     
     # provide edit links
     shotdb[shotdb.event_type].id.represent = lambda id, row: A(id,_href = URL('crud', args =['event_type', 'edit'], vars = dict(id = id)))

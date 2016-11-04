@@ -204,7 +204,7 @@ config.colsets['request'] = { 'sets':{'request':        ['request.id', 'request.
                                    },
                            'default': 'request'
                          }
-config.colsets['shift'] = { 'sets':{'config':  ['shift.id', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time', 'shift.display'],
+config.colsets['shift'] = { 'sets':{'config':  ['shift.id', 'shift.activity', 'shift.scope', 'shift.target_number', 'shift.day', 'shift.time', 'shift.display'],
                                     'comment': ['shift.id', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time', 'shift.display', 'shift.comment'],
                                     'event':   ['shift.event', 'shift.activity', 'shift.target_number', 'shift.day', 'shift.time']
                                    },
@@ -219,9 +219,12 @@ config.colsets['donation'] = { 'sets':{'config': ['donation.id', 'donation.item'
 
 
 config.colsets_auth = {}
-config.colsets_auth['user']       = ['auth_user.id', 'auth_user.username', 'auth_user.first_name', 'auth_user.last_name', 'auth_user.email', 'auth_user.registration_key', 'auth_user.created_on']
+config.colsets_auth['user']       = ['auth_user.id', 'auth_user.username', 'auth_user.first_name', 'auth_user.last_name', 'auth_user.email', 'auth_user.registration_key', 'auth_user.person', 'auth_user.sale_numbers']
 config.colsets_auth['group']      = ['auth_group.id', 'auth_group.role', 'auth_group.description']
 config.colsets_auth['permission'] = ['auth_permission.id', 'auth_permission.group_id', 'auth_permission.name', 'auth_permission.table_name']
 config.colsets_auth['membership'] = ['auth_membership.id', 'auth_membership.user_id', 'auth_membership.group_id']
 config.colsets_auth['event']      = ['auth_event.id', 'auth_event.user_id', 'auth_event.description', 'auth_event.time_stamp', 'auth_event.client_ip']
+
+
+config.shift_scopes = ('public', 'team')
 

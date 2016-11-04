@@ -345,6 +345,7 @@
 'Users': 'Users',
 'value already in database or empty': 'value already in database or empty',
 'Value already in database or empty': 'Value already in database or empty',
+'Value not allowed': 'Value not allowed',
 'Value not in database': 'Value not in database',
 'value not in database': 'value not in database',
 'Vendor control': 'Vendor control',

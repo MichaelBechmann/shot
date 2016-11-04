@@ -6,27 +6,14 @@ if 0:
     global auth
 
 
-from shotconfig import *
-from shotauth import *
+from shotconfig import config
+from shotauth import ShotAuth
 
 T.force('de')
 
 # There is one single database containing the data of all market events.
-shotdb = DAL(config.db_connection_string, pool_size=5)
+shotdb = DAL(config.db_connection_string, pool_size=5, lazy_tables=True)
 
-
-# Create all tables required for authentication and the wiki
-auth = ShotAuth(shotdb, controller = "access", function = "user")
-auth.define_tables(username = True, signature = True)
-auth.settings.create_user_groups = None
-auth.settings.manager_actions = dict(db_admin=dict(role='admin', heading='Manage Database',tables = shotdb.tables))
-
-# This error message is deliberately defined here and not in controller access
-auth.messages.access_denied = 'Zugriff verweigert!' 
-
-
-# define the wiki database tables
-auth.shotwiki(resolve = False)
 
 # The table 'event_type' allows the admin to add new classes of events.
 shotdb.define_table('event_type',
@@ -112,18 +99,18 @@ shotdb.define_table('person',
 shotdb.define_table('sale',
                     
     # relation to the sale event
-    Field('event', shotdb.event),
+    Field('event',          shotdb.event),
                         
     # relation to the person
-    Field('person', shotdb.person),
+    Field('person',         shotdb.person),
     
     # the sale number          
-    Field('number',             'integer',  label = T('number')),
+    Field('number',         'integer',  label = T('number')),
     
     # This shall ensure that the combination of event and number is unique on database level.
     # Note: The unique attribute must be present already when the sqlite database file is created. Otherwise it will not take effect!
     # Apparently it cannot be changed later on.
-    Field('number_unikey',      'string',  length=255, unique = True, compute=lambda r: str(r['event']) + ':' + str(r['number'])),  
+    Field('number_unikey',   'string',  length=255, unique = True, compute=lambda r: str(r['event']) + ':' + str(r['number'])),  
     
     # define how a record is represented if referenced from other tables
     format='%(number)s (sale id %(id)s)'
@@ -135,10 +122,10 @@ shotdb.define_table('sale',
 shotdb.define_table('wait',
                     
     # relation to the sale event
-    Field('event', shotdb.event),
+    Field('event',          shotdb.event),
                         
     # relation to the person
-    Field('person', shotdb.person),
+    Field('person',         shotdb.person),
     
     # information whether or not a denial mail has been sent
     Field('denial_sent',    'boolean'),
@@ -154,20 +141,23 @@ shotdb.define_table('shift',
     Field('event', shotdb.event),
     
     # a short description of the activity which will appear in the registration form
-    Field('activity',   'string'),
+    Field('activity',       'string'),
     
     # a comment on the activity which will appear in the registration form
-    Field('comment',   'text'),
+    Field('comment',        'text'),
     
     # time and duration of the shift
-    Field('day',        'string'),
-    Field('time',       'string'),
+    Field('day',            'string'),
+    Field('time',           'string'),
+    
+    # public or for team members only
+    Field('scope',           'string',  requires = IS_IN_SET(config.shift_scopes, zero = 'Please select a scope.')),
     
     # How many helper are required for this shift?
-    Field('target_number', 'integer'),
+    Field('target_number',  'integer'),
     
     # display property is used to sort and arrange the shifts in the sale form view
-    Field('display',    'string'),
+    Field('display',        'string'),
     
     # define how a record is represented if referenced from other tables
     format='(%(event)s) %(activity)s, %(day)s, %(time)s'
@@ -275,8 +265,29 @@ shotdb.define_table('config',
 ) # end of config
 
 
+# Create all tables required for authentication and the wiki
+auth = ShotAuth(shotdb, controller = "access", function = "user")
+
+# Add custom columns
+auth.settings.extra_fields['auth_user']= [
+  Field('person',            shotdb.person),
+  Field('sale_numbers',     'list:integer')
+]
+
+auth.define_tables(username = True, signature = True)
+auth.settings.create_user_groups = None
+auth.settings.manager_actions = dict(db_admin=dict(role='admin', heading='Manage Database',tables = shotdb.tables))
+
+# This error message is deliberately defined here and not in controller access
+auth.messages.access_denied = 'Zugriff verweigert!' 
+
+
+# define the wiki database tables
+auth.shotwiki(resolve = False)
+
+
 # perform update of the configuration parameters
 config.update(shotdb)
 
 # version number for static assets
-response.static_version = '0.0.5'
+response.static_version = '0.0.6'
