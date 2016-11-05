@@ -1300,7 +1300,7 @@ class Persons():
         for r1 in rows:            
             for r2 in rows:
                 if r1.id != r2.id:
-                    if ((r1.name == r2.name and r1.forename == r2.forename) or (r1.name == r2.forename and r1.forename == r2.name)) and (r1.place == r1.place):
+                    if ((r1.name == r2.name and r1.forename == r2.forename) or (r1.name == r2.forename and r1.forename == r2.name)) and (r1.place == r2.place):
                         ids.extend([r1.id, r2.id])
         rows = self.db(self.db.person.id.belongs(ids)).select(self.db.person.id, self.db.person.name, self.db.person.forename, self.db.person.place,
                                                               self.db.person.email, self.db.person.street, self.db.person.house_number, self.db.person.telephone, 

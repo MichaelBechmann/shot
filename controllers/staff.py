@@ -182,7 +182,7 @@ def person_summary():
         data        = None
         mailform    = None
         
-    session.crud = Storage(return_page = 'person_summary', fix_ref_id = dict(person = pid, event = p.events.current.event.id))
+    session.crud = Storage(return_page = 'person_summary', fix_ref_id = dict(event = p.events.current.event.id))
 
     return dict(form = form, mailform = mailform, name = name, info = info, log = log, data = data)
 
@@ -571,6 +571,10 @@ def __update_person_onvalidation(form):
     pid = int(request.get_vars['id'])
     pe = PersonEntry(shotdb, form.vars)
     
+    person_representation = '%s %s aus %s (ID %d)' % (form.vars.forename, form.vars.name, form.vars.place, pid)
+    form.deletemsg = 'Die Daten von %s wurden gelöscht.' % person_representation
+    form.record_deleted = None # This attribute must be created (used in onaccept function). Form is no storage object?
+    
     # check if id of any matching person entry is DIFFERENT from current crud person id:
     if pe.exists and pe.id != pid:
         msg = 'Diese Persondaten müssen eindeutig bleiben!'
@@ -585,8 +589,6 @@ def __update_person_onvalidation(form):
         
     else:
         # check if email changed
-        person_representation = '%s %s (%s)' % (form.vars.forename, form.vars.name, form.vars.place)
-        
         if pe.check_email_changed(pid, form):
             i = Ident()
             form.vars.code = i.getcode(form.vars.email)
@@ -600,10 +602,8 @@ def __update_person_onvalidation(form):
                                 
         # These messages must be forwarded to the onaccept function below. Any flash message set by this onvalidation function will be replaced with the crud standard message!                        
         form.updatemsg = msg
-        form.deletemsg = 'Die Daten von %s wurden gelöscht.' % person_representation
-        form.record_deleted = None # This attribute must be created (used in onaccept function). Form is no storage object?
         
-
+        
 def __update_person_ondelete(form):
     # This function is  called before the onaccept function below.
     form.record_deleted = True
