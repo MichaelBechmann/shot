@@ -369,9 +369,12 @@ class Numbers():
         self.previous_eid = e.previous_id(self.eid)
         self.event_type = e.type(self.eid)
         
+        self.limit = self.event.numbers_limit
+        
         self.team = Team(db)
         
         self._number_of_assigned = None
+        
         
     def assigned(self, eid = 0):
         '''
@@ -1152,31 +1155,44 @@ class WaitList():
     def status_text(self, pid):
         '''
         This method analyses the current position of a person on the wait list and the still open shifts.
-        It returns a status corresponding message for the sale form and e-mails.
+        It returns a corresponding status message for the sale form and e-mails.
         '''
         if pid != None and NumberAssignment(self.db, pid).get_number(self.eid) > 0:
             return 'Sie haben bereits eine Kommissionsnummer für den kommenden Markt.'
         
-        n = Contributions(self.db, self.eid).get_number_of_shifts(scope = 'public')
-
+        n_open_shifts = Contributions(self.db, self.eid).get_number_of_shifts(scope = 'public')['open']
+        if n_open_shifts > 0:
+            b_shifts_available = True
+        else:
+            b_shifts_available = False
+            
         # determine or prognost position on the wait list
         pos = self.get_pos_current(pid)
         if pos == 0:
             pos = self.length() + 1
         
-        x  = Numbers(self.db, self.eid).number_of_available() - pos - n['open']
+        numbers = Numbers(self.db, self.eid)
+        x  = numbers.number_of_available() - n_open_shifts - pos
         
-        if x > 15:
+        if x > 10*numbers.limit/100: # > 10% of all numbers still free
             msg = 'Es sind noch genügend Kommissionsnummern frei. Sie werden sicher eine Nummer erhalten, sobald unsere Warteliste aufgelöst wird.'
         elif x >= 0:
-            msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen.' #Ob Sie dann eine Nummer erhalten, hängt davon ab, wie viele Helfer wir noch gewinnen können.' # Um ganz sicher eine Nummer zu erhalten, tragen Sie sich für eine Helferschicht ein.'
-        elif x >= -10:
-            msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine über die Warteliste erhalten, ohne zu helfen.'
+            if b_shifts_available:
+                msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen. Ob Sie dann eine Nummer erhalten, hängt davon ab, wie viele Helfer wir noch gewinnen können. Um ganz sicher eine Nummer zu erhalten, tragen Sie sich für eine Helferschicht ein.'
+            else:
+                msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen.'
+        elif x >= -20*numbers.limit/100: 
+            if b_shifts_available:
+                msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Sie können sich aber gerne auf die Warteliste setzen. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine erhalten, ohne zu helfen.'
+            else:
+                msg = 'Es sind derzeit keine Kommissionsnummern mehr verfügbar. Sie können sich aber gerne auf die Warteliste setzen. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine erhalten.'
         else:
-            msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Unsere Warteliste ist auch schon so lang, daß Sie ohne zu helfen sicher keine Nummer mehr erhalten werden.'
+            if b_shifts_available:
+                msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Unsere Warteliste ist auch schon so lang, daß Sie ohne zu helfen sicher keine Nummer mehr erhalten werden.'
+            else:
+                msg = 'Es sind keine Kommissionsnummern mehr verfügbar. Unsere Warteliste ist auch schon so lang, daß Sie sicher keine Nummer mehr erhalten werden.'
         
         return msg
-    
             
 class WaitListPos():
     '''
