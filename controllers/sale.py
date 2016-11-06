@@ -29,11 +29,11 @@ def __validateform(form):
     This validation function checks whether or not at least one of the help shift checkbox fields has been checked.
     Notes on donations are regularized.
     '''
-    sale = Sale()
+    sale = form.sale
     sale.analyzecheckboxes(form.vars)
     if not (sale.b_does_help or sale.b_wants_sale_number or sale.b_does_donate):
         form.errors.msg = 'Sie haben angegeben, daß Sie weder eine Kommissionsnummer haben möchten noch helfen oder Kuchen spenden möchten. Bitte wählen Sie etwas aus!'
-    elif not sale.b_does_help and not sale.b_cannot_help and sale.b_wants_sale_number:
+    elif sale.b_open_shifts_available and not sale.b_does_help and not sale.b_cannot_help and sale.b_wants_sale_number:
         form.errors.msg = 'Sie haben sich für keine Helferschicht eingetragen. Bitte bestätigen Sie, daß Sie nicht helfen können.'
     elif sale.b_does_help and sale.b_cannot_help:
         form.errors.msg = 'Sie haben widersprüchliche Angaben gemacht! Bitte tragen Sie sich entweder für eine Helferschicht ein oder markieren Sie, daß Sie nicht helfen können.'
@@ -104,8 +104,11 @@ def form():
     
     formelements.append(DIV(elem_sale_number, elem_status,  _id = config.cssid.salenumber))
     
-    formelements.append(TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.no_contrib), 'Ich kann leider keine Helferschicht übernehmen.'), _id = config.cssid.nocontrib))
+    # check box 'I cannot help'; display only if there are still oen shifts to choose from
+    if sale.b_open_shifts_available:
+        formelements.append(TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.no_contrib), 'Ich kann keine Helferschicht übernehmen.'), _id = config.cssid.nocontrib))
     formelements.extend([BR(), BR()])
+    
     # all shifts related to the current event
     formelements.append(DIV('Ich kann folgende Helferschicht(en) übernehmen:', _class = config.cssclass.contribheading))
 
@@ -120,7 +123,7 @@ def form():
         if d not in groupheads:
             groupheads[d] = shift.timelabel
         elif session.form_passive and (groupheads[d] != shift.timelabel):
-            # The shift grouped together have different times => notify admin
+            # The shifts grouped together have different times => notify admin
             ce.append(SPAN(T('check times!!'), _class = config.cssclass.configwarn))
 
         if d in groups:
@@ -178,6 +181,7 @@ def form():
         if session.sale_vars:
             form.vars = session.sale_vars
         
+        form.sale = sale
         if form.validate(onvalidation = __validateform):
             session.sale_vars = form.vars
             redirect(URL('confirm'))
@@ -211,8 +215,8 @@ def confirm():
         if(s.comment != None and s.comment != ''):
             de.append(TR('', TD('('+s.comment+')'), _class = config.cssclass.shiftcomment))
     
-    if sale.b_cannot_help:
-        de.append(TR('', TD('Ich kann leider keine Helferschicht übernehmen.')))
+    if not sale.b_does_help:
+        de.append(TR('', TD('Ich übernehme keine Helferschicht.')))
         
     for d in sale.getcheckeddonations():
         out =  d.item
@@ -220,14 +224,14 @@ def confirm():
             out += ' (' + d.note + ')'
         de.append(TR('Das bringe ich mit:', out))
     
-    if sale.b_cannot_donate:
-        de.append(TR('', TD('Ich kann leider nichts für das Café spenden.')))
+    if not sale.b_does_donate:
+        de.append(TR('', TD('Ich bringe für das Café nichts mit.')))
 
     
     if session.sale_vars[config.formname.person_message]:
         de.append(TR('Meine Nachricht:', session.sale_vars[config.formname.person_message]))
     
-    if not sale.b_cannot_help:
+    if sale.b_does_help:
         de.append(TR(STRONG('Unser Hinweis:'), auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text')))
     
     
@@ -294,7 +298,11 @@ class Sale():
         self.currentevent_id = e.current.event.id
         
         self.contrib = Contributions(shotdb, self.currentevent_id)
-        
+        if self.contrib.get_number_of_shifts(self.shift_scope)['open'] > 0:
+            self.b_open_shifts_available = True
+        else:
+            self.b_open_shifts_available = False
+            
         self.person_name = 'anonymous'
         
         rows = shotdb(shotdb.person.id == self.pid).select()
@@ -401,10 +409,8 @@ class Sale():
         '''
         dids = self.donations_checked.keys() # donation ids
         rows = shotdb(shotdb.donation.id.belongs(dids)).select()
-        self.b_cannot_donate = True
         for r in rows:
             r.note = self.donations_checked[r.id]
-            self.b_cannot_donate = False
             
         return rows
 

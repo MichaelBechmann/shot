@@ -275,7 +275,7 @@ class ShotMail(EMail):
             helpersaletext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-sale-text')
             
         else:
-            helptext = DIV('Sie können keine Helferschicht übernehmen.')
+            helptext = DIV('Sie haben keine Helferschicht übernommen.')
             helpergeneraltext = ''
             helpersaletext = ''
             
@@ -315,7 +315,7 @@ class ShotMail(EMail):
             if self.events.current.event.email_bring_request:
                 bringtext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-bring-request')
             else:
-                bringtext = DIV('Sie möchten keinen Kuchen für das Cafe mitbringen.')
+                bringtext = DIV('Sie werden keinen Kuchen für das Cafe mitbringen.')
         
         # add waffle recipe
         if b_add_recipe:
