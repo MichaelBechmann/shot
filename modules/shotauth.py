@@ -65,13 +65,12 @@ class ShotAuth(Auth):
         '''
         This method determines and returns the most recent existing lost-and-found slug, i.e., the one with the highest event number.
         '''
-        
-        for id in range(Events(self.db).current.event.id, 0, -1):
-            slug = 'lost-and-found-event-%d' % id
-            if self.wiki(slug):
+        for id_ in range(Events(self.db).current.event.id, 0, -1):
+            slug = 'lost-and-found-event-%d' % id_
+            if self.db.wiki_page(slug = slug):
                 break
             else:
                 slug = None
-        
+                
         return slug
         

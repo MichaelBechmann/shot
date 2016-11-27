@@ -69,7 +69,7 @@ def wiki():
 def wiki_snippet():
     slug = request.args(0)
     if slug:
-        return auth.get_shotwiki_page(slug, False)
+        return auth.get_shotwiki_page(slug, template_set = False)
     else:
         return 'Bitte verwenden Sie einen gültigen slug: @{component:main/wiki_snippet/the_slug}'
 
@@ -96,8 +96,5 @@ def lost_and_found():
     if slug:
         redirect(URLWiki(slug))
     else:
-        raise ShotErrorInvalidPage('most recent lost-and-found page')
+        raise ShotErrorInvalidPage('The current lost-and-found page could not be determined!')
     
-    
-    
-

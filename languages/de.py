@@ -244,6 +244,7 @@
 'Please choose.': 'Bitte wählen Sie',
 'Please enter a date string, e.g., "Samstag, den 24. August 2013".': 'Please enter a date string, e.g., "Samstag, den 24. August 2013".',
 'Please enter a date string, e.g., "Samstag, den 28. September 2013".': 'Please enter a date string, e.g., "Samstag, den 28. September 2013".',
+'Please enter a time string, e.g., "9 - 12:30 Uhr".': 'Please enter a time string, e.g., "9 - 12:30 Uhr".',
 'Please enter a valid zip code.': 'Bitte geben Sie eine gültige Postleitzahl ein.',
 'Please enter pairs of numbers, like 200-250; 300-350.': 'Please enter pairs of numbers, like 200-250; 300-350.',
 'Please enter the street name.': 'Bitte geben Sie den Straßennamen an.',
