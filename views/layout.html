@@ -24,13 +24,13 @@
   <!--  <meta name="viewport" content="width=device-width, initial-scale=1.0"/> -->
   
  </head>
+ {{from shotmenu import *}}
  <body>
    <div id="header">
      <h1>
-      Secondhand Ottersweier
+        {{= A('Secondhand Ottersweier', _href=URLWiki('start'))}}
      </h1>
    </div>
-{{from shotmenu import *}}
 {{=createMenu(auth)}}
 {{
     if 'wiki_ctrl' not in response._vars:
