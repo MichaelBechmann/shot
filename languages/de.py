@@ -329,6 +329,7 @@
 'Timestamp': 'Timestamp',
 'Title': 'Title',
 'too short': 'too short',
+'Too short': 'Too short',
 'Trainingsanzüge': 'Trainingsanzüge',
 'Trainingsjacken': 'Trainingsjacken',
 'Trikots': 'Trikots',

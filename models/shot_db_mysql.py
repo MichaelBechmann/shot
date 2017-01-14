@@ -289,5 +289,11 @@ auth.shotwiki(resolve = False)
 # perform update of the configuration parameters
 config.update(shotdb)
 
+# important: hide dropdown with persons from team registration from!
+shotdb.auth_user['person'].readable = False
+shotdb.auth_user['person'].writable = False
+shotdb.auth_user['sale_numbers'].readable = False
+shotdb.auth_user['sale_numbers'].writable = False
+
 # version number for static assets
 response.static_version = '0.0.6'

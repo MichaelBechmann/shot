@@ -51,6 +51,7 @@ def user():
     return dict(form=auth())
 
 def msg():
+    response.flash_custom_display = True
     return dict()
 
 @auth.requires_login()
