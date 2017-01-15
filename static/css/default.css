@@ -78,7 +78,7 @@ h4{
 }
 
 
-p, table.intext {
+p, table.intext{
     font-size: 1.2em;
     margin: 0 0 1em 0;
     line-height: 180%;
@@ -106,7 +106,7 @@ a.intext {
     border-bottom:2px dotted; 
 }
 
-a.intext:hover, p a:hover {
+a.intext:hover, p a:hover, table.flyer a:hover {
     color: #118111;
 }
 

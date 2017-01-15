@@ -111,3 +111,20 @@ table.ctblconfdat td{
 .cactnh {
     color:green;
 }
+
+
+/* flyer table styles */
+table.flyer img{
+	border-style: solid;
+	border-width: 2px;
+}
+
+table.flyer td{
+	font: 13px "Trebuchet MS", Arial, Helvetica, sans-serif;
+	padding: 0 40 0 40px;
+}
+
+table.flyer td div{
+	font-size: 1.2em;
+    text-align: center;
+}
