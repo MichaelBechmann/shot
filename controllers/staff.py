@@ -108,7 +108,7 @@ def person_summary():
                             if col == 'numbers':
                                 elems.append(DIV('prediction: %d' % (NumberAssignment(shotdb, pid).determine_number()), _id = 'ps_prediction'))
 
-                            elems.append(A('+', _href = URL('crud', args = [table, 'add'], vars = dict(eid = ed['eid'])), _class = 'ps_add_link'))
+                            elems.append(A('+', _href = URL('crud', args = [table, 'add'], vars = dict(eid = ed['eid'], pid = p.record.id)), _class = 'ps_add_link'))
                             
                         # evaluate email action flags
                         if len(ed['shifts']) > 0 or len(ed['donations']) > 0:
@@ -620,7 +620,8 @@ def crud():
     
     tablename = request.args(0)
     action = request.args(1)
-    event_id = request.get_vars['eid']
+    event_id  = request.get_vars['eid']
+    person_id = request.get_vars['pid']
     record_id = request.get_vars['id']
     
     if session.crud and session.crud.return_page:
@@ -664,7 +665,10 @@ def crud():
         crud.messages.record_updated = None
         crud.messages.record_deleted = 'Der Datenbankeintrag wurde gelöscht.'
     
-    if(action == 'add'):            
+    if(action == 'add'):
+        if person_id:
+            shotdb[tablename]['person'].default = person_id
+            shotdb[tablename]['person'].writable = False
         crud_response = crud.create(tablename)
     elif(action == 'edit' and record_id != None):
         crud_response = crud.update(tablename, record_id)

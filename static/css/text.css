@@ -19,13 +19,13 @@ color: #20C020;
     font-weight: bold;
     margin:  0 0 1em 0;
     color: #000000;
-    line-height:1.4;
-    font-size: 1.4em;
+    line-height:1.2em;
+    font-size: 1.2em;
 }
 
 #tbl_enrol_dates{
     font-size: 1.2em;
-    line-height:1.6;
+    line-height:1.2em;
 }
 
 #enrol_date {
