@@ -253,6 +253,7 @@ def confirm():
     elif 'submit send' in request.vars:
         # Add the sale information to the database and send mail:
         # Add submitted information to database record.
+        
         sale.setdbentries()
         
         # prevent multiple database entries
@@ -428,7 +429,7 @@ class Sale():
             
         # message
         if self.vars[config.formname.person_message] != '':
-            shotdb.message.insert(event = self.currentevent_id, person = self.pid, text = self.vars[config.formname.person_message])
+            shotdb.message.update_or_insert(event = self.currentevent_id, person = self.pid, text = self.vars[config.formname.person_message])
         
         
         # sale numbers
