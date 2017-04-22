@@ -3,6 +3,9 @@
 
 {{extend 'layout.html'}}
 
+{{from shotconfig import config}}
+{{from formutils import Progress}}
+
 <h3>Anmeldung zum {{response.write(announcement)}}</h3>
 
 {{=auth.get_shotwiki_page(slug_base = 'sale-form-explanation')}}
@@ -16,3 +19,6 @@ if form.errors.msg != None:
     
 response.write(form)
 }}
+
+{{p = Progress(config.progress.registration_sale, 4)}}
+{{=p.getProgressBar()}}

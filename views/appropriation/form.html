@@ -1,5 +1,9 @@
 {{extend 'layout.html'}}
+{{from formutils import Progress}}
 <h3>
 Bitte füllen Sie das Antragsformular vollständig und gewissenhaft aus.
 </h3>
-{{response.write(form)}}
+{{=form}}
+
+{{p = Progress(config.progress.appropriation, 1)}}
+{{=p.getProgressBar()}}

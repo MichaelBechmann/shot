@@ -1,3 +1,10 @@
 {{extend 'layout.html'}}
+{{from shotconfig import config}}
+{{from formutils import Progress}}
+
 {{=auth.wiki(slug='registration-comment-form')}}
+
 {{=form}}
+
+{{p = Progress(config.progress.registration_sale, 1)}}
+{{=p.getProgressBar()}}

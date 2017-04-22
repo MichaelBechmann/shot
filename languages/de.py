@@ -128,6 +128,7 @@
 'Frühjahr 2013': 'Frühjahr 2013',
 'Frühjahr 2014': 'Frühjahr 2014',
 'Frühjahr 2015': 'Frühjahr 2015',
+'Frühjahrsmarkt 2017': 'Frühjahrsmarkt 2017',
 'Frühlingsmarkt 2015': 'Frühlingsmarkt 2015',
 'Fußballschuhe': 'Fußballschuhe',
 'FVO': 'FVO',
@@ -141,6 +142,7 @@
 'Group ID': 'Group ID',
 'Group uniquely assigned to user %(id)s': 'Group uniquely assigned to user %(id)s',
 'Groups': 'Groups',
+'Handzettel': 'Handzettel',
 'Help': 'Help',
 'Herbst 2012': 'Herbst 2012',
 'Herbst 2013': 'Herbst 2013',
@@ -388,4 +390,5 @@
 'Your username is: %(username)s': 'Your username is: %(username)s',
 'zip code': 'PLZ',
 'Zugriff verweigert!': 'Zugriff verweigert!',
+'Zwillingsmarkt': 'Zwillingsmarkt',
 }

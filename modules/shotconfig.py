@@ -58,6 +58,10 @@ class ConfigurationConstants:
     class ConfigMsgClass:
         pass
     msg = ConfigMsgClass()
+    
+    class ConfigProgress:
+        pass
+    progress = ConfigProgress()
    
     pass
 
@@ -153,7 +157,28 @@ config.cssclass.configwarn      = 'ccnfwarn'
 config.cssclass.tggl            = 'ctggl'
 config.cssclass.tggltrig        = 'ctggltrig'
 
+config.cssclass.progressbar     = 'cprogressbar'
+config.cssclass.progresslabel   = 'cprogresslabel'
+config.cssclass.progresssteps   = 'cprogresssteps'
+config.cssclass.progressdone    = 'cprogressdone'
+config.cssclass.progressmissing = 'cprogressmissing'
+config.cssclass.progresscurrent = 'cprogresscurrent'
+
 config.msg.wait                 = 'The processing of your data takes some time. Please be patient ...'
+
+
+
+config.progress.registration_sale = {'label': 'Ihr Gesamtfortschritt bei der Anmeldung',
+                                     'steps': ['Registrierungsformular ausfüllen',
+                                               'Registrierung überprüfen und absenden',
+                                               'E-Mail-Adresse verifizieren',
+                                               'Anmeldeformular zum Markt ausfüllen',
+                                               'Anmeldung zum Markt überprüfen und absenden']
+                                     }
+config.progress.appropriation     = {'label': 'Ihr Fortschritt',
+                                     'steps': ['Antragsformular ausfüllen',
+                                               'Antrag überprüfen und absenden']
+                                     }
 
 
 

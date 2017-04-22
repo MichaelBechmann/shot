@@ -132,4 +132,33 @@ class TableUtils():
         self.state_evenodd = 0
         
         
+class Progress():
+    '''
+    This class provides methods to generate progress bars for all multi-page forms.
+    '''
+    def __init__(self, bardata, current_step):
+        self.label        = bardata['label']
+        self.steplist     = bardata['steps']
+        self.current_step = current_step
+        self.bar          = None
+        
+    def getProgressBar(self):
+        if not self.bar:
+            elements = []
+            step = 0
+            for element in self.steplist:
+                step += 1
+                if step < self.current_step:
+                    c = config.cssclass.progressdone
+                elif step == self.current_step:
+                    c = config.cssclass.progresscurrent
+                else:
+                    c = config.cssclass.progressmissing
+                elements.append(DIV(SPAN('%d. %s' % (step, element)), _class = c))
+                
+            self.bar = DIV(DIV(SPAN(self.label), _class = config.cssclass.progresslabel),
+                           DIV(*elements, _class = config.cssclass.progresssteps),
+                           _class = config.cssclass.progressbar)
+        
+        return self.bar
         

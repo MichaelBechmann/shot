@@ -1,0 +1,9 @@
+{{extend 'layout.html'}}
+
+{{from shotconfig import config}}
+{{from formutils import Progress}}
+
+{{=auth.wiki(slug='registration-final')}}
+
+{{p = Progress(config.progress.registration_sale, 3)}}
+{{=p.getProgressBar()}}

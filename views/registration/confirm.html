@@ -1,6 +1,12 @@
 {{response.files.append(URL('static','js/confirm.js'))}}
 {{extend 'layout.html'}}
 
+{{from shotconfig import config}}
+{{from formutils import Progress}}
+
 {{=H3('Bitte prüfen Sie Ihre Angaben noch einmal. Absenden nicht vergessen!')}}
 {{=data}}
 {{=form}}
+
+{{p = Progress(config.progress.registration_sale, 2)}}
+{{=p.getProgressBar()}}

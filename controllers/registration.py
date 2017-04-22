@@ -112,7 +112,7 @@ def confirm():
             session.registration_person_id = None
             shotdb.commit()
             RegistrationMail(auth, pe.id).send()
-            nextpage = URLWiki('registration-final')
+            nextpage = URL('registration', 'final')
             
         else:
             # person is not known yet.
@@ -120,12 +120,14 @@ def confirm():
             session.registration_person_id = None
             shotdb.commit()
             RegistrationMail(auth, pe.id).send()
-            nextpage = URLWiki('registration-final')
+            nextpage = URL('registration', 'final')
         
         redirect(nextpage)
 
     return(dict(data = data, form = form))
 
+def final():
+    return dict()
 
 def check():
     # check if registration is enabled
@@ -148,10 +150,9 @@ def check():
             del session[k]
             
         session.registration_person_id = i.id
-        redirect(URLWiki('registration-email-cofirmed'))
+        redirect(URLWiki('registration-email-confirmed'))
    
     redirect(URLWiki('registration-check-error'))
-
 
 def disable_mail(): 
     # This function is called from a dedicated personal link in e-mails.

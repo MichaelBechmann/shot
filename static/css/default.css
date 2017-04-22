@@ -380,3 +380,47 @@ h2.debug{
 div.w2p_wiki_tags {
     display: none;
 }
+
+/* progress bar */
+div.cprogressbar {
+	width: 100%;
+}
+
+div.cprogresslabel{
+	text-align: center;
+	margin: 0.4em;
+}
+
+div.cprogresssteps{
+	display: table;
+	width: 100%;
+	table-layout: fixed;
+	border-collapse: separate;
+    border-spacing: 3px 0;
+}
+
+div.cprogresssteps div{
+	display: table-cell;
+	border-radius: 6px;
+	padding: 2px;
+	text-align: center;
+	vertical-align: middle;
+	line-height: 105%;
+}
+
+div.cprogresscurrent {
+    background: #d9edff;
+    font-weight: bold;
+    border: 1px solid #339eff;
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 4px #339eff;
+}
+
+div.cprogressdone{
+	background: #d4f9d4;
+	border: 1px solid rgba(21, 165, 21, 0.8);
+}
+
+div.cprogressmissing{
+    background: #e6e6e6;
+    border: 1px solid #626262;
+}

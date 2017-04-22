@@ -1,5 +1,6 @@
 {{response.files.append(URL('static','js/confirm.js'))}}
 {{extend 'layout.html'}}
+{{from formutils import Progress}}
 
 
 <h3>
@@ -9,11 +10,14 @@ Bitte überprüfen und bestätigen Sie Ihre Daten.
 <h4>
 Ihre Angaben zur Kontaktperson:
 </h4>
-{{response.write(DIV(data_person))}}
+{{=DIV(data_person)}}
 
 <h4>
 Ihre Angaben zum Projekt:
 </h4>
-{{response.write(DIV(data_project))}}
+{{=DIV(data_project)}}
 
-{{response.write(form)}}
+{{=form}}
+
+{{p = Progress(config.progress.appropriation, 2)}}
+{{=p.getProgressBar()}}
