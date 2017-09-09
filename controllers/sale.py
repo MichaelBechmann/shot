@@ -146,7 +146,6 @@ def form():
     formelements.append(TABLE(*[TR(stblgroups[i], stblgroups[i+1], _class = config.cssclass.shifttblrow) for i in range(0, len(stblgroups), 2)], _id = config.cssid.contribtblshifts))
 
     # all donations related to the current event
-    formelements.append(DIV('Für das Café bringe ich folgendes mit (sofern ich eine Kommissionsnummer erhalte):', _class = config.cssclass.contribheading))
     de = []
     for donation in sale.getdonations():
         a = donation.actual_number
@@ -158,10 +157,13 @@ def form():
         if (a < t and donation.enable_notes):
             de.append(TR('', TABLE(TR(T('I bring this:'),      INPUT(_type = 'text', _name = donation.name_note)),
                                    TR(T('Others bring this:'), SPAN(*map(LI,donation.notes))                    ),
-                        _class = config.cssclass.contribnote),     _class = config.cssclass.tggl)    )
-          
-    formelements.append(TABLE(*de, _id = config.cssid.contribtbldons))
-
+                        _class = config.cssclass.contribnote),     _class = config.cssclass.tggl))
+            
+    if de:
+        formelements.append(DIV('Für das Café bringe ich folgendes mit (sofern ich eine Kommissionsnummer erhalte):', _class = config.cssclass.contribheading))
+        formelements.append(TABLE(*de, _id = config.cssid.contribtbldons))
+    
+    
     formelements.append(TABLE(TR(
                                  T('My message:'), TEXTAREA(_type = 'text', _name = config.formname.person_message, _cols = 50, _rows = 3),
                                  INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = 'Weiter')
@@ -357,8 +359,8 @@ class Sale():
         self.vars = vars
         self.shifts_checked    = []
         self.donations_checked = {}
-        self.b_does_help   = False
-        self.b_does_donate = False
+        self.b_does_help       = False
+        self.b_does_donate     = False
         # iterate through the dictionary 'vars' containing the form elements
         # for the form elements which have been checked => decode the database table and the id from the key
         p = re.compile('^([a-z]+)\$([0-9]+)$')
