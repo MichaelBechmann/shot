@@ -33,10 +33,10 @@ def start():
     
     form_rows = []
     if task_id == 'resolve_waitlist':
-        form_rows.extend([TR(INPUT(_type = 'radio', _name = 'option_helper_numbers', _value = 'keep', _checked = 'checked'),
+        form_rows.extend([TR(INPUT(_type = 'radio', _name = 'option_helper_numbers', _value = 'keep'),
                                     TD('Es sollen ausschließlich freie Nummern neu vergeben werden, d.h. Helfernummern sollen reserviert bleiben.')
                             ),
-                         TR(INPUT(_type = 'radio', _name = 'option_helper_numbers', _value = 'use'),
+                         TR(INPUT(_type = 'radio', _name = 'option_helper_numbers', _value = 'use', _checked = 'checked'),
                                     TD('Es können auch Helfernummern neu vergeben werden.')
                             ),
                           TR(INPUT(_type = 'text', _name = 'limit', requires = IS_EMPTY_OR(IS_INT_IN_RANGE(0, 10000, error_message = 'Das ist kein sinnvolles Limit!'))),

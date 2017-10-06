@@ -668,7 +668,7 @@ class NumberAssignment():
     def get_event_of_old_number_of_waitlist_persons(self, n):
         '''
         This special function returns the id of the latest event at which the sale number n belonged to the person on the waitlist.
-        This function requires a preceeding call of the function get_event_of_old_number_of_waitlist_persons().
+        This function requires a preceeding call of the function get_old_numbers_of_wait_list_persons().
         '''
         if n in self.event_of_old_number_of_waitlist_person:
             eid = self.event_of_old_number_of_waitlist_person[n]
@@ -690,30 +690,44 @@ class NumberAssignment():
         note possible conflict: Who helped at the previous event will get ones old number even if one did not have a number at the previous event.
         
         For the determination of the sale number the following rules are applied:
-        0)  If the person is a team member => assign old number
-        0)  If there are no numbers available any more => assign 0
-        1)  If the old number of the person is not yet assigned and the person helped at the previous event => assign old number
-            It is possible that this old number is not in the range of configured numbers!
-        2)  If the old number of the person is not yet assigned and not a number of a helper from the previous event => assign old number
-        3)  If person has no old number or the old number is already assigned => assign one of the free numbers
-        4)  If there are free numbers which were not assigned at the previous event => choose one of those
-        5a) Option 'b_option_use_helper_numbers' == False: Assign numbers of helpers at the previous event not before all other free numbers (block/reserve previous helper numbers).
-        5b) Option 'b_option_use_helper_numbers' == True:  Helper numbers shall be used (usually when the wait list is resolved).
-        6) Assign old numbers of persons on the current wait list not before all other free numbers; then in reverse wait list order
-        '''
+        0a) If the person is a team member => assign old number
+        0b) If there are no numbers available any more => assign 0
         
+        If the person has an old number (i.e., was assigned a number at some event in the past, not necessarily the pervious one):
+        1)  Helper at the previous event: If the person had a number at the previous event and this old number of the person is not yet assigned
+            and the person helped at the previous event => assign old number
+            It is possible that this old number is not in the range of configured numbers!
+        2)  If the old number of the person is not yet assigned and it is not a number of a helper from the previous event
+            and no one on the current waitlist had this number more recently => assign old number
+            
+            
+        If person has no old number or the old number is already assigned => assign one of the free numbers:
+        3) Try to assign a number which is not the old number of a person on the waitlist and was not used at the previous event (thus it is not an old helper number).
+        4) Try to assign a number which is not the old number of a person on the waitlist  and is not an old number of a helper (other old numbers will now be assigned).
+        5) Try to assign a number which is not the old number of a person on the waitlist.
+        6) Finally assign the old numbers of the persons on the current wait list starting from the end of the wait list.
+        
+        Option 'b_option_use_helper_numbers' == False: Old numbers of helpers are blocked and will not be assigned..
+        Option 'b_option_use_helper_numbers' == True:  Helper numbers shall be used (usually when the wait list is resolved).
+
+        '''
+        # rule 0a: team member
         if self.team.IsMember(self.pid):
             on = self.get_old_number(self.pid)
             if on > 0:
                 return on
         
+        # rule 0b: no numbers left
         if self.numbers.b_numbers_available() == False:
             return 0
         
-        self.previousevent = self.e.previous_id()
+        
+        
+        # retrieve input data for the determination of the sale number
+        previous_eid = self.e.previous_id()
         
         # check whether or not the person helped at the previous event
-        query  = (self.db.shift.event == self.previousevent)
+        query  = (self.db.shift.event == previous_eid)
         query &= (self.db.help.shift == self.db.shift.id)
         query &= (self.db.help.person == self.pid)
         if len(self.db(query).select()) > 0:
@@ -725,59 +739,51 @@ class NumberAssignment():
         s_free = self.numbers.free()
         
         # get set of old helper numbers for multiple use in the following
-        s_ohn = self.numbers.helper(self.previousevent)
+        s_ohn = self.numbers.helper(previous_eid)
         
         # get list of numbers needed for the persons on the waitlist
         # note: this function has an important side effect: it creates a dictionary with the correlation number - latest event needed below
         onwl = self.get_old_numbers_of_wait_list_persons()
-
+        
         on, on_eid = self.get_old_number_with_event()
         
-        sn = 0
-        if (on > 0 and on not in self.numbers.assigned()):
-            if (self.b_helped_previous_event):
-                sn = on
+        
+        
+        # person has an old number
+        if (on > 0  and on not in self.numbers.assigned()):
+            if (self.b_helped_previous_event and on_eid == previous_eid):
+                # rule 1: old number from previous event is free and person helped at the previous event
+                return on
             elif on not in s_ohn or self.b_option_use_helper_numbers:
-                # get latest event this number was given to person on the waitlist
+                # get latest event this number was given to some person on the waitlist
                 owln_eid = self.get_event_of_old_number_of_waitlist_persons(on)
                 if on_eid >= owln_eid: # Must use operator >= because this person may well be on the waitlist herself!
-                    # There is no one on the waitlist who was given the same sale number more recently.
-                    sn = on
-
-        if sn == 0:
-            # check if there are free numbers which were not assigned at the previous event
-            s_free_and_free_previous = s_free & self.numbers.free_at_previous_event()
-            if len(s_free_and_free_previous) > 0:
-                s_current = s_free_and_free_previous
-            else:
-                if not self.b_option_use_helper_numbers:
-                    # get all free numbers which shall not be blocked for previous helpers
-                    s_ohn_removed = s_free - s_ohn
-                    if len(s_ohn_removed) > 0:
-                        s_current = s_ohn_removed
-                    else:
-                        s_current = s_free
-                else:
-                    s_current = s_free
-                
-            # take into account old numbers of persons on the wait list
-            s_onwl_removed = s_current - set(onwl)
-            
-            if len(s_onwl_removed) > 0:
-                # try to still keep old helper numbers
-                s_onwl_ohn_removed = s_onwl_removed - s_ohn
-                if len(s_onwl_ohn_removed) > 0:
-                    sn = min(s_onwl_ohn_removed)
-                else:
-                    sn = min(s_onwl_removed)
-            else:
-                # Set operations cannot be used here anymore because the order of old numbers of the wait list persons have to be taken into account!
-                for n in reversed(onwl):
-                    if n in s_current:
-                        sn = n
-                        break
+                    # rule 2: There is no one on the waitlist who was given the same sale number more recently.
+                    return on
         
-        return sn
+        # person has no free old number yet
+        # determine pool of possible numbers
+        if self.b_option_use_helper_numbers:
+            s_current = s_free
+        else:
+            s_current = s_free - s_ohn
+
+        s_try_last   = s_current  - set(onwl)                             # rule 5
+        s_try_second = s_try_last - s_ohn                                 # rule 4
+        s_try_first  = s_try_last & self.numbers.free_at_previous_event() # rule 3
+        
+        for s in [s_try_first, s_try_second, s_try_last]:
+            if len(s) > 0:
+                return min(s)
+        
+        # If we arrive here then there are only numbers left which are wanted by persons on the wait list.
+        # Set operations cannot be used here anymore because the order of old numbers of the wait list persons have to be taken into account!
+        for n in reversed(onwl):
+            if n in s_current:
+                return n
+        
+        # We should not arrive here!
+        return 0
     
     def _get_sale(self, eid = 0):
         '''
