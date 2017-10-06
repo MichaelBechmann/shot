@@ -17,9 +17,9 @@ class EMailAccount:
             self.port   = 465
             self.login, self.passwd, self.sender  = siteconfig.email_auth[account_id]
             if mass:
-                self.server = 'mass.selfhost.de'
+                self.server = siteconfig.email_server['mass']
             else:
-                self.server = 'mail.selfhost.de'
+                self.server = siteconfig.email_server['normal']
             
         elif account_id == 'fallback':
             self.server = 'smtp.web.de'
@@ -98,8 +98,8 @@ config.db_connection_string = siteconfig.db_connection_string
 config.db_backup_command = siteconfig.db_backup_command
 
 # bulk email error handling
-config.bulk_email_number_attempts = 200
-config.bulk_email_number_delay_next_attempt = 30 # seconds
+config.bulk_email_number_attempts = 10
+config.bulk_email_number_delay_next_attempt = 60 # seconds
 
 
 config.shoturl          = siteconfig.shoturl
