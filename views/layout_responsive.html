@@ -1,12 +1,14 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="shortcut icon" href="{{=URL('static','_%s/img/shot.ico' % response.static_version)}}" type="image/x-icon">
   
-  {{response.files.append(URL('static','css/default.css'))}}
+  {{response.files.append(URL('static','css/default_responsive.css'))}}
   {{response.files.append(URL('static','css/admin.css'))}}
   {{response.files.append(URL('static','css/text.css'))}}
   {{response.files.append(URL('static','css/list.css'))}}
+  {{response.files.append(URL('static','css/tiles.css'))}}
   
   {{response.files.insert(0, URL('static','js/jquery.js'))}}
   {{response.files.append(URL('static','js/jquery.ba-outside-events.min.js'))}}

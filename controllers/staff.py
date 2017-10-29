@@ -672,10 +672,12 @@ def crud():
         crud_response = crud.create(tablename)
     elif(action == 'edit' and record_id != None):
         crud_response = crud.update(tablename, record_id)
+    elif(action == 'view' and record_id != None):
+        crud_response = crud.read(tablename, record_id)
     else:
         crud_response = 'Nothing selected!'
     
-    return dict(crud_response = crud_response)
+    return dict(crud_response = crud_response, action = action)
 
 
 
@@ -801,5 +803,12 @@ class Filter():
         self.tabctrl = TableCtrlHead(self.tablename,
                                      addlinktext = 'Klicken Sie hier, um ein neues Element anzulegen.',
                                      sorttext    = 'Zum Sortieren klicken Sie auf den Spaltentitel.')
+
+
+@auth.requires_membership('team')
+def requests():
+    
+    rows = Requests(shotdb).GetAll(reverse = True)
+    return dict(rows = rows)
 
         

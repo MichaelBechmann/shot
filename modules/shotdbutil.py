@@ -1166,7 +1166,7 @@ class WaitList():
         if pid != None and NumberAssignment(self.db, pid).get_number(self.eid) > 0:
             return 'Sie haben bereits eine Kommissionsnummer für den kommenden Markt.'
         
-        n_open_shifts = Contributions(self.db, self.eid).get_number_of_shifts(scope = 'public')['open']
+        n_open_shifts = Contributions(self.db, self.eid).get_number_of_shifts()['open']
         if n_open_shifts > 0:
             b_shifts_available = True
         else:
@@ -1180,7 +1180,7 @@ class WaitList():
         numbers = Numbers(self.db, self.eid)
         x  = numbers.number_of_available() - n_open_shifts - pos
         
-        if x > 10*numbers.limit/100: # > 10% of all numbers still free
+        if x > 15*numbers.limit/100: # > 15% of all numbers still free
             msg = 'Es sind noch genügend Kommissionsnummern frei. Sie werden sicher eine Nummer erhalten, sobald unsere Warteliste aufgelöst wird.'
         elif x >= 0:
             if b_shifts_available:
@@ -1490,4 +1490,30 @@ class Team():
                 l.extend(row.sale_numbers)
         return l
         
+class Requests():
+    '''
+    This class contains code to retrieve the appropriation request data.
+    '''
+    
+    def __init__(self, db):
+        self.db = db
+        
+    def GetAll(self, reverse = False):
+        '''
+        This method returns a rows object of all request entries in reverse order, i.e., the latest entry at first position.
+        '''
+        query = self.db.request.id > 0
+        if reverse:
+            orderby = ~self.db.request.id
+        else:
+            orderby = self.db.request.id
+        rows = self.db(query).select(orderby = orderby)
+        
+        return rows
+    
+    
+    
+    
+    
+    
         

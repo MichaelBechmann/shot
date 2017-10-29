@@ -271,13 +271,15 @@ class ShotMail(EMail):
 
         if len(elem) > 0:
             helptext = DIV(SPAN('Sie haben sich bereit erklärt, hier zu helfen:'), BR(), TABLE(*elem))
-            helpergeneraltext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text')
-            helpersaletext = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-sale-text')
+            helpergeneraltext       = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text')
+            helpergeneraltext_email = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text-email-only')
+            helpersaletext          = self.auth.get_shotwiki_page(slug_base = 'email-snippet-helper-sale-text')
             
         else:
             helptext = DIV('Sie haben keine Helferschicht übernommen.')
-            helpergeneraltext = ''
-            helpersaletext = ''
+            helpergeneraltext       = ''
+            helpergeneraltext_email = ''
+            helpersaletext          = ''
             
         if b_helps_friday:
             instructionshelperfriday = self.auth.get_shotwiki_page(slug_base = 'email-snippet-instructions-helper-friday')
@@ -285,9 +287,10 @@ class ShotMail(EMail):
             instructionshelperfriday = ''
  
         self.subs['<PLACEHOLDER_HELP>'] = str(DIV(helptext, _class = 'block_contribution'))
-        self.subs['<PLACEHOLDER_HELPER_GENERAL_TEXT>'] = str(helpergeneraltext)
-        self.subs['<PLACEHOLDER_HELPER_SALE_TEXT>'] = str(helpersaletext)
-        self.subs['<PLACEHOLDER_INSTRUCTIONS_HELPER_FRIDAY>'] = str(instructionshelperfriday)
+        self.subs['<PLACEHOLDER_HELPER_GENERAL_TEXT>']            = str(helpergeneraltext)
+        self.subs['<PLACEHOLDER_HELPER_GENERAL_TEXT_EMAIL_ONLY>'] = str(helpergeneraltext_email)
+        self.subs['<PLACEHOLDER_HELPER_SALE_TEXT>']               = str(helpersaletext)
+        self.subs['<PLACEHOLDER_INSTRUCTIONS_HELPER_FRIDAY>']     = str(instructionshelperfriday)
         
         # retrieve bring information
         query  = (self.db.donation.event == self.events.current.event.id)        

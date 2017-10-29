@@ -1,0 +1,38 @@
+{{extend 'layout_responsive.html'}}
+
+
+
+{{
+tiles = []
+    for r in rows:
+    
+        amounts = [DIV('€ %d' % r.amount_requested,         _class = 'req_amount_req')]
+        if r.amount_spent:
+            amounts.append(DIV('bez. € %d' % r.amount_spent,        _class = 'req_amount_spent'))
+            pass
+    
+    
+        tile = DIV(TABLE(TR(
+                            TD(DIV(r.project,                           _class = 'req_project')),
+                            TD(DIV(*amounts,                           _class = 'req_amounts'))
+                         ),
+                                                                    _class = 'req_line_project'),
+                   
+                   TABLE(TBODY(TR(
+                            TD(DIV(r.organization,                      _class = 'req_org')),
+                            TD(DIV(r.date_of_receipt.split(' ')[0],     _class = 'req_date'))
+                         )),
+                                                                    _class = 'req_line_orga'),
+                   
+                   DIV(r.description,                               _class = 'req_descr'),
+                   DIV(A('Alle Details anzeigen', _href=URL('staff','crud', args =['request', 'view'], vars = dict(id = r.id))),
+                       A('Antrag bearbeiten',     _href=URL('staff','crud', args =['request', 'edit'], vars = dict(id = r.id))),
+                                                                    _class = 'req_req_line_bottom'),
+                   
+                   _class = 'tile')
+        tiles.append(tile)
+        pass
+}}
+    
+    
+{{=DIV(*tiles, _class = 'tilescollection')}}

@@ -47,7 +47,9 @@ def createStaffMenu(auth, wiki_ctrl = None):
         user_groups = auth.user_groups.values()
         
         if 'team' in user_groups:
-            menu.extend([['Dashboard',        False, URL('staff','dashboard')]])
+            menu.extend([['Dashboard',  False, URL('staff', 'dashboard')],
+                         ['Requests',    False, URL('staff', 'requests')]
+                         ])
         
         
         items_organize = []
