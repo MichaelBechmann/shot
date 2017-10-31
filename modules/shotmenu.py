@@ -51,18 +51,26 @@ def createStaffMenu(auth, wiki_ctrl = None):
                          ['Requests',    False, URL('staff', 'requests')]
                          ])
         
-        
-        items_organize = []
+        if 'team' in user_groups:
+            
+            if 'staff' in user_groups:
+                items_organize = [['Person summary',    False, URL('staff', 'person_summary')],
+                                  ['Number summary',    False, URL('staff', 'number_summary')]
+                                ]
+            else:
+                items_organize = []
+            
+            items_organize.extend([['Number status map', False, URL('staff', 'number_status_map')],
+                                   ['Manage help',       False, URL('staff', 'manage_help')],
+                                   ['Manage donations',  False, URL('staff', 'manage_donations')] 
+                                  ])
+            
+            menu.extend([['Organize', False, '', items_organize]
+                        ])
+            
+            
         if 'staff' in user_groups:
-            items_organize = [
-                              ['Person summary',    False, URL('staff', 'person_summary')],
-                              ['Number summary',    False, URL('staff', 'number_summary')],
-                              ['Number status map', False, URL('staff', 'number_status_map')],
-                              ['Manage help',       False, URL('staff', 'manage_help')],
-                              ['Manage donations',  False, URL('staff', 'manage_donations')] 
-                            ]
-            items_tables   = [
-                              ['Persons',   False, URLTable('person')],
+            items_tables   = [['Persons',   False, URLTable('person')],
                               ['Sale',      False, URLTable('sale')],
                               ['Wait',      False, URLTable('wait')],
                               ['Help',      False, URLTable('help')],
@@ -71,28 +79,14 @@ def createStaffMenu(auth, wiki_ctrl = None):
                               ['Donations', False, URLTable('donation')],
                               ['Messages',  False, URLTable('message')],
                               ['Requests',  False, URLTable('request')]
-                            ] 
-            
-        else:
-            items_organize = [
-                              ['Number status map', False, URL('staff', 'number_status_map')]
                             ]
-            
-            items_tables   = [
-                              ['Requests',  False, URLTable('request')]
-                            ]
-            
-            
-        
-        if 'staff' in user_groups or 'team' in user_groups:
-            menu.extend([['Organize', False, '', items_organize],
-                         ['Tables',   False, '', items_tables]
+            menu.extend([['Tables',   False, '', items_tables]
                         ])
 
-        if 'configurator' in auth.user_groups.values():
+        if 'configurator' in user_groups:
             menu.extend([['Config Event', False, URL('config','config_event')]])
             
-        if 'task executor' in auth.user_groups.values():
+        if 'task executor' in user_groups:
             menu.extend([['Tasks', False, '',
                           [['Einladungen senden',   False, URL('tasks', 'start', args = ['send_invitation'])],
                            ['Warteliste auflösen',  False, URL('tasks', 'start', args = ['resolve_waitlist'])],
@@ -103,7 +97,7 @@ def createStaffMenu(auth, wiki_ctrl = None):
                          ]
                         ])
 
-        if 'admin' in auth.user_groups.values():
+        if 'admin' in user_groups:
             menu.extend([['Admin', False, '',
                           [['Manage users',     False,  URL('admin_', 'manage_users')],
                            ['Configuration',    False,  URL('admin_', 'configuration')],
@@ -123,14 +117,13 @@ def createStaffMenu(auth, wiki_ctrl = None):
                     ])
         
         # wiki menue
-        
-        if 'wiki_editor' in auth.user_groups.values() or 'wiki_author' in auth.user_groups.values():
+        if 'wiki_editor' in user_groups or 'wiki_author' in user_groups:
             wiki_menu = [['Guidlines',    False, URL('main', 'wiki', args = ['wiki-guidelines'])],
                          ['Manage pages', False, URLWiki('_pages')],
                          ['Search tags',  False, URLWiki('_search')],
                         ]
             
-            if 'wiki_author' in auth.user_groups.values():
+            if 'wiki_author' in user_groups:
                 wiki_menu.append(['Create new page', False, URLWiki('_create')])
                 wiki_menu.append(['Edit the menu',   False, URLWiki(('_edit', 'wiki-menu'))])
             

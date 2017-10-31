@@ -280,7 +280,7 @@ def dashboard():
                 )
 
 
-@auth.requires_membership('staff')
+@auth.requires_membership('team')
 def manage_help():
     sef = SimpleEventForm()
     c = Contributions(shotdb, sef.event_id)
@@ -356,7 +356,7 @@ def manage_help():
     return dict(form = sef.form, table_stat = table_stat, table = table)
 
 
-@auth.requires_membership('staff')
+@auth.requires_membership('team')
 def manage_donations():
     sef = SimpleEventForm()
     c = Contributions(shotdb, sef.event_id)
@@ -809,6 +809,13 @@ class Filter():
 def requests():
     
     rows = Requests(shotdb).GetAll(reverse = True)
+    
+    return_page = 'requests'
+    if session.crud:
+        session.crud.return_page = return_page
+    else:
+        session.crud = Storage(return_page = return_page)
+        
     return dict(rows = rows)
 
         

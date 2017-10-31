@@ -223,6 +223,7 @@
 'Not an integer!': 'Not an integer!',
 'Not authorized': 'Not authorized',
 'not in': 'not in',
+'Not$authorized': 'Not$authorized',
 'number': 'Nummer',
 'Number ranges': 'Number ranges',
 'number ranges': 'number ranges',

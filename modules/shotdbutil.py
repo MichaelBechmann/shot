@@ -1365,7 +1365,7 @@ class User():
         query  = self.db.auth_membership.user_id == self.uid
         query &= self.db.auth_membership.group_id == self.db.auth_group.id
         
-        return self.db(query).select()
+        return self.db(query).select(orderby = self.db.auth_group.id)
 
 class Reminder():
     '''
