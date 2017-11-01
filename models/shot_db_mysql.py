@@ -251,7 +251,7 @@ shotdb.define_table('request',
     Field('description',        'text',     label = 'Projektbeschreibung',        requires = IS_NOT_EMPTY(error_message = 'Bitte beschreiben Sie Ihr Projekt kurz und begründen Sie Ihren Antrag.')),
     Field('date_of_receipt',    'string'    ),
     Field('comment',            'text'      ),
-    Field('amount_spent',       'integer',  requires = IS_INT_IN_RANGE(0, 1e100)),
+    Field('amount_spent',       'integer',  requires = IS_EMPTY_OR(IS_INT_IN_RANGE(0, 1e100))),
     Field('status',             'string'    )
     ) # end of request
 
@@ -296,4 +296,4 @@ shotdb.auth_user['sale_numbers'].readable = False
 shotdb.auth_user['sale_numbers'].writable = False
 
 # version number for static assets
-response.static_version = '0.0.9'
+response.static_version = '0.0.11'

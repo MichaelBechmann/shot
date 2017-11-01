@@ -1,11 +1,27 @@
-{{extend 'layout.html'}}
+{{
+if action in ['add', 'edit']:
+    b_modify_db = True
+    pass
+else:
+    b_modify_db = False
+    response.b_responsive = True
+    pass    
+}}
 
-{{if action in ['add', 'edit']:
-    response.write(H3('You are about to modify the authorization tables. Please be careful!'))
+{{extend 'layout.html'}}   
+
+{{if b_modify_db:
+    response.write(H3('You are about to modify the database. Please be careful!'))
     pass
   else:
-    response.write(H3('View the complete database record:'))
+    response.write(H3('Vollständiger Datenbankeintrag'))
     pass
 }}
 
 {{=crud_response}}
+
+{{
+if not b_modify_db:
+    response.write(A(DIV('Zurück zur Übersicht', _class = 'pseudo_button'), _href = return_page))
+    pass
+}}

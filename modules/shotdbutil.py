@@ -1512,8 +1512,4 @@ class Requests():
         return rows
     
     
-    
-    
-    
-    
         

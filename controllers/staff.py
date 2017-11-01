@@ -626,7 +626,8 @@ def crud():
     
     if session.crud and session.crud.return_page:
         return_page = URL(session.crud.return_page)
-        
+    elif tablename == 'request':
+        return_page = URL('requests')
     else:
         return_page = URL('table/' + tablename)
      
@@ -673,11 +674,14 @@ def crud():
     elif(action == 'edit' and record_id != None):
         crud_response = crud.update(tablename, record_id)
     elif(action == 'view' and record_id != None):
+        
+        crud.settings.formstyle='divs'
+        
         crud_response = crud.read(tablename, record_id)
     else:
         crud_response = 'Nothing selected!'
     
-    return dict(crud_response = crud_response, action = action)
+    return dict(crud_response = crud_response, action = action, return_page = return_page)
 
 
 
