@@ -1,20 +1,15 @@
-<<<<<<< Upstream, based on master
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
  <head>
-
+ 
   {{
-    if response.b_noindex:
-        response.write(META(_name="robots", _content="noindex, nofollow"))
-        pass
-
     if response.b_responsive:
         response.write(META(_name="viewport", _content="width=device-width, initial-scale=1"))
         pass
   }}
-
+ 
   <link rel="shortcut icon" href="{{=URL('static','_%s/img/shot.ico' % response.static_version)}}" type="image/x-icon">
-
+  
   {{
     if response.b_responsive:
         response.files.append(URL('static','css/default_responsive.css'))
@@ -28,21 +23,21 @@
   {{response.files.append(URL('static','css/admin.css'))}}
   {{response.files.append(URL('static','css/text.css'))}}
   {{response.files.append(URL('static','css/list.css'))}}
-
+  
   {{response.files.insert(0, URL('static','js/jquery.js'))}}
   {{response.files.append(URL('static','js/jquery.ba-outside-events.min.js'))}}
   {{response.files.append(URL('static','js/menu.js'))}}
   {{response.files.append(URL('static','js/list.js'))}}
   {{response.files.append(URL('static','js/dropdown_autosubmit.js'))}}
   {{response.files.append(URL('static','js/web2py.js'))}}
-
+  
   {{response.include_files()}}
-
+  
   <title>
    Secondhand Ottersweier
   </title>
-
-
+    
+  
  </head>
  {{from shotmenu import *}}
  <body>
@@ -72,19 +67,9 @@
     {{include}}
     {{include 'debug.html'}}
 </div>
-=======
-<!doctype html>
-<html class="no-js" lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secondhand Ottersweier</title>
->>>>>>> 7dc38ef intermediate
 
-<<<<<<< Upstream, based on master
    <div id="footer">
-    <p>
+    <p> 
         {{= A(T('Legal Details'), _href=URLWiki('impressum'))}}
         Powered by <a href="http://www.web2py.com/"> web2py</a>
         Design by  <a href="http://www.freecsstemplates.org/"> Free CSS Templates</a>
@@ -93,28 +78,3 @@
   </div>
  </body>
 </html>
-=======
-    {{
-        response.files.append(URL('static', 'css/shot.css'))
-        response.include_files()
-    }}
-
-  </head>
-  <body>
-
-    {{from shotmenu import *}}
-    {{=createMenu(auth)}}
-
-    {{include}}
-
-
-<!--
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/what-input/dist/what-input.js"></script>
-    <script src="bower_components/foundation-sites/dist/js/foundation.js"></script>
-    <script src="js/app.js"></script>
--->
-
-  </body>
-</html>
->>>>>>> 7dc38ef intermediate
