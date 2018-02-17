@@ -10,7 +10,7 @@ if 0:
     global auth
     global config
     global shotdb
-    
+
 from shotconfig import EMailAccount
 from shotdbutil import User
 from urlutils import URLWiki
@@ -58,11 +58,18 @@ def msg():
 def info():
     response.flash_custom_display = True
     u = User(shotdb, auth.user.id)
-        
+
     roles = SQLTABLE(u.get_groups(),
                      columns  = ('auth_group.role', 'auth_group.description'),
                      headers  = {'auth_group.role': 'Rolle', 'auth_group.description': 'Beschreibung'},
                      truncate = None,
                      _class   = 'list')
-    
-    return dict(name = auth.user.first_name, roles = roles)
+
+
+    emails =  SQLTABLE(u.get_email_subscriptions(),
+                    columns  = ('auth_email_type.name','auth_email_type.description'),
+                    headers  = {'auth_email_type.name': 'Typ', 'auth_email_type.description': 'Beschreibung'},
+                    truncate = None,
+                    _class = 'list')
+
+    return dict(name = auth.user.first_name, roles = roles, emails = emails)

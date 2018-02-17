@@ -5,7 +5,7 @@ creation: bechmann, Aug 21, 2013
 This module contains miscellaneous utility functions for the processing of forms
 '''
 
-from shotconfig import * 
+from shotconfig import *
 import re
 from gluon.html import *
 
@@ -27,7 +27,7 @@ def getActNumberRatio(a, t):
         c = config.cssclass.actnumbermed
     else:
         c = config.cssclass.actnumberhigh
-        
+
     return dict(ratio = r, _class = c)
 
 
@@ -36,20 +36,20 @@ def regularizeName(s):
     This function capitalizes strings like person names  in forms.
     Examples: testing/NameRegularization.py
     '''
-    
+
     # remove leading and trailing spaces
     reg = s.lstrip().rstrip()
-    
+
     for sep in (' ', '-'):
-        reg = re.sub('\s*' + sep + '\s*', sep, reg)  
-          
+        reg = re.sub('\s*' + sep + '\s*', sep, reg)
+
     exceptions = ('von' , 'der', 'van', 'de', 'du', 'e.V.')
 
     aux = []
     for part in reg.split(' '):
         aux.append('-'.join([x in exceptions and x or x.decode('utf-8').capitalize().encode('utf-8') for x in part.split('-')]))
     reg = ' '.join(aux)
-    
+
     return reg
 
 def regularizeFormInputPersonorm(form):
@@ -72,7 +72,7 @@ def getPersonDataTable(vars):
     This function generates a standard table with person data for the confirmation pages.
     Note: Translation doesn't work. Something is wrong with the includes ...
     '''
-    
+
     # construct display of data to be confirmed
     data_items = [
                    TR(TD('Ihr Name:', _class = 'label'), vars['forename'] + ' ' + vars['name']),
@@ -80,23 +80,33 @@ def getPersonDataTable(vars):
                    TR(TD('Ihre Telefonnummer:', _class = 'label'), vars['telephone']),
                    TR(TD('Ihre E-Mail-Adresse:', _class = 'label'), vars['email'])
                 ]
-        
+
     return  TABLE(*data_items, _class = config.cssclass.tblconfirmdata)
 
-def getAppRequestDataTale(vars):
+def getAppRequestDataTable(vars):
     data_items = [
                    TR(TD('Projektbezeichung:', _class = 'label'),         vars['project']),
                    TR(TD('Organisation:', _class = 'label'),              vars['organization']),
                    TR(TD(SPAN('Fördermittel:'),
-                         DIV(SPAN('Sie beantragen Fördermittel in Höhe von '), STRONG(str(vars['amount_requested']) + ' EUR '), 
+                         DIV(SPAN('Sie beantragen Fördermittel in Höhe von '), STRONG(str(vars['amount_requested']) + ' EUR '),
                              SPAN('bei Gesamtkosten des Projektes von %d EUR.' % vars['amount_total'])),
                             _colspan = 3, _class = 'fullrow')),
                    TR(TD(SPAN('Projektbeschreibung:'),
                          DIV(vars['description']), _colspan = 3, _class = 'fullrow'))
                 ]
-        
+
     return TABLE(*data_items, _class = config.cssclass.tblconfirmdata)
 
+def getAppRequestDataTableTeamInfo(vars):
+    '''
+    This function generates a table of the most important information on an appropriation request for the team info email.
+    '''
+    data_items = [
+                   TR(TD('Projektbezeichung:', _class = 'label'),         vars['project']),
+                   TR(TD('Organisation:', _class = 'label'),              vars['organization']),
+                ]
+
+    return TABLE(*data_items, _class = config.cssclass.tblconfirmdata)
 
 def TableCtrlHead(tablename,
                   crud_function = 'crud',
@@ -111,7 +121,7 @@ def TableCtrlHead(tablename,
         elem.extend([SPAN('+', _class = 'symbol'), SPAN(addlink, _class = 'text')])
     if sorttext:
         elem.extend([SPAN(XML('&darr;'), _class = 'symbol'), SPAN(sorttext, _class = 'text')])
-    
+
     return(DIV(*elem, _class = 'table_ctrl'))
 
 
@@ -120,7 +130,7 @@ class TableUtils():
     This class provides simple helper methods for creating tables.
     '''
     evenoddclasses = ('even', 'odd')
-    
+
     def __init__(self):
         self.reset()
 
@@ -130,8 +140,8 @@ class TableUtils():
 
     def reset(self):
         self.state_evenodd = 0
-        
-        
+
+
 class Progress():
     '''
     This class provides methods to generate progress bars for all multi-page forms.
@@ -141,7 +151,7 @@ class Progress():
         self.steplist     = bardata['steps']
         self.current_step = current_step
         self.bar          = None
-        
+
     def getProgressBar(self):
         if not self.bar:
             elements = []
@@ -155,10 +165,9 @@ class Progress():
                 else:
                     c = config.cssclass.progressmissing
                 elements.append(DIV(SPAN('%d. %s' % (step, element)), _class = c))
-                
+
             self.bar = DIV(DIV(SPAN(self.label), _class = config.cssclass.progresslabel),
                            DIV(*elements, _class = config.cssclass.progresssteps),
                            _class = config.cssclass.progressbar)
-        
+
         return self.bar
-        

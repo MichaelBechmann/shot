@@ -20,11 +20,11 @@ class EMailAccount:
                 self.server = siteconfig.email_server['mass']
             else:
                 self.server = siteconfig.email_server['normal']
-            
+
         elif account_id == 'fallback':
             self.server = 'smtp.web.de'
             self.port   = 587
-            self.login, self.passwd, self.sender  = siteconfig.email_auth['web.de']             
+            self.login, self.passwd, self.sender  = siteconfig.email_auth['web.de']
         else:
             # not implemented yet
             pass
@@ -34,23 +34,23 @@ class ConfigurationConstants:
     class ConfigMail:
         pass
     mail = ConfigMail()
-    
+
     class ConfigVerification:
         pass
     verification = ConfigVerification()
-    
+
     class ConfigNumbers:
-        pass    
+        pass
     numbers = ConfigNumbers()
-    
+
     class ConfigFormName:
         pass
     formname = ConfigFormName()
-    
+
     class ConfigCssId:
         pass
     cssid = ConfigCssId()
-    
+
     class ConfigCssClass:
         pass
     cssclass = ConfigCssClass()
@@ -58,11 +58,11 @@ class ConfigurationConstants:
     class ConfigMsgClass:
         pass
     msg = ConfigMsgClass()
-    
+
     class ConfigProgress:
         pass
     progress = ConfigProgress()
-   
+
     pass
 
     def __init__(self):
@@ -87,7 +87,7 @@ class ConfigurationConstants:
             if not row.value:
                 # no value given => boolean parameter
                 setattr(self, row.name.strip(), row.active)
-                
+
             else:
                 setattr(self, row.name.strip(), row.value)
 
@@ -182,8 +182,8 @@ config.progress.appropriation     = {'label': 'Ihr Fortschritt',
 
 
 
-config.colsets = {}      
-config.colsets['sale'] = { 'sets':{'edit':      ['sale.id', 'sale.person', 'person.place', 'sale.number', 'sale.number_unikey'], 
+config.colsets = {}
+config.colsets['sale'] = { 'sets':{'edit':      ['sale.id', 'sale.person', 'person.place', 'sale.number', 'sale.number_unikey'],
                                    'default':   ['sale.person', 'person.place', 'sale.number'],
                                    'event':     ['sale.event', 'sale.person', 'person.place', 'sale.number'],
                                    'sign list': ['sale.number', 'person.name', 'person.forename', 'person.place', 'person.street', 'person.house_number', 'person.telephone']
@@ -197,14 +197,14 @@ config.colsets['wait'] = { 'sets':{'edit':      ['wait.id', 'wait.person', 'sale
                            'default': 'default'
                          }
 
-config.colsets['bring'] = { 'sets':{'edit':         ['bring.id', 'bring.person', 'person.place', 'donation.item', 'bring.note'], 
+config.colsets['bring'] = { 'sets':{'edit':         ['bring.id', 'bring.person', 'person.place', 'donation.item', 'bring.note'],
                                    'default':       ['bring.person', 'person.place', 'donation.item', 'bring.note', 'sale.number'],
                                    'event':         ['donation.event', 'bring.person', 'person.place', 'donation.item', 'bring.note'],
                                    'plain to copy': ['bring.person', 'donation.item', 'bring.note', 'sale.number']
                                    },
                            'default': 'default'
                          }
-config.colsets['help'] = { 'sets':{'edit':          ['help.id', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'], 
+config.colsets['help'] = { 'sets':{'edit':          ['help.id', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'],
                                    'default':       ['help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'],
                                    'event':         ['shift.event', 'help.person', 'person.place', 'shift.activity', 'shift.day', 'shift.time'],
                                    'plain to copy': ['help.person', 'shift.activity', 'shift.day', 'shift.time']
@@ -212,7 +212,7 @@ config.colsets['help'] = { 'sets':{'edit':          ['help.id', 'help.person', '
                            'default': 'default'
                          }
 
-config.colsets['message'] = { 'sets':{'edit':    ['message.id', 'message.person', 'person.place', 'message.text'], 
+config.colsets['message'] = { 'sets':{'edit':    ['message.id', 'message.person', 'person.place', 'message.text'],
                                       'default': ['message.person', 'person.place', 'message.text'],
                                       'event':   ['message.event', 'message.person', 'person.place', 'message.text'],
                                    },
@@ -244,11 +244,12 @@ config.colsets['donation'] = { 'sets':{'config': ['donation.id', 'donation.item'
 
 
 config.colsets_auth = {}
-config.colsets_auth['user']       = ['auth_user.id', 'auth_user.username', 'auth_user.first_name', 'auth_user.last_name', 'auth_user.email', 'auth_user.registration_key', 'auth_user.person', 'auth_user.sale_numbers']
-config.colsets_auth['group']      = ['auth_group.id', 'auth_group.role', 'auth_group.description']
-config.colsets_auth['permission'] = ['auth_permission.id', 'auth_permission.group_id', 'auth_permission.name', 'auth_permission.table_name']
-config.colsets_auth['membership'] = ['auth_membership.id', 'auth_membership.user_id', 'auth_membership.group_id']
-config.colsets_auth['event']      = ['auth_event.id', 'auth_event.user_id', 'auth_event.description', 'auth_event.time_stamp', 'auth_event.client_ip']
+config.colsets_auth['user']               = ['auth_user.id', 'auth_user.username', 'auth_user.first_name', 'auth_user.last_name', 'auth_user.email', 'auth_user.registration_key', 'auth_user.person', 'auth_user.sale_numbers']
+config.colsets_auth['group']              = ['auth_group.id', 'auth_group.role', 'auth_group.description']
+config.colsets_auth['permission']         = ['auth_permission.id', 'auth_permission.group_id', 'auth_permission.name', 'auth_permission.table_name']
+config.colsets_auth['membership']         = ['auth_membership.id', 'auth_membership.user_id', 'auth_membership.group_id']
+config.colsets_auth['event']              = ['auth_event.id', 'auth_event.user_id', 'auth_event.description', 'auth_event.time_stamp', 'auth_event.client_ip']
+config.colsets_auth['email_subscription'] = ['auth_email_subscription.id', 'auth_email_subscription.user_id', 'auth_email_subscription.email_type_id']
 
 
 config.shift_scopes = ('public', 'team')

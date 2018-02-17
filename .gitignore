@@ -11,3 +11,8 @@
 /sessions
 /uploads
 /static/site_root
+
+# exclude all files within the foundation root directory except for the gulp config file
+/foundation/**
+!/foundation/gulpfile.js
+!/foundation/scss
