@@ -7,7 +7,7 @@
 
 # site-dependant paths
 shotpath      = '/var/web/web2py/applications/shot/'
-shoturl       = 'http://secondhand-ottersweier.de/'
+shoturl       = 'https://www.secondhand-ottersweier.de/'
 shotticketurl = ''
 appname       = 'shot'
 
