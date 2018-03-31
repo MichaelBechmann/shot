@@ -66,6 +66,9 @@ def wiki():
     if str(request.args(0)) != '_preview':
         wiki['wiki_ctrl'] = wiki_ctrl
 
+    if wiki_ctrl.slug == 'Zwillingsmarkt':
+        response.b_noindex = True
+
     return wiki
 
 def wiki_snippet():

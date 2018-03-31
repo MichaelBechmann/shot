@@ -1,3 +1,4 @@
+{{response.b_noindex = True}}
 {{extend 'layout.html'}}
 <h3>
 {{
@@ -42,9 +43,9 @@ if request.args(0)=='login':
     if not 'retrieve_username' in auth.settings.actions_disabled:
         links.append(A('Benutzernamen vergessen?', _href = URLUser('retrieve_username')))
     pass
-    
+
 pass
-  
+
 if links:
     links.insert(0,'[')
     links.append(']')
