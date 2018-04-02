@@ -129,6 +129,7 @@
 'Frühjahr 2014': 'Frühjahr 2014',
 'Frühjahr 2015': 'Frühjahr 2015',
 'Frühjahrsmarkt 2017': 'Frühjahrsmarkt 2017',
+'Frühjahrsmarkt 2018': 'Frühjahrsmarkt 2018',
 'Frühlingsmarkt 2015': 'Frühlingsmarkt 2015',
 'Fußballschuhe': 'Fußballschuhe',
 'FVO': 'FVO',
