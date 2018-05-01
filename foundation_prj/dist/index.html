@@ -1,168 +1,322 @@
 
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="en" style="height: 100%;">
   <head>
     <meta charset="utf-8" />
     <meta http-equiv="x-ua-compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Foundation for Sites</title>
+    <title>Foundation for Sites!</title>
     <link rel="stylesheet" href="assets/css/app.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" rel="stylesheet">
   </head>
-  <body>
+  <body style="height: 100%;">
 
-    <div class="grid-container">
-      <div class="grid-x grid-margin-x">
-        <div class="large-12 cell">
-          <h1>Welcome to Foundation for Sites</h1>
-        </div>
-      </div> 
     
-      <div class="grid-x grid-margin-x">
-        <div class="large-12 cell">
-          <div class="callout">
-            <h3>We&rsquo;re stoked you want to try Foundation! </h3>
-            <p>To get going, this file (index.html) includes some basic styles you can modify, play around with, or totally destroy to get going.</p>
-            <p>Once you've exhausted the fun in this document, you should check out:</p>
-            <div class="grid-x grid-margin-x">
-              <div class="large-4 medium-4 cell">
-                <p><a href="http://foundation.zurb.com/docs">Foundation Documentation</a><br />Everything you need to know about using the framework.</p>
-              </div>
-              <div class="large-4 medium-4 cell">
-                <p><a href="http://zurb.com/university/code-skills">Foundation Code Skills</a><br />These online courses offer you a chance to better understand how Foundation works and how you can master it to create awesome projects.</p>
-              </div>
-              <div class="large-4 medium-4 cell">
-                <p><a href="http://foundation.zurb.com/forum">Foundation Forum</a><br />Join the Foundation community to ask a question or show off your knowledge.</p>
-              </div>
-            </div>
-            <div class="grid-x grid-margin-x">
-              <div class="large-4 medium-4 medium-push-2 cell">
-                <p><a href="http://github.com/zurb/foundation">Foundation on Github</a><br />Latest code, issue reports, feature requests and more.</p>
-              </div>
-              <div class="large-4 medium-4 medium-pull-2 cell">
-                <p><a href="https://twitter.com/ZURBfoundation">@zurbfoundation</a><br />Ping us on Twitter if you have questions. When you build something with this we'd love to see it (and send you a totally boss sticker).</p>
-              </div>        
-            </div>
-          </div>
-        </div>
-      </div>
-    
-      <div class="grid-x grid-margin-x">
-        <div class="large-8 medium-8 cell">
-          <h5>Here&rsquo;s your basic grid:</h5>
-          <!-- Grid Example -->
-    
-          <div class="grid-x grid-margin-x">
-            <div class="large-12 cell">
-              <div class="primary callout">
-                <p><strong>This is a twelve column section in a grid-x with grid-margin-x.</strong> Each of these includes a div.callout element so you can see where the cell are - it's not required at all for the grid.</p>
-              </div>
-            </div>
-          </div>
-          <div class="grid-x grid-margin-x">
-            <div class="large-6 medium-6 cell">
-              <div class="primary callout">
-                <p>Six cell</p>
-              </div>
-            </div>
-            <div class="large-6 medium-6 cell">
-              <div class="primary callout">
-                <p>Six cell</p>
-              </div>
-            </div>
-          </div>
-          <div class="grid-x grid-margin-x">
-            <div class="large-4 medium-4 small-4 cell">
-              <div class="primary callout">
-                <p>Four cell</p>
-              </div>
-            </div>
-            <div class="large-4 medium-4 small-4 cell">
-              <div class="primary callout">
-                <p>Four cell</p>
-              </div>
-            </div>
-            <div class="large-4 medium-4 small-4 cell">
-              <div class="primary callout">
-                <p>Four cell</p>
-              </div>
-            </div>
-          </div>
-          
-          <hr />
-                  
-          <h5>We bet you&rsquo;ll need a form somewhere:</h5>
-          <form>
-            <div class="grid-x grid-margin-x">
-              <div class="large-12 cell">
-                <label>Input Label</label>
-                <input type="text" placeholder="large-12.cell" />
-              </div>
-            </div>
-            <div class="grid-x grid-margin-x">
-              <div class="large-4 medium-4 cell">
-                <label>Input Label</label>
-                <input type="text" placeholder="large-4.cell" />
-              </div>
-              <div class="large-4 medium-4 cell">
-                <label>Input Label</label>
-                <input type="text" placeholder="large-4.cell" />
-              </div>
-              <div class="large-4 medium-4 cell">
-                <div class="grid-x grid-margin-x collapse">
-                  <label>Input Label</label>
-                  <div class="input-group">
-                    <input class="input-group-field" type="text" placeholder="input-group" />
-                    <span class="input-group-label">.com</span>
-                  </div>
+    <div  data-sticky-container>
+            <div class="title-bar" data-sticky data-sticky-on="small" data-options="marginTop:0;">
+                <div class="title-bar-left">
+                    <button class="menu-icon" type="button" data-toggle="menu" data-responsive-toggle="dummy" data-hide-for="medium"></button>
                 </div>
-              </div>
-            </div>
-            <div class="grid-x grid-margin-x">
-              <div class="large-12 cell">
-                <label>Select Box</label>
-                <select>
-                  <option value="husker">Husker</option>
-                  <option value="starbuck">Starbuck</option>
-                  <option value="hotdog">Hot Dog</option>
-                  <option value="apollo">Apollo</option>
-                </select>
-              </div>
-            </div>
-            <div class="grid-x grid-margin-x">
-              <div class="large-6 medium-6 cell">
-                <label>Choose Your Favorite</label>
-                <input type="radio" name="pokemon" value="Red" id="pokemonRed"><label for="pokemonRed">Radio 1</label>
-                <input type="radio" name="pokemon" value="Blue" id="pokemonBlue"><label for="pokemonBlue">Radio 2</label>
-              </div>
-              <div class="large-6 medium-6 cell">
-                <label>Check these out</label>
-                <input id="checkbox1" type="checkbox"><label for="checkbox1">Checkbox 1</label>
-                <input id="checkbox2" type="checkbox"><label for="checkbox2">Checkbox 2</label>
-              </div>
-            </div>
-            <div class="grid-x grid-margin-x">
-              <div class="large-12 cell">
-                <label>Textarea Label</label>
-                <textarea placeholder="small-12.cell"></textarea>
-              </div>
-            </div>
-          </form>
-        </div>     
     
-        <div class="large-4 medium-4 cell">
-          <h5>Try one of these buttons:</h5>
-          <p><a href="#" class="small button">Simple Button</a><br/>          
-          <a href="#" class="medium success button">Success Btn</a><br/>
-          <a href="#" class="medium alert button">Alert Btn</a><br/>
-          <a href="#" class="medium secondary button">Secondary Btn</a></p>           
-          <div class="callout">
-            <h5>So many components, girl!</h5>
-            <p>A whole kitchen sink of goodies comes with Foundation. Check out the docs to see them all, along with details on making them your own.</p>
-            <a href="http://foundation.zurb.com/docs/" class="small button">Go to Foundation Docs</a>          
-          </div>
-        </div>
-      </div>
+    
+                <div class="title-bar-title">Secondhand Ottersweier</div>
+    
+                <div class="title-bar-right">
+                    <button type="button" class="small clear success button dropdown" data-toggle="schedule" data-responsive-toggle="dummy" data-hide-for="large">
+                        Alle Termine
+                    </button>
+                </div>
+    
+            </div>
     </div>
+    
+    
+    <div class="off-canvas-wrapper">
+    
+        <div id="menu" class="off-canvas position-left reveal-for-medium" data-off-canvas >
+          <!-- Your menu or Off-canvas content goes here -->
+    	          <ul class="menu vertical" data-responsive-menu="accordion" >
+    		          <li>
+    		            <a href="#">One</a>
+    		            <ul class="menu nested">
+    		              <li><a href="#">One</a></li>
+    		              <li><a href="#">Two</a>
+    
+    		               <ul class="menu nested">
+    		                    <li><a href="#">One</a></li>
+    		                    <li><a href="#">Two</a></li>
+    		                    <li><a href="#">Three</a></li>
+    		                </ul>
+    		              </li>
+    		              <li><a href="#">Three</a></li>
+    		            </ul>
+    		          </li>
+    		          <li><a href="#">Two</a></li>
+    		          <li><a href="#">Three</a></li>
+    	           </ul>
+        </div>
+    
+        <div id="schedule" class="off-canvas position-right reveal-for-large" data-off-canvas >
+          <!-- Your menu or Off-canvas content goes here -->
+                  <div>
+                    This is the schedule
+                    <br/>
+                    1111
+                    <br/>
+                    2222
+                    <br/>
+                    ...
+                  </div>
+        </div>
+    
+    
+    
+            <div class="off-canvas-content" data-off-canvas-content>
+              <!-- Your page content lives here -->
+    
+              This is the page content.
+                <br />
+              blaopening connection using: ssh -l root willy rsync --server -vvtre.iLsC --delete . /var/web/web2py/applications/shottest/  (10 args)
+    Pass a valid window to KWallet::Wallet::openWallet().
+    sending incremental file list
+    [sender] hiding file modules/siteconfig.py because of pattern siteconfig.py
+    [sender] hiding directory static/site_root because of pattern */site_root*
+    delta-transmission enabled
+    background/backup/.gitignore is uptodate
+    background/backup/backup_db.py is uptodate
+    background/database_conversion/convert_database.py is uptodate
+    background/database_conversion/regularize_names.py is uptodate
+    background/mail/resolve_waitlist.py is uptodate
+    background/mail/send_after_market_mail.py is uptodate
+    background/mail/send_invitation_mail.py is uptodate
+    background/mail/send_reminder_mail.py is uptodate
+    background/mail/send_team_info_new_request.py is uptodate
+    background/mail/send_waitlist_denial_mail.py is uptodate
+    controllers/access.py is uptodate
+    controllers/admin_.py is uptodate
+    controllers/appropriation.py is uptodate
+    controllers/appropriation.pyc is uptodate
+    controllers/config.py is uptodate
+    controllers/config.pyc is uptodate
+    controllers/contact.py is uptodate
+    controllers/contact.pyc is uptodate
+    controllers/dbadmin.py is uptodate
+    controllers/dbadmin.pyc is uptodate
+    controllers/main.py is uptodate
+    controllers/main.pyc is uptodate
+    controllers/registration.py is uptodate
+    controllers/registration.pyc is uptodate
+    controllers/sale.py is uptodate
+    controllers/sale.pyc is uptodate
+    controllers/staff.py is uptodate
+    controllers/staff.pyc is uptodate
+    controllers/tasks.py is uptodate
+    controllers/tasks.pyc is uptodate
+    languages/de.py is uptodate
+    languages/de_.py is uptodate
+    models/shot_db_mysql.py is uptodate
+    models/shot_db_mysql.pyc is uptodate
+    modules/
+    [generator] protecting file modules/siteconfig.py because of pattern siteconfig.py
+    modules/.gitignore is uptodate
+    modules/__init__.py is uptodate
+    modules/__init__.pyc is uptodate
+    modules/benchmark.py is uptodate
+    modules/benchmark.pyc is uptodate
+    modules/formutils.py is uptodate
+    modules/formutils.pyc is uptodate
+    modules/shotauth.py is uptodate
+    modules/shotauth.pyc is uptodate
+    modules/shotconfig.py is uptodate
+    modules/shotconfig.pyc is uptodate
+    modules/shotdbutil.py is uptodate
+    modules/shotdbutil.pyc is uptodate
+    modules/shoterrors.py is uptodate
+    modules/shoterrors.pyc is uptodate
+    modules/shotlogging.py is uptodate
+    modules/shotlogging.pyc is uptodate
+    modules/shotmail.py is uptodate
+    modules/shotmail.pyc is uptodate
+    modules/shotmenu.py
+    modules/shotmenu.pyc
+    modules/siteconfig.pyc
+    modules/siteconfig_template.py is uptodate
+    modules/siteconfig_template.pyc is uptodate
+    modules/urlutils.py is uptodate
+    modules/urlutils.pyc is uptodate
+    [generator] protecting directory static/site_root because of pattern */site_root*
+    static/Richtlinien.pdf is uptodate
+    static/Zwillinge_bg.jpg is uptodate
+    static/css/admin.css is uptodate
+    static/css/app.css is uptodate
+    static/css/bootstrap.min_.css is uptodate
+    static/css/crud.css is uptodate
+    static/css/crud_view_responsive.css is uptodate
+    static/css/default.css is uptodate
+    static/css/default_responsive.css is uptodate
+    static/css/form_sale.css is uptodate
+    static/css/list.css is uptodate
+    static/css/shot.css is uptodate
+    static/css/text.css is uptodate
+    static/css/tiles.css is uptodate
+    static/css/wiki.css is uptodate
+    static/flyer/Flyer.pdf is uptodate
+    static/flyer/Flyer.png is uptodate
+    static/flyer/Flyer4.pdf is uptodate
+    static/flyer/Flyer4.png is uptodate
+    static/img/glyphicons-halflings.png is uptodate
+    static/img/img_bgtop.gif is uptodate
+    static/img/img_footer.gif is uptodate
+    static/img/img_menu.gif is uptodate
+    static/img/img_menu_down.gif is uptodate
+    static/img/img_menu_down.png is uptodate
+    static/img/img_menu_right_green.png is uptodate
+    static/img/img_menu_right_white.png is uptodate
+    static/img/shot.ico is uptodate
+    static/js/app.js is uptodate
+    static/js/config_event.js is uptodate
+    static/js/confirm.js is uptodate
+    static/js/dropdown_autosubmit.js is uptodate
+    static/js/form_sale.js is uptodate
+    static/js/forms.js is uptodate
+    static/js/jquery.ba-outside-events.min.js is uptodate
+    static/js/jquery.js is uptodate
+    static/js/list.js is uptodate
+    static/js/manage_contributions.js is uptodate
+    static/js/menu.js is uptodate
+    static/js/web2py.js is uptodate
+    static/js/wiki.js is uptodate
+    static/js/markitup/jquery.markitup.js is uptodate
+    static/js/markitup/sets/default/set.js is uptodate
+    static/js/markitup/sets/default/style.css is uptodate
+    static/js/markitup/sets/default/images/bold.png is uptodate
+    static/js/markitup/sets/default/images/clean.png is uptodate
+    static/js/markitup/sets/default/images/image.png is uptodate
+    static/js/markitup/sets/default/images/italic.png is uptodate
+    static/js/markitup/sets/default/images/link.png is uptodate
+    static/js/markitup/sets/default/images/list-bullet.png is uptodate
+    static/js/markitup/sets/default/images/list-numeric.png is uptodate
+    static/js/markitup/sets/default/images/picture.png is uptodate
+    static/js/markitup/sets/default/images/preview.png is uptodate
+    static/js/markitup/sets/default/images/stroke.png is uptodate
+    static/js/markitup/sets/html/readme.txt is uptodate
+    static/js/markitup/sets/html/set.js is uptodate
+    static/js/markitup/sets/html/style.css is uptodate
+    static/js/markitup/sets/html/images/bold.png is uptodate
+    static/js/markitup/sets/html/images/clean.png is uptodate
+    static/js/markitup/sets/html/images/h1.png is uptodate
+    static/js/markitup/sets/html/images/h2.png is uptodate
+    static/js/markitup/sets/html/images/h3.png is uptodate
+    static/js/markitup/sets/html/images/h4.png is uptodate
+    static/js/markitup/sets/html/images/h5.png is uptodate
+    static/js/markitup/sets/html/images/h6.png is uptodate
+    static/js/markitup/sets/html/images/image.png is uptodate
+    static/js/markitup/sets/html/images/italic.png is uptodate
+    static/js/markitup/sets/html/images/link.png is uptodate
+    static/js/markitup/sets/html/images/list-bullet.png is uptodate
+    static/js/markitup/sets/html/images/list-item.png is uptodate
+    static/js/markitup/sets/html/images/list-numeric.png is uptodate
+    static/js/markitup/sets/html/images/paragraph.png is uptodate
+    static/js/markitup/sets/html/images/picture.png is uptodate
+    static/js/markitup/sets/html/images/preview.png is uptodate
+    static/js/markitup/sets/html/images/stroke.png is uptodate
+    static/js/markitup/sets/markmin/readme.txt is uptodate
+    static/js/markitup/sets/markmin/set.js is uptodate
+    static/js/markitup/sets/markmin/style.css is uptodate
+    static/js/markitup/sets/markmin/images/bold.png is uptodate
+    static/js/markitup/sets/markmin/images/code.png is uptodate
+    static/js/markitup/sets/markmin/images/h1.png is uptodate
+    static/js/markitup/sets/markmin/images/h2.png is uptodate
+    static/js/markitup/sets/markmin/images/h3.png is uptodate
+    static/js/markitup/sets/markmin/images/h4.png is uptodate
+    static/js/markitup/sets/markmin/images/h5.png is uptodate
+    static/js/markitup/sets/markmin/images/h6.png is uptodate
+    static/js/markitup/sets/markmin/images/italic.png is uptodate
+    static/js/markitup/sets/markmin/images/link.png is uptodate
+    static/js/markitup/sets/markmin/images/list-bullet.png is uptodate
+    static/js/markitup/sets/markmin/images/list-numeric.png is uptodate
+    static/js/markitup/sets/markmin/images/picture.png is uptodate
+    static/js/markitup/sets/markmin/images/preview.png is uptodate
+    static/js/markitup/sets/markmin/images/quotes.png is uptodate
+    static/js/markitup/skins/markitup/style.css is uptodate
+    static/js/markitup/skins/markitup/images/bg-container.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-bbcode.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-dotclear.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-html.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-json.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-markdown.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-textile.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-wiki.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor-xml.png is uptodate
+    static/js/markitup/skins/markitup/images/bg-editor.png is uptodate
+    static/js/markitup/skins/markitup/images/handle.png is uptodate
+    static/js/markitup/skins/markitup/images/menu.png is uptodate
+    static/js/markitup/skins/markitup/images/submenu.png is uptodate
+    static/js/markitup/skins/simple/style.css is uptodate
+    static/js/markitup/skins/simple/images/handle.png is uptodate
+    static/js/markitup/skins/simple/images/menu.png is uptodate
+    static/js/markitup/skins/simple/images/submenu.png is uptodate
+    static/js/markitup/templates/preview.css is uptodate
+    static/js/markitup/templates/preview.html is uptodate
+    static/mail_templates/contact_de.html is uptodate
+    static/mail_templates/error.html is uptodate
+    views/debug.html is uptodate
+    views/layout.html is uptodate
+    views/layout__old.html is uptodate
+    views/layout_dashboard.html is uptodate
+    views/access/info.html is uptodate
+    views/access/msg.html is uptodate
+    views/access/user.html is uptodate
+    views/admin_/actions.html is uptodate
+    views/admin_/benchmark.html is uptodate
+    views/admin_/configuration.html is uptodate
+    views/admin_/crud.html is uptodate
+    views/admin_/manage_users.html is uptodate
+    views/appropriation/confirm.html is uptodate
+    views/appropriation/form.html is uptodate
+    views/config/config_event.html is uptodate
+    views/config/crud.html is uptodate
+    views/contact/form.html is uptodate
+    views/email/email_base.html is uptodate
+    views/main/wiki.html is uptodate
+    views/main/wiki.load is uptodate
+    views/registration/confirm.html is uptodate
+    views/registration/disable_mail.html is uptodate
+    views/registration/final.html is uptodate
+    views/registration/form.html is uptodate
+    views/sale/confirm.html is uptodate
+    views/sale/final.html is uptodate
+    views/sale/final_wait.html is uptodate
+    views/sale/form.html is uptodate
+    views/staff/crud.html is uptodate
+    views/staff/dashboard.html is uptodate
+    views/staff/mail_sent.html is uptodate
+    views/staff/manage.html is uptodate
+    views/staff/manage_donations.html is uptodate
+    views/staff/manage_help.html is uptodate
+    views/staff/number_status_map.html is uptodate
+    views/staff/number_summary.html is uptodate
+    views/staff/person_summary.html is uptodate
+    views/staff/requests.html is uptodate
+    views/staff/table.html is uptodate
+    views/tasks/final.html is uptodate
+    views/tasks/start.html is uptodate
+    views/tasks/description/resolve_waitlist.html is uptodate
+    views/tasks/description/send_denial.html is uptodate
+    views/tasks/description/send_infos_after_market.html is uptodate
+    views/tasks/description/send_invitation.html is uptodate
+    views/tasks/description/send_reminder.html is uptodate
+    total: matches=7  hash_hits=7  false_alarms=0 data=7164
+    
+    sent 13,514 bytes  received 13,146 bytes  7,617.14 bytes/sec
+    total size is 4,083,147  speedup is 153.16
+                <br />
+              blub
+    
+            </div>
+    
+    </div>
+    
     
 
     <script src="assets/js/app.js"></script>

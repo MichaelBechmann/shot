@@ -1,32 +1,61 @@
 <!doctype html>
-<html class="no-js" lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Secondhand Ottersweier</title>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Secondhand Ottersweier</title>
 
-    {{
-        response.files.append(URL('static', 'css/shot.css'))
-        response.include_files()
-    }}
+	    {{
+	        response.files.append(URL('static', 'css/app.css'))
+	        response.files.insert(0, URL('static','js/jquery.js'))
+	        response.files.append(URL('static','js/web2py.js'))
+	        response.include_files()
+	    }}
 
-  </head>
-  <body>
+    </head>
 
-    {{from shotmenu import *}}
-    {{=createMenu(auth)}}
+    <body>
 
-    {{include}}
+		<div  data-sticky-container>
+		        <div class="title-bar" data-sticky data-sticky-on="small" data-options="marginTop:0;">
+		            <div class="title-bar-left">
+		                <button class="menu-icon" type="button" data-toggle="menu" data-responsive-toggle="dummy" data-hide-for="medium"></button>
+		            </div>
+
+		            <div class="title-bar-title">Secondhand Ottersweier</div>
+
+		            <div class="title-bar-right">
+		                <button type="button" class="small clear success button" data-toggle="schedule" data-responsive-toggle="dummy" data-hide-for="large">
+		                    Alle Termine
+		                </button>
+		            </div>
+
+		        </div>
+		</div>
 
 
-<!--
-    <script src="bower_components/jquery/dist/jquery.js"></script>
-    <script src="bower_components/what-input/dist/what-input.js"></script>
-    <script src="bower_components/foundation-sites/dist/js/foundation.js"></script>
-    <script src="js/app.js"></script>
--->
+	    <div class="off-canvas-wrapper">
+	        <div id="menu" class="off-canvas position-left reveal-for-medium" data-off-canvas>
+	            {{from shotmenu import *}}
+	            {{
+	                if 'wiki_ctrl' not in response._vars:
+	                    wiki_ctrl = None
+	                    pass
+	            }}
+	            {{=createMenu(auth)}}
+	        </div>
 
+	        <div id="schedule" class="off-canvas position-right reveal-for-large" data-off-canvas >
+	              {{=LOAD('components','schedule.load',ajax=True)}}
+	        </div>
+
+	        <div class="off-canvas-content" data-off-canvas-content>
+	            {{include}}
+	        </div>
+	    </div>
+
+    <script src="{{=URL('static','js/app.js')}}"></script>
   </body>
 </html>
 

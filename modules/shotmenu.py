@@ -15,7 +15,7 @@ from gluon import current
 from urlutils import URLWiki, URLTable, URLUser
 
 
-def createMenu(auth):
+def createMenu(auth, wiki_ctrl = None):
     if not current.response.menu:
         auth.force_shotmenu()
     menu = current.response.menu
@@ -29,46 +29,42 @@ def createMenu(auth):
         for e in menu:
             if 'appropriation-start' in e[2]:
                 menu.remove(e)
-                break   
-
-    return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_public', _class='menu'))
+                break
 
 
-def createStaffMenu(auth, wiki_ctrl = None):
 
-    menu = [] 
+
     if not auth.is_logged_in():
         if config.enable_extended_menue:
             menu.extend([['login', False, URLUser('login')]
                         ])
-        else:
-            return ''
+
     else:
         user_groups = auth.user_groups.values()
-        
+
         if 'team' in user_groups:
             menu.extend([['Dashboard',  False, URL('staff', 'dashboard')],
                          ['Requests',    False, URL('staff', 'requests')]
                          ])
-        
+
         if 'team' in user_groups:
-            
+
             if 'staff' in user_groups:
                 items_organize = [['Person summary',    False, URL('staff', 'person_summary')],
                                   ['Number summary',    False, URL('staff', 'number_summary')]
                                 ]
             else:
                 items_organize = []
-            
+
             items_organize.extend([['Number status map', False, URL('staff', 'number_status_map')],
                                    ['Manage help',       False, URL('staff', 'manage_help')],
-                                   ['Manage donations',  False, URL('staff', 'manage_donations')] 
+                                   ['Manage donations',  False, URL('staff', 'manage_donations')]
                                   ])
-            
+
             menu.extend([['Organize', False, '', items_organize]
                         ])
-            
-            
+
+
         if 'staff' in user_groups:
             items_tables   = [['Persons',   False, URLTable('person')],
                               ['Sale',      False, URLTable('sale')],
@@ -85,7 +81,7 @@ def createStaffMenu(auth, wiki_ctrl = None):
 
         if 'configurator' in user_groups:
             menu.extend([['Config Event', False, URL('config','config_event')]])
-            
+
         if 'task executor' in user_groups:
             menu.extend([['Tasks', False, '',
                           [['Einladungen senden',   False, URL('tasks', 'start', args = ['send_invitation'])],
@@ -105,7 +101,7 @@ def createStaffMenu(auth, wiki_ctrl = None):
                            ['Actions',          False,  URL('admin_', 'actions')],
                           ]
                          ]
-                        ])  
+                        ])
 
         menu.extend([['Account', False, '',
                       [['Logout',          False, URLUser('logout')],
@@ -115,23 +111,33 @@ def createStaffMenu(auth, wiki_ctrl = None):
                       ]
                      ]
                     ])
-        
+
         # wiki menue
         if 'wiki_editor' in user_groups or 'wiki_author' in user_groups:
             wiki_menu = [['Guidlines',    False, URL('main', 'wiki', args = ['wiki-guidelines'])],
                          ['Manage pages', False, URLWiki('_pages')],
                          ['Search tags',  False, URLWiki('_search')],
                         ]
-            
+
             if 'wiki_author' in user_groups:
                 wiki_menu.append(['Create new page', False, URLWiki('_create')])
                 wiki_menu.append(['Edit the menu',   False, URLWiki(('_edit', 'wiki-menu'))])
-            
+
             if wiki_ctrl and wiki_ctrl.slug:
                 wiki_menu.append(['Edit this page', False, URLWiki(('_edit', wiki_ctrl.slug))])
                 wiki_menu.append(['Edit page media', False, URLWiki(('_editmedia', wiki_ctrl.slug))])
-            
+
             menu.extend([['Wiki', False, '#', wiki_menu]])
-                
-    
-    return (DIV(MENU(menu, _class = '', li_class = 'expand'), _id='menu_staff', _class='menu'))
+
+
+    classes = { '_class'    : 'menu vertical',
+                '_data-responsive-menu' : 'accordion',
+                'ul_class'  : 'menu nested',
+                'li_class'  : '',
+                'li_first'  : '',
+                'li_last'   : '',
+                'li_active' : '',
+                'mobile'    : ''
+       }
+
+    return (MENU(menu, **classes))

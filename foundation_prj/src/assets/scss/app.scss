@@ -51,3 +51,33 @@
 
 @include motion-ui-transitions;
 @include motion-ui-animations;
+
+.title-bar{
+    height: 2em;
+    width:100%;
+    z-index: 100;
+    button{
+        margin: 0;
+        padding: 0;
+        vertical-align: middle;
+        }
+    }
+
+#menu, #schedule {
+    margin-top:2em;
+    z-index: 50;
+    }
+
+#menu {
+    li {
+        background: #cfa;
+        }
+    }
+
+
+
+
+.off-canvas-content{
+    z-index: 0;
+
+    }
