@@ -75,9 +75,39 @@
     }
 
 
-
-
 .off-canvas-content{
     z-index: 0;
 
     }
+
+
+// schedule
+
+#schedule > div > h1{
+    text-align: center;
+    font-size: 1.4rem;
+    font-weight: bold;
+    }
+
+#schedule .card {
+    background-color: green;
+
+    .card-divider {
+        text-align: center;
+        font-size: 1.2rem;
+        font-weight: bold;
+        }
+
+    h1{
+        text-align: center;
+        font-size: 1.2rem;
+        margin: 0.5rem 0;
+        }
+
+    .saletime {
+        font-weight: bold;
+        }
+    }
+
+
+
