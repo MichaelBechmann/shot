@@ -267,6 +267,14 @@ class PersonEntry():
         # construct a dictionary containing only the fields of the table "person"
         self.data = extractTableFields(db.person, data)
 
+        # The database field 'mail_enabled' is boolean. The form variable is of type string ('yes' / 'no') because it shall be displayed as radio buttons.
+        # If the 'mail_enabled' information is not part of the data do nothing to not overwrite existing database entries.
+        if 'mail_enabled' in self.data:
+            self.data['mail_enabled'] = True if self.data['mail_enabled'] == 'yes' else False
+
+        # The database field 'data_use_agreed' is boolean. The form variable is of type string ('on') because it shall be displayed as check box.
+        self.data['data_use_agreed'] = True if 'data_use_agreed' in self.data and self.data['data_use_agreed'] == 'on' else False
+
         # self.data must not contain an id!
         # Otherwise an error "IntegrityError: PRIMARY KEY must be unique" will occur at the insert and update operations
         # if this id is different from self.id.
@@ -329,9 +337,6 @@ class PersonEntry():
 
     def reset_verification(self):
         self.data['verified'] = 0
-
-    def set_mail_enabled(self):
-        self.data['mail_enabled'] = True
 
     def disable_mail(self):
         '''

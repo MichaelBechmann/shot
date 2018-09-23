@@ -254,3 +254,11 @@ config.colsets_auth['email_subscription'] = ['auth_email_subscription.id', 'auth
 
 config.shift_scopes = ('public', 'team')
 
+config.mail_enabled_options = {}
+config.mail_enabled_options['yes'] = 'Bitte senden Sie mir persönliche Einladungen für zukünftige Märkte zu.'
+config.mail_enabled_options['no']  = 'Ich möchte lieber keine Einladungen erhalten.'
+
+config.data_use_agreed_option = {}
+config.data_use_agreed_option['registration']  = 'Ich erlaube dem Secondhand-Team, meine persönlichen Daten für die Organisation der Secondhand-Märkte zu speichern und zu verarbeiten.'
+config.data_use_agreed_option['appropriation'] = 'Ich erlaube dem Secondhand-Team, meine persönlichen Daten sowie die Angaben zu meinem Projekt zur Bearbeitung meines Antrags zu speichern und zu verarbeiten.'
+

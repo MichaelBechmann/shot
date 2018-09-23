@@ -17,7 +17,7 @@ if 0:
     global auth
 
 from shotconfig import *
-from formutils import regularizeName, regularizeFormInputPersonorm, getPersonDataTable, getAppRequestDataTable
+from formutils import regularizeName, regularizeFormInputPersonorm, getPersonDataTable, getAppRequestDataTable, addMailEnabledElement, addDataAgreedElement
 from shotdbutil import PersonEntry, AppropriationRequestEntry
 from shotmail import AppropriationRequestMail
 from urlutils import URLWiki
@@ -36,6 +36,11 @@ def __regularize_form_input(form):
     for field in ('project', 'organization'):
         form.vars[field] = regularizeName(form.vars[field])
 
+def __onvalidation_registration(form):
+    regularizeFormInputPersonorm(form)
+
+    if not form.vars['data_use_agreed']:
+        form.errors.data_use_agreed = 'Ohne Ihre Zustimmung können wir Ihren Antrag nicht bearbeiten.'
 
 def form():
 
@@ -53,7 +58,7 @@ def form():
         # see book, section 'Pre-populating the form' in chapter 'Forms and Validators'
         form.vars = session.appropriation_request
 
-
+    addDataAgreedElement(form, type = 'appropriation')
 
     explanations = (( 0, DIV(H4('Allgemeines'),
                              P('Welcher Verein, welche Institution oder Einrichtung organisiert dieses Projekt? Sollte nichts zutreffen, tragen Sie bitte "privat" ein.'))),
@@ -66,14 +71,19 @@ def form():
                                   Bitte nehmen Sie sich also etwas Zeit, Ihr Projekt möglichst genau zu beschreiben und Ihren Antrag zu begründen.
                                   Wer soll gefördert werden, also welche und wieviele Kinder, Jugendliche oder Familien?
                                   Wenn möglich, definieren Sie bitte auch den zeitlichen Rahmen Ihres Projektes, also etwa das Datum einer Veranstaltung oder Beginn und Dauer der zu fördernden Aktivitäten.
-                                ''')))
+                                '''))),
+                    (17, DIV(H4('Datenschutz'),
+                             P(SPAN('''Um Ihren Antrag verarbeiten zu können, benötigen wir Ihre Einwilligung, Ihre hier angegebenen Daten zu speichern und zu verarbeiten.
+                                  Genaue Informationen dazu finden Sie in unserer '''), A('Datenschutzerklärung', _href = URLWiki('dataprivacy'), _class="intext", _target="_blank"), SPAN('.'))))
                     )
     for e in explanations:
         form[0].insert(e[0], TR(TD(e[1], _colspan = 3)))
 
+
+
     # There is a mistake in the book: form.validate() returns True or False. form.process() returns the form itself
     # see http://osdir.com/ml/web2py/2011-11/msg00467.html
-    if form.validate(onvalidation = __regularize_form_input):
+    if form.validate(onvalidation = __onvalidation_registration):
         session.appropriation_request = form.vars
         redirect(URL('appropriation','confirm'))
 
@@ -125,5 +135,5 @@ def confirm():
 
         redirect(URLWiki('appropriation-final'))
 
-    return(dict(data_person = getPersonDataTable(session.appropriation_request), data_project = getAppRequestDataTable(session.appropriation_request), form = form))
+    return(dict(data_person = getPersonDataTable(session.appropriation_request, type = 'appropriation'), data_project = getAppRequestDataTable(session.appropriation_request), form = form))
 
