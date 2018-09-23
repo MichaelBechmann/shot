@@ -66,6 +66,7 @@ shotdb.define_table('event',
 
 ) # end of 'event'
 
+
 # The table 'person' contains all data personal data of the registered people.
 shotdb.define_table('person',
 
@@ -86,6 +87,9 @@ shotdb.define_table('person',
 
     # flag indicating if round mails are enabled
     Field('mail_enabled',   'boolean'),
+
+    # flag indicating if storage and use of personal data have been agreed
+    Field('data_use_agreed',   'boolean'),
 
     # automatically generated log data when the record is updated
     Field('log',            'text'),
@@ -315,4 +319,4 @@ shotdb.auth_user['sale_numbers'].readable = False
 shotdb.auth_user['sale_numbers'].writable = False
 
 # version number for static assets
-response.static_version = '0.0.11'
+response.static_version = '0.0.13'

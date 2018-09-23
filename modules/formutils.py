@@ -66,8 +66,25 @@ def regularizeFormInputPersonorm(form):
         form.errors.zip_code = 'Bitte geben Sie eine gültige Postleitzahl an.'
     form.vars['zip_code'] = s
 
+def addMailEnabledElement(form):
+    mail_enabled_element = TR(TD(), TD(
+                DIV( DIV('Einladungen zu künftigen Märkten per E-Mail', _class = 'agree_header'),
+                TABLE(TR(INPUT(_name='mail_enabled', _type = 'radio', _value = 'yes'), config.mail_enabled_options['yes']),
+                      TR(INPUT(_name='mail_enabled', _type = 'radio', _value = 'no'),  config.mail_enabled_options['no'])
+                      ),
+                _class = 'agree_widget'
+                )), TD())
+    form[0].insert(-1, mail_enabled_element)
 
-def getPersonDataTable(vars):
+def addDataAgreedElement(form, type):
+    data_agreed_element = TR(TD(), TD(
+                DIV(DIV('Einwilligung zur Datenverarbeitung', _class = 'agree_header'),
+                    TABLE(TR(INPUT(_name='data_use_agreed', _value='on', _type='checkbox'), config.data_use_agreed_option[type])
+                    ), _class = 'agree_widget'
+                    ), _colspan="2"))
+    form[0].insert(-1, data_agreed_element)
+
+def getPersonDataTable(vars, type):
     '''
     This function generates a standard table with person data for the confirmation pages.
     Note: Translation doesn't work. Something is wrong with the includes ...
@@ -78,8 +95,18 @@ def getPersonDataTable(vars):
                    TR(TD('Ihr Name:', _class = 'label'), vars['forename'] + ' ' + vars['name']),
                    TR(TD('Ihre Adresse:', _class = 'label'), vars['zip_code'] + ' ' + vars['place'] + ', ' + vars['street'] + ' ' + vars['house_number'] ),
                    TR(TD('Ihre Telefonnummer:', _class = 'label'), vars['telephone']),
-                   TR(TD('Ihre E-Mail-Adresse:', _class = 'label'), vars['email'])
+                   TR(TD('Ihre E-Mail-Adresse:', _class = 'label'), vars['email']),
+
                 ]
+    if 'mail_enabled' in vars:
+        data_items.extend([
+                   TR(TD('Einladungen:', _class = 'label'), config.mail_enabled_options[vars['mail_enabled']])
+            ])
+
+    if 'data_use_agreed' in vars:
+        data_items.extend([
+                   TR(TD('Persönliche Daten:'), TD(config.data_use_agreed_option[type]))
+            ])
 
     return  TABLE(*data_items, _class = config.cssclass.tblconfirmdata)
 

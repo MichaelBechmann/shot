@@ -12,8 +12,8 @@
 /uploads
 /static/site_root
 
-# taken from .gitignore file provided by the foundation template
-/foundation_prj/.DS_Store
-/foundation_prj/node_modules
-/foundation_prj/bower_components
-*.swp
+
+# exclude all files within the foundation root directory except for the gulp config file
+/foundation_prj/**
+!/foundation_prj/gulpfile.js
+!/foundation_prj/scss
