@@ -10,7 +10,7 @@ color: #20C020;
 }
 
 #tbl_next_event_date, #tbl_enrol_dates{
-    margin-left:auto; 
+    margin-left:auto;
     margin-right:auto;
     margin-bottom: 1em;
 }
@@ -121,7 +121,7 @@ table.flyer img{
 
 table.flyer td{
 	font: 13px "Trebuchet MS", Arial, Helvetica, sans-serif;
-	padding: 0 40 0 40px;
+	padding: 20px 40px;
 }
 
 table.flyer td div{

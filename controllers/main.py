@@ -66,8 +66,9 @@ def wiki():
     if str(request.args(0)) != '_preview':
         wiki['wiki_ctrl'] = wiki_ctrl
 
-    if wiki_ctrl.slug == 'Zwillingsmarkt':
-        response.b_noindex = True
+    if wiki_ctrl.slug == 'zwillingsmarkt':
+        #response.b_noindex = True
+        redirect(URL('main','wiki', args = ['start']))
 
     return wiki
 
