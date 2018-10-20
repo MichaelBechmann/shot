@@ -10,3 +10,14 @@ import Foundation from 'foundation-sites';
 
 
 $(document).foundation();
+
+
+
+// Add and remove a class to the off-canvas elements (menu, schedule)
+// if the size of the title bar changes.
+// With the class the off-canvas elements can be shifted up and down accordingly.
+$('.title-bar').on('sticky.zf.stuckto:top', function(){
+  $('.off-canvas').removeClass('movedown');
+}).on('sticky.zf.unstuckfrom:top', function(){
+  $('.off-canvas').addClass('movedown');
+})

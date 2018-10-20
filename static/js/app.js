@@ -14585,6 +14585,15 @@ window.$ = _jquery2.default;
 
 (0, _jquery2.default)(document).foundation();
 
+// Add and remove a class to the off-canvas elements (menu, schedule)
+// if the size of the title bar changes.
+// With the class the off-canvas elements can be shifted up and down accordingly.
+(0, _jquery2.default)('.title-bar').on('sticky.zf.stuckto:top', function () {
+  (0, _jquery2.default)('.off-canvas').removeClass('movedown');
+}).on('sticky.zf.unstuckfrom:top', function () {
+  (0, _jquery2.default)('.off-canvas').addClass('movedown');
+});
+
 /***/ }),
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {

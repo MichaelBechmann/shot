@@ -52,62 +52,8 @@
 @include motion-ui-transitions;
 @include motion-ui-animations;
 
-.title-bar{
-    height: 2em;
-    width:100%;
-    z-index: 100;
-    button{
-        margin: 0;
-        padding: 0;
-        vertical-align: middle;
-        }
-    }
 
-#menu, #schedule {
-    margin-top:2em;
-    z-index: 50;
-    }
-
-#menu {
-    li {
-        background: #cfa;
-        }
-    }
-
-
-.off-canvas-content{
-    z-index: 0;
-
-    }
-
-
-// schedule
-
-#schedule > div > h1{
-    text-align: center;
-    font-size: 1.4rem;
-    font-weight: bold;
-    }
-
-#schedule .card {
-    background-color: green;
-
-    .card-divider {
-        text-align: center;
-        font-size: 1.2rem;
-        font-weight: bold;
-        }
-
-    h1{
-        text-align: center;
-        font-size: 1.2rem;
-        margin: 0.5rem 0;
-        }
-
-    .saletime {
-        font-weight: bold;
-        }
-    }
-
-
-
+@import 'shot/def/sizes';
+@import 'shot/def/colors';
+@import 'shot/layout';
+@import 'shot/devel';

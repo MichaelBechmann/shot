@@ -154,6 +154,7 @@
 'Herbstmarkt 2015': 'Herbstmarkt 2015',
 'Herbstmarkt 2016': 'Herbstmarkt 2016',
 'Herbstmarkt 2017': 'Herbstmarkt 2017',
+'Herbstmarkt 2018': 'Herbstmarkt 2018',
 'house number': 'Hausnummer',
 'HTML': 'HTML',
 'HTML export of visible columns': 'HTML export of visible columns',
