@@ -319,4 +319,4 @@ shotdb.auth_user['sale_numbers'].readable = False
 shotdb.auth_user['sale_numbers'].writable = False
 
 # version number for static assets
-response.static_version = '0.0.14'
+response.static_version = '0.0.15'
