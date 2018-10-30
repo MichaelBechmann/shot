@@ -12,8 +12,8 @@
 /uploads
 /static/site_root
 
+/foundation_old
 
-# exclude all files within the foundation root directory except for the gulp config file
-/foundation_prj/**
-!/foundation_prj/gulpfile.js
-!/foundation_prj/scss
+/foundation_prj
+
+
