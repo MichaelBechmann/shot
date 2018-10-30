@@ -13,30 +13,45 @@
 	        response.include_files()
 	    }}
 
+
     </head>
 
     <body>
+        <div id="top-bar-wrapper" class="title-bar-slim"">
+            <div  data-sticky-container>
+                <div class="top-bar stacked-for-small is-stuck" data-sticky data-sticky-on="small" data-options="marginTop:0;" >
 
-		<div  data-sticky-container>
-		        <div class="title-bar" data-sticky data-sticky-on="small" data-options="marginTop:0;">
-		            <div class="title-bar-left">
-		                <button class="menu-icon" type="button" data-toggle="menu" data-responsive-toggle="dummy" data-hide-for="medium"></button>
-		            </div>
+			        <div class="top-bar-left title-bar">
+			            <div class="title-bar-left">
+			                <button class="menu-icon" type="button" data-toggle="menu" data-responsive-toggle="dummy" data-hide-for="medium"></button>
+			            </div>
 
-		            <div class="title-bar-title">Secondhand Ottersweier</div>
+			            <div class="title-bar-title">
+	                        <span>Secondhand</span>
+	                        <span><img src={{=URL('static', 'logo/logo_green_tiny.png')}} id="logo"></span>
+	                        <span>Ottersweier</span>
+	                    </div>
 
-		            <div class="title-bar-right">
-		                <button type="button" class="small clear success button" data-toggle="schedule" data-responsive-toggle="dummy" data-hide-for="large">
-		                    Alle Termine
-		                </button>
-		            </div>
+			            <div class="title-bar-right">
+			            </div>
+                    </div>
 
-		        </div>
+                    <div class="top-bar-right" >
+                        <div id="quick-menu" class="expanded button-group">
+                            <a class="button">Termine</a>
+                            <a class="button">Registr.</a>
+                            <a class="button">Förderm.</a>
+                            <a class="button">Kontakt</a>
+                        </div>
+                    </div>
+
+                </div>
+			</div>
 		</div>
 
 
 	    <div class="off-canvas-wrapper">
-	        <div id="menu" class="off-canvas position-left reveal-for-medium" data-off-canvas>
+	        <div id="menu" class="off-canvas position-left reveal-for-medium title-bar-slim"" data-off-canvas>
 	            {{from shotmenu import *}}
 	            {{
 	                if 'wiki_ctrl' not in response._vars:
@@ -46,16 +61,13 @@
 	            {{=createMenu(auth, wiki_ctrl)}}
 	        </div>
 
-	        <div id="schedule" class="off-canvas position-right reveal-for-large" data-off-canvas >
-	              {{=LOAD('components','schedule.load',ajax=True)}}
-	        </div>
-
 	        <div class="off-canvas-content" data-off-canvas-content>
 	            {{include}}
 	        </div>
 	    </div>
 
-    <script src="{{=URL('static','js/app.js')}}"></script>
+            <script src="{{=URL('static','js/app.js')}}"></script>
+
   </body>
 </html>
 
