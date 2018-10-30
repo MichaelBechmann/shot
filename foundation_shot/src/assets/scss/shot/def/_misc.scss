@@ -1,0 +1,12 @@
+// This file contains miscellaneous definitions which fit in none of the other groups.
+
+$TimeTransitionTitleBar:  0.3s;
+$TimeTransitionQuickMenu: 0.3s;
+
+$DelayTransitionTitleBar: $TimeTransitionQuickMenu;
+$DelayTransitionQuickMenu: $TimeTransitionTitleBar;
+
+$TransitionTitleBar: all $TimeTransitionTitleBar ease;
+
+
+$TransitionQuickMenu: all $TimeTransitionQuickMenu ease;

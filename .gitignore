@@ -15,5 +15,7 @@
 
 /foundation_old
 
-/foundation_shot/**
-!/foundation_shot/src
+
+/foundation_shot/dist
+/foundation_shot/node_modules
+/foundation_shot/*.*
