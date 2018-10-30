@@ -1,0 +1,13 @@
+// This file contains definitions related to sizes and positions of the basic layout.
+
+
+
+$HeightTitleBarSlim: 2em;
+$HeightTitleBarBig:  4em;
+$HeightQuickMenu:    2em;
+
+$HeightHeaderSlim:  $HeightTitleBarSlim;
+$HeightHeaderBig:   $HeightTitleBarBig + $HeightQuickMenu;
+
+$LogoSmall: 1.2em;
+$LogoBig:   3em;
