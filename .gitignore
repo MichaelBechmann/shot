@@ -2,6 +2,7 @@
 .*
 *.log
 !.gitignore
+
 /__etc
 /cache
 /cron
@@ -14,6 +15,5 @@
 
 /foundation_old
 
-/foundation_prj/dist
-/foundation_prj/node_modules
-/foundation/*.*
+/foundation_shot/**
+!/foundation_shot/src
