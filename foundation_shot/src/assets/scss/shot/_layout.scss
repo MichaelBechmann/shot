@@ -1,10 +1,17 @@
 // This file contains all style definitions for the positioning of the basic page elements (title bar, menu, sidebar, footer).
 
+
+
 .top-bar, .top-bar-left{
     padding: 0;
     background-color: $ColorBackgroundTop;
+     z-index: 10;
+     opacity: 1;
     }
 
+.top-bar-right{
+        width: 100%;
+}
 .title-bar{
     width:  100%;
     z-index: 100;
@@ -25,16 +32,18 @@
 
 .top-bar .button-group{
         margin: 0;
-        }
+}
+
 .top-bar .button{
     padding: 0.1em;
+    margin-bottom: $QuickMenuButtonMargin;
     }
 
 #quick-menu{
     height: 100%;
     margin: 0;
     .button{
-        height: 100%;
+        height: $QuickMenuButtonHeightSimple;
         }
     }
 
@@ -75,7 +84,7 @@
         }
 
 #top-bar-wrapper{
-    height: $HeightHeaderBig;
+    /*height: $HeightHeaderBig;*/
     transition: #{$TransitionTitleBar};
     }
 #top-bar-wrapper.title-bar-slim{
@@ -86,14 +95,19 @@
 
 
 
+.top-bar.is-anchored {
+    /*height: $HeightQuickMenu;*/
+    transition: #{$TransitionTitleBar};
+    }
+
 .top-bar.is-anchored .top-bar-right{
-    height: $HeightQuickMenu;
+    max-height: 8em;
     transition: #{$TransitionTitleBar};
     }
 
 
 .top-bar.is-stuck .top-bar-right{
-    height: 0;
+    max-height: 0;
     transition: #{$TransitionTitleBar};
     transition-delay: $DelayTransitionTitleBar;
     }
@@ -112,13 +126,34 @@
 
 
 
+
+
 #menu{
     //position: fixed;
-    height: calc(100% - #{$HeightHeaderBig});
     z-index: 50;
-    top: $HeightHeaderBig;
     transition: #{$TransitionTitleBar};
+
+    height: calc(100% - #{$HeightHeaderBig0});
+    top: $HeightHeaderBig0;
+}
+
+@include breakpoint(small down) {
+    #content-wrapper.quick-menu-items-3 #menu{
+        height: calc(100% - #{$HeightHeaderBig3});
+        top: $HeightHeaderBig3;
     }
+    #content-wrapper.quick-menu-items-4 #menu{
+        height: calc(100% - #{$HeightHeaderBig4});
+        top: $HeightHeaderBig4;
+    }
+}
+@include breakpoint(medium) {
+    #menu{
+        height: calc(100% - #{$HeightHeaderBig1});
+        top: $HeightHeaderBig1;
+    }
+}
+
 
 #menu.title-bar-slim{
         top: $HeightHeaderSlim;

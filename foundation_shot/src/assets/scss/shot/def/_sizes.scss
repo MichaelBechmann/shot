@@ -4,10 +4,20 @@
 
 $HeightTitleBarSlim: 2em;
 $HeightTitleBarBig:  4em;
-$HeightQuickMenu:    2em;
 
-$HeightHeaderSlim:  $HeightTitleBarSlim;
-$HeightHeaderBig:   $HeightTitleBarBig + $HeightQuickMenu;
+$QuickMenuButtonHeightSimple: 2em;
+$QuickMenuButtonMargin: 0.1em;
+
+$HeightQuickMenu1:    ($QuickMenuButtonHeightSimple + $QuickMenuButtonMargin);
+$HeightQuickMenu3:    3*$HeightQuickMenu1;
+$HeightQuickMenu4:    4*$HeightQuickMenu1;
+
+$HeightHeaderSlim:   $HeightTitleBarSlim;
+$HeightHeaderBig0:   $HeightTitleBarBig;
+$HeightHeaderBig1:   $HeightTitleBarBig + $HeightQuickMenu1;
+$HeightHeaderBig3:   $HeightTitleBarBig + $HeightQuickMenu3;
+$HeightHeaderBig4:   $HeightTitleBarBig + $HeightQuickMenu4;
 
 $LogoSmall: 1.2em;
 $LogoBig:   3em;
+

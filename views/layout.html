@@ -5,7 +5,7 @@
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Secondhand Ottersweier</title>
-<script src="{{=URL('static','js/app.js')}}"></script>
+
 	    {{
 	        response.files.append(URL('static', 'css/app.css'))
 	        response.include_files()
@@ -17,7 +17,7 @@
     <body>
         <div id="top-bar-wrapper" class="title-bar-slim"">
             <div  data-sticky-container>
-                <div class="top-bar stacked-for-small is-stuck" data-sticky data-sticky-on="small" data-options="marginTop:0;" >
+                <div class="top-bar stacked-for-medium is-stuck" data-sticky data-sticky-on="small" data-options="marginTop:0;" >
 
 			        <div class="top-bar-left title-bar">
 			            <div class="title-bar-left">
@@ -35,7 +35,7 @@
                     </div>
 
                     <div class="top-bar-right" >
-                        <div id="quick-menu" class="expanded button-group">
+                        <div id="quick-menu" class="expanded button-group stacked-for-small">
                             <a class="button">Termine</a>
                             <a class="button">Registr.</a>
                             <a class="button">Förderm.</a>
@@ -64,7 +64,7 @@
 	        </div>
 	    </div>
 
-
+<script src="{{=URL('static','js/app.js')}}"></script>
 
   </body>
 </html>
