@@ -134,8 +134,8 @@ As you've probably noticed in the examples above, you have access to a small, me
 <div class="row up-1 medium-up-3 large-up-5">
   <div class="column">
     <div class="color-block">
-      <span style="background: #2199e8"></span>
-      #2199e8
+      <span style="background: #2199e5"></span>
+      #2199e7
     </div>
   </div>
   <div class="column">

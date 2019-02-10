@@ -1,71 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html class="no-js" lang="en">
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Secondhand Ottersweier</title>
 
-	    {{
-	        response.files.append(URL('static', 'css/app.css'))
+	    {{  if config.enable_registration:
+                css_file = 'css/app4.css'
+                pass
+            else:
+                css_file = 'css/app3.css'
+                pass
+
+	        response.files.append(URL('static', css_file))
 	        response.include_files()
 	    }}
-
-
     </head>
-
     <body>
-        <div id="top-bar-wrapper" class="title-bar-slim"">
-            <div  data-sticky-container>
-                <div class="top-bar stacked-for-medium is-stuck" data-sticky data-sticky-on="small" data-options="marginTop:0;" >
-
-			        <div class="top-bar-left title-bar">
-			            <div class="title-bar-left">
-			                <button class="menu-icon" type="button" data-toggle="menu" data-responsive-toggle="dummy" data-hide-for="medium"></button>
-			            </div>
-
-			            <div class="title-bar-title">
-	                        <span>Secondhand</span>
-	                        <span><img src={{=URL('static', 'logo/logo_green_tiny.png')}} id="logo"></span>
-	                        <span>Ottersweier</span>
-	                    </div>
-
-			            <div class="title-bar-right">
-			            </div>
-                    </div>
-
-                    <div class="top-bar-right" >
-                        <div id="quick-menu" class="expanded button-group stacked-for-small">
-                            <a class="button">Termine</a>
-                            <a class="button">Registr.</a>
-                            <a class="button">Förderm.</a>
-                            <a class="button">Kontakt</a>
-                        </div>
-                    </div>
-
-                </div>
-			</div>
-		</div>
-
-
-	    <div class="off-canvas-wrapper">
-	        <div id="menu" class="off-canvas position-left reveal-for-medium title-bar-slim"" data-off-canvas>
-	            {{from shotmenu import *}}
-	            {{
-	                if 'wiki_ctrl' not in response._vars:
-	                    wiki_ctrl = None
-	                    pass
-	            }}
-	            {{=createMenu(auth, wiki_ctrl)}}
-	        </div>
-
-	        <div class="off-canvas-content" data-off-canvas-content>
-	            {{include}}
-	        </div>
-	    </div>
-
-<script src="{{=URL('static','js/app.js')}}"></script>
-
-  </body>
+        {{include}}
+        <script src="{{=URL('static','js/app.js')}}"></script>
+    </body>
 </html>
 

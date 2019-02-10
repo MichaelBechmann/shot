@@ -1,0 +1,204 @@
+/*
+ * This file contains all style definitions for the positioning of the basic page elements (title bar, menu, sidebar, footer).
+*/
+
+html{
+    font-size: $BaseFotnSize;
+    }
+.top-bar-right, .title-bar{
+        width: 100%;
+}
+
+.title-bar-left{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    }
+div.sticky-container{
+    height: automatic !important;
+    }
+
+
+@include breakpoint(large down) {
+    .top-bar.can-minify.is-stuck .title-bar{
+        height:$HeightTitleBarSlim;
+        transition: #{$TransitionTitleBar};
+        transition-delay: $DelayTransitionTitleBar;
+        }
+    .top-bar.can-minify.is-stuck #quick-menu{
+        opacity: 0;
+        transition: #{$TransitionQuickMenu};
+        }
+    .top-bar.can-minify.is-stuck .top-bar-right, .top-bar.can-minify.is-stuck #quick-menu .button{
+        height: 0;
+        padding: 0;
+        transition: #{$TransitionTitleBar};
+        transition-delay: $DelayTransitionTitleBar;
+        }
+    .top-bar.can-minify.is-stuck  #logo{
+        height: $LogoSmall;
+        transition: #{$TransitionTitleBar};
+        transition-delay: $DelayTransitionTitleBar;
+        }
+
+    .top-bar.can-minify.is-stuck .title-bar-right{
+        opacity: 1;
+        transition: #{$TransitionSymbolUpToTop};
+        transition-delay: $DelayTransitionTitleBar;
+        }
+    .top-bar.can-minify.is-stuck #symbol-up-to-top{
+        height: 1em;
+        }
+
+    .title-bar-right{
+        opacity: 0;
+        transition: #{$TransitionSymbolUpToTop};
+        }
+    #symbol-up-to-top{
+        height: 0px;
+        transition: #{$TransitionSymbolUpToTopSize};
+        transition-delay: $DelayTransitionQuickMenu;
+        }
+
+
+    .top-bar .title-bar{
+        height: $HeightTitleBarBig;
+        transition: #{$TransitionTitleBar};
+        }
+    .top-bar #logo{
+        height: $LogoBig;
+        transition: #{$TransitionTitleBar};
+        }
+    .top-bar #quick-menu{
+        opacity: 1;
+        transition: #{$TransitionQuickMenu};
+        transition-delay: $DelayTransitionQuickMenu;
+        }
+    #menu.title-bar-slim{
+        top: $HeightHeaderSlim;
+        height: calc(100% - #{$HeightHeaderSlim});
+        transition: #{$TransitionTitleBar};
+        transition-delay: $DelayTransitionTitleBar;
+        }
+}
+
+@include breakpoint(small only){
+    .top-bar.quick-menu-items-2 .top-bar-right{
+        height: #{getHeightQuickMenuSingleLineButtons(2)};
+        transition: #{$TransitionTitleBar};
+        }
+    .top-bar.quick-menu-items-3 .top-bar-right{
+        height: #{getHeightQuickMenuSingleLineButtons(3)};
+        transition: #{$TransitionTitleBar};
+        }
+    .top-bar.quick-menu-items-4 .top-bar-right{
+        height: #{getHeightQuickMenuSingleLineButtons(4)};
+        transition: #{$TransitionTitleBar};
+        }
+    #quick-menu .button{
+        height: $HeightQuickMenuButtonSingleLine;
+        }
+    #content-wrapper.quick-menu-items-2 #menu.title-bar-big{
+        top: getHeightHeaderBigSingleLineButtons(2);
+        height: calc(100% - #{getHeightHeaderBigSingleLineButtons(2)});
+    }
+    #content-wrapper.quick-menu-items-3 #menu.title-bar-big{
+        top: getHeightHeaderBigSingleLineButtons(3);
+        height: calc(100% - #{getHeightHeaderBigSingleLineButtons(3)});
+    }
+    #content-wrapper.quick-menu-items-4 #menu.title-bar-big{
+        top: getHeightHeaderBigSingleLineButtons(4);
+        height: calc(100% - #{getHeightHeaderBigSingleLineButtons(4)});
+    }
+}
+
+@include breakpoint(medium only){
+    .top-bar .top-bar-right{
+        height: #{getHeightQuickMenuDoubleLineButtons(1)};
+        transition: #{$TransitionTitleBar};
+        }
+    #menu{
+        height: calc(100% - #{getHeightHeaderBigDoubleLineButtons(1)});
+        top: getHeightHeaderBigDoubleLineButtons(1);
+        }
+    #quick-menu .button{
+        height: $HeightQuickMenuButtonDoubleLine;
+        }
+}
+
+@include breakpoint(large down) {
+    .top-bar, .top-bar-left, .top-bar-right{
+        padding:0;
+        }
+}
+
+@include breakpoint(large only) {
+    .top-bar .top-bar-right{
+        height: #{getHeightQuickMenuSingleLineButtons(1)};
+        transition: #{$TransitionTitleBar};
+        }
+    #menu{
+        height: calc(100% - #{getHeightHeaderBigSingleLineButtons(1)});
+        top: getHeightHeaderBigSingleLineButtons(1);
+        }
+    #quick-menu .button{
+        height: $HeightQuickMenuButtonSingleLine;
+        }
+}
+
+@include breakpoint(huge up) {
+    .title-bar{
+        height: $HeightTitleBarForHuge;
+        }
+    #logo{
+        height: $LogoBig;
+        }
+    .title-bar, #logo, .top-bar, .top-bar-right{
+        transition: #{$TransitionTitleBar};
+        }
+
+    .title-bar-right{
+        opacity: 0;
+        transition: #{$TransitionSymbolUpToTop};
+        }
+    #symbol-up-to-top{
+        height: 0px;
+        transition: #{$TransitionSymbolUpToTopSize};
+        transition-delay: $DelayTransitionQuickMenu;
+        }
+
+    #quick-menu{
+        opacity: 1;
+        transition: #{$TransitionQuickMenu};
+        transition-delay: $DelayTransitionQuickMenu;
+        }
+    #menu{
+        height: calc(100% - $HeightTitleBarForHuge);
+        top: $HeightTitleBarForHuge;
+    }
+    #quick-menu .button{
+        height: $HeightQuickMenuButtonDoubleLine;
+        }
+    .top-bar, .top-bar-left{
+        padding:0;
+        }
+    .top-bar-right{
+        padding: 0 1rem 0 0;
+        }
+}
+
+
+#menu{
+    z-index: 50;
+    transition: #{$TransitionTitleBar};
+}
+
+.off-canvas-content{
+    position: relative;
+    }
+
+.off-canvas.is-closed{
+    visibility: visible;
+    }
+
+// end of file

@@ -43,11 +43,6 @@ def __onvalidation_registration(form):
         form.errors.data_use_agreed = 'Ohne Ihre Zustimmung können wir Ihren Antrag nicht bearbeiten.'
 
 def form():
-
-    # check if appropriation requests are enabled
-    if config.enable_requests == False:
-        redirect(URLWiki('start'))
-
     # note: multiple tables in SQLFORM must not have identical field names, see http://web2py.com/books/default/chapter/29/7#One-form-for-multiple-tables
     display_fields = ['project', 'organization', 'forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email', 'amount_total', 'amount_requested', 'description']
     shotdb.request.description.widget = lambda field,value: SQLFORM.widgets.text.widget(field,value, _cols = 80, _rows = 6)

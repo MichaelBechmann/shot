@@ -1,12 +1,14 @@
 // This file contains miscellaneous definitions which fit in none of the other groups.
 
-$TimeTransitionTitleBar:  0.3s;
-$TimeTransitionQuickMenu: 0.3s;
+$TimeTransitionTitleBar:  0.4s;
+$TimeTransitionQuickMenu: 0.4s;
 
 $DelayTransitionTitleBar: $TimeTransitionQuickMenu;
 $DelayTransitionQuickMenu: $TimeTransitionTitleBar;
 
 $TransitionTitleBar: all $TimeTransitionTitleBar ease;
 
+$TransitionQuickMenu: opacity $TimeTransitionQuickMenu ease;
 
-$TransitionQuickMenu: all $TimeTransitionQuickMenu ease;
+$TransitionSymbolUpToTop:     opacity $TimeTransitionTitleBar  ease;
+$TransitionSymbolUpToTopSize: height  0s ease;

@@ -70,9 +70,7 @@ class ConfigurationConstants:
         Initialize all parameters which are later updated from the database.
         '''
         self.enable_debug           = False # show debug output on each page
-        self.enable_extended_menue  = False # expose additional menu items for staff members even when not logged in
         self.enable_registration    = False # expose registration menu item and activate registration.
-        self.enable_requests        = False # expose appropriation request menu item
         self.enable_tasks           = False # enable execution of tasks (e.g., send invitation mail etc.)
         self.simulate_mail          = True  # send all generated mails to test address
         self.enable_backup_mail     = False # send additional backup mails to test address

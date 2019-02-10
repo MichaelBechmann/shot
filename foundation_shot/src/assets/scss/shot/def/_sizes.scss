@@ -1,23 +1,52 @@
 // This file contains definitions related to sizes and positions of the basic layout.
 
 
+$BaseFotnSize: 16px; // base scale for quantities in rem
 
-$HeightTitleBarSlim: 2em;
-$HeightTitleBarBig:  4em;
+$HeightTitleBarSlim: 2rem;
+$HeightTitleBarBig:  3.2rem;
+$HeightTitleBarForHuge:  4rem;
 
-$QuickMenuButtonHeightSimple: 2em;
-$QuickMenuButtonMargin: 0.1em;
+$LogoSmall: 1.4em;
+$LogoBig:   1.8em;
 
-$HeightQuickMenu1:    ($QuickMenuButtonHeightSimple + $QuickMenuButtonMargin);
-$HeightQuickMenu3:    3*$HeightQuickMenu1;
-$HeightQuickMenu4:    4*$HeightQuickMenu1;
+$HeightQuickMenuButtonSingleLine: 2rem;
+$HeightQuickMenuButtonDoubleLine: 3rem;
+$SpaceQuickMenuButtons: 0.12rem;
+
+
+@function __getHeightQuickMenu($num-lines-quick-menu, $height-button){
+    @return $num-lines-quick-menu * $height-button + ($num-lines-quick-menu - 1) * $SpaceQuickMenuButtons;
+    };
+@function __getHeightHeaderBig($num-lines-quick-menu, $height-button){
+    @return $HeightTitleBarBig + __getHeightQuickMenu($num-lines-quick-menu, $height-button)
+    };
+
+@function getHeightQuickMenuSingleLineButtons($num-lines-quick-menu){
+    // calculates the height of the quick menu depending on the number of menu lines
+    // considers menu buttons with a single text line
+    @return __getHeightQuickMenu($num-lines-quick-menu, $HeightQuickMenuButtonSingleLine)
+};
+@function getHeightQuickMenuDoubleLineButtons($num-lines-quick-menu){
+    // calculates the height of the quick menu depending on the number of menu lines
+    // considers menu buttons with two lines of text
+    @return __getHeightQuickMenu($num-lines-quick-menu, $HeightQuickMenuButtonDoubleLine)
+};
+@function getHeightHeaderBigSingleLineButtons($num-lines-quick-menu){
+    // calculates the height of the complete header including the quick menu depending on the number of menu lines
+    // considers menu buttons with a single text line
+    @return __getHeightHeaderBig($num-lines-quick-menu, $HeightQuickMenuButtonSingleLine)
+};
+@function getHeightHeaderBigDoubleLineButtons($num-lines-quick-menu){
+    // calculates the height of the complete header including the quick menu depending on the number of menu lines
+    // considers menu buttons with two lines of text
+    @return __getHeightHeaderBig($num-lines-quick-menu, $HeightQuickMenuButtonDoubleLine)
+};
 
 $HeightHeaderSlim:   $HeightTitleBarSlim;
 $HeightHeaderBig0:   $HeightTitleBarBig;
-$HeightHeaderBig1:   $HeightTitleBarBig + $HeightQuickMenu1;
-$HeightHeaderBig3:   $HeightTitleBarBig + $HeightQuickMenu3;
-$HeightHeaderBig4:   $HeightTitleBarBig + $HeightQuickMenu4;
 
-$LogoSmall: 1.2em;
-$LogoBig:   3em;
+
+
+
 

@@ -118,7 +118,6 @@ def manage_users():
 
 @auth.requires_membership('admin')
 def configuration():
-
     # provide edit links
     shotdb.config.id.represent = lambda id_, row: A(id_,_href=URL('crud', args = ['config', 'edit', id_]))
     sqltab = SQLTABLE(shotdb(shotdb.config.id > 0).select(),

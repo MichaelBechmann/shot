@@ -4,7 +4,7 @@
  */
 
 import { Triggers } from '../../../node_modules/foundation-sites/js/foundation.util.triggers';
-
+import $ from 'jquery';
 function framework_fixes(){
 
     /**

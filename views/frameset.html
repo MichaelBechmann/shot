@@ -1,0 +1,42 @@
+{{extend 'layout.html'}}
+{{from shotmenu import ShotMenu}}
+
+{{menu = ShotMenu()}}
+
+<div  data-sticky-container>
+    <div  id="MyStickyTopBar" class="top-bar stacked-for-large" data-sticky-on="small" data-options="marginTop:0;">
+        <div class="top-bar-left title-bar">
+            <div class="title-bar-left">
+                <button class="menu-icon" type="button" data-toggle="menu" data-responsive-toggle="dummy" data-hide-for="huge"></button>
+            </div>
+            <div class="title-bar-title">
+
+                    <span>Secondhand</span>
+                    <span><img src={{=URL('static', 'logo/logo.png')}} id="logo"></span>
+                    <span>Ottersweier</span>
+
+            </div>
+            <div class="title-bar-right">
+                <div>
+                    <a href="#top">
+                        <img src={{=URL('static', 'icons/up-to-top.png')}} id="symbol-up-to-top">
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="top-bar-right" >
+            <div id="quick-menu" class="expanded button-group stacked-for-small">
+                {{map(response.write, menu.createQuickMenu())}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="content-wrapper">
+    <div id="menu" class="off-canvas position-left reveal-for-huge title-bar-slim" data-off-canvas data-transition="overlap" data-content-scroll="false">
+        {{=menu.createSideMenu(auth)}}
+    </div>
+    <div class="off-canvas-content" data-off-canvas-content>
+        {{include}}
+    </div>
+</div>
