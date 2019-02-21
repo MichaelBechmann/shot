@@ -1004,7 +1004,9 @@ class Contributions():
                 row.target_number = 0
             n['total'] += row.target_number
             n['taken'] += row.actual_number
-        n['open'] = n['total'] - n['taken']
+            diff = row.target_number - row.actual_number
+            if diff > 0:
+                n['open']  += diff
         return n
 
     def get_number_of_shifts(self, scope = None):

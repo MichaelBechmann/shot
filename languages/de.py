@@ -316,6 +316,7 @@
 'Spielzeugmarkt 2015': 'Spielzeugmarkt 2015',
 'Spielzeugmarkt 2016': 'Spielzeugmarkt 2016',
 'Spielzeugmarkt 2017': 'Spielzeugmarkt 2017',
+'Spielzeugmarkt 2018': 'Spielzeugmarkt 2018',
 'Spielzeugmarkt<del></del> 2015': 'Spielzeugmarkt<del></del> 2015',
 'Spreadsheet-optimised export of tab-separated content including hidden columns. May be slow': 'Spreadsheet-optimised export of tab-separated content including hidden columns. May be slow',
 'Spreadsheet-optimised export of tab-separated content, visible columns only. May be slow.': 'Spreadsheet-optimised export of tab-separated content, visible columns only. May be slow.',
