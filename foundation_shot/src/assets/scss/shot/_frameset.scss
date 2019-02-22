@@ -4,7 +4,12 @@
 
 html{
     font-size: $BaseFotnSize;
+    overflow-x: auto;
+    overflow-y: scroll;
     }
+
+
+
 .top-bar-right, .title-bar{
         width: 100%;
 }
@@ -184,6 +189,10 @@ div.sticky-container{
         }
     .top-bar-right{
         padding: 0 1rem 0 0;
+        }
+    .menu-icon{
+        // The menu icon is hidden by the framework but only after the java scipt has been executed which produces an annoying flicker effect at loading
+        display: none;
         }
 }
 
