@@ -8,8 +8,6 @@ html{
     overflow-y: scroll;
     }
 
-
-
 .top-bar-right, .title-bar{
         width: 100%;
 }
@@ -19,12 +17,17 @@ html{
     flex-direction: column;
     justify-content: center;
     }
-div.sticky-container{
-    height: automatic !important;
-    }
 
 
 @include breakpoint(large down) {
+
+    .sticky-container.can-minify{
+        height: $HeightTitleBarSlim;
+        }
+     .sticky-container{
+        height: $HeightTitleBarBig;
+        }
+
     .top-bar.can-minify.is-stuck .title-bar{
         height:$HeightTitleBarSlim;
         transition: #{$TransitionTitleBar};

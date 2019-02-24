@@ -12251,7 +12251,7 @@ function (_Plugin) {
       }
 
       this.scrollCount = this.options.checkEvery;
-      this.isStuck = false; // Bec fix: Without this fix the sticky top bar is not initialized before all images on a apge are completely loaded.
+      this.isStuck = false; // Bec fix: Without this fix the sticky top bar is not initialized before all images on a page are completely loaded.
       // this.onLoadListener = onLoad($(window), function () { // Bec fix: original line
 
       this.onLoadListener = jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).ready(function () {
@@ -12476,7 +12476,22 @@ function (_Plugin) {
        * Namespaced to `top` or `bottom`, e.g. `sticky.zf.stuckto:top`
        * @event Sticky#stuckto
        */
-      .trigger("sticky.zf.stuckto:".concat(stickTo));
+      .trigger("sticky.zf.stuckto:".concat(stickTo)); // Bec fix
+      //this.$element.on("transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd", function() {
+      //    _this._setSizes();
+      //  });
+    }
+    /**
+     * Bec fix
+     *
+     *
+     */
+
+  }, {
+    key: "_setTransitionTrigger",
+    value: function _setTransitionTrigger() {
+      var _this = this;
+
       this.$element.on("transitionend webkitTransitionEnd oTransitionEnd otransitionend MSTransitionEnd", function () {
         _this._setSizes();
       });
@@ -23164,7 +23179,6 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).ready(function () {
    * This is done to use the code in foundation_shot/node_modules/foundation-sites/js/foundation.sticky.js
    * instead of any code in /dist.
    * The code in foundation.sticky.js is modified such that the plugin is initialized when the document is ready.
-   * Also, the modified class Sticky does not add any inline styles (e.g., the annoying height)!
    */
 
   var options = {
@@ -23172,9 +23186,12 @@ jquery__WEBPACK_IMPORTED_MODULE_0___default()(document).ready(function () {
     marginBottom: 0
   };
   var MyStickyTopBar = new foundation_sites_js_foundation_sticky__WEBPACK_IMPORTED_MODULE_3__["Sticky"](jquery__WEBPACK_IMPORTED_MODULE_0___default()('#MyStickyTopBar'), options);
+
+  MyStickyTopBar._setTransitionTrigger();
   /**
    * Toggle activity of menu item if some other item is clicked
    */
+
 
   jquery__WEBPACK_IMPORTED_MODULE_0___default()('#menu li:not(.is-accordion-submenu-parent):not(.active) > a').click(function () {
     jquery__WEBPACK_IMPORTED_MODULE_0___default()('.active').removeClass('active');

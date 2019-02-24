@@ -70,11 +70,10 @@ $(document).ready(function(){
       * This is done to use the code in foundation_shot/node_modules/foundation-sites/js/foundation.sticky.js
       * instead of any code in /dist.
       * The code in foundation.sticky.js is modified such that the plugin is initialized when the document is ready.
-      * Also, the modified class Sticky does not add any inline styles (e.g., the annoying height)!
       */
      var options = {marginTop:0, marginBottom: 0};
      let MyStickyTopBar = new Sticky($('#MyStickyTopBar'), options);
-
+     MyStickyTopBar._setTransitionTrigger();
 
      /**
       * Toggle activity of menu item if some other item is clicked
