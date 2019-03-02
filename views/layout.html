@@ -6,6 +6,14 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Secondhand Ottersweier</title>
 
+        <link rel="apple-touch-icon"      sizes="180x180" href="{{=URL('static','_%s/logo/apple-touch-icon.png'  % response.static_version)}}">
+        <link rel="icon"                  sizes="32x32"   href="{{=URL('static','_%s/logo/favicon-32x32.png'     % response.static_version)}}" type="image/png">
+        <link rel="icon"                  sizes="16x16"   href="{{=URL('static','_%s/logo//favicon-16x16.png'    % response.static_version)}}" type="image/png" >
+        <link rel="manifest"                              href="{{=URL('static','_%s/logo/site.webmanifest'      % response.static_version)}}">
+        <link rel="mask-icon"                             href="{{=URL('static','_%s/logo/safari-pinned-tab.svg' % response.static_version)}}" color="#00a300">
+        <meta name="msapplication-TileColor" content="#00a300">
+        <meta name="theme-color" content="#00a300">
+
 	    {{  if config.enable_registration:
                 css_file = 'css/app4.css'
                 pass
@@ -18,19 +26,8 @@
 	    }}
     </head>
     <body>
-
-<<<<<<< HEAD
         {{include}}
         <script src="{{=URL('static','js/app.js')}}"></script>
     </body>
 </html>
-=======
-  <link rel="apple-touch-icon"      sizes="180x180" href="{{=URL('static','_%s/logo/apple-touch-icon.png'  % response.static_version)}}">
-  <link rel="icon"                  sizes="32x32"   href="{{=URL('static','_%s/logo/favicon-32x32.png'     % response.static_version)}}" type="image/png">
-  <link rel="icon"                  sizes="16x16"   href="{{=URL('static','_%s/logo//favicon-16x16.png'    % response.static_version)}}" type="image/png" >
-  <link rel="manifest"                              href="{{=URL('static','_%s/logo/site.webmanifest'      % response.static_version)}}">
-  <link rel="mask-icon"                             href="{{=URL('static','_%s/logo/safari-pinned-tab.svg' % response.static_version)}}" color="#00a300">
-  <meta name="msapplication-TileColor" content="#00a300">
-  <meta name="theme-color" content="#00a300">
->>>>>>> refs/heads/master_desktop
 
