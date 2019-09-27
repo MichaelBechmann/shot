@@ -3,14 +3,14 @@
 */
 
 html{
-    font-size: $BaseFotnSize;
+    font-size: $BaseFontSize;
     overflow-x: auto;
     overflow-y: scroll;
     }
 
 .top-bar-right, .title-bar{
-        width: 100%;
-}
+    width: 100%;
+    }
 
 .title-bar-left{
     display: flex;
@@ -118,6 +118,12 @@ html{
         top: getHeightHeaderBigSingleLineButtons(4);
         height: calc(100% - #{getHeightHeaderBigSingleLineButtons(4)});
     }
+    #menu {
+        padding: map-get($content-padding-top, small) 0 0 0;
+        }
+    .off-canvas-content{
+        padding: map-get($content-padding-top, small) map-get($content-padding-horizontal, small) 0 map-get($content-padding-horizontal, small);
+        }
 }
 
 @include breakpoint(medium only){
@@ -128,15 +134,20 @@ html{
     #menu{
         height: calc(100% - #{getHeightHeaderBigDoubleLineButtons(1)});
         top: getHeightHeaderBigDoubleLineButtons(1);
+        padding: map-get($content-padding-top, medium) 0 0 0;
         }
     #quick-menu .button{
         height: $HeightQuickMenuButtonDoubleLine;
         }
+    .off-canvas-content{
+        padding: map-get($content-padding-top, medium) map-get($content-padding-horizontal, medium) 0 map-get($content-padding-horizontal, medium);
+        }
+
 }
 
 @include breakpoint(large down) {
     .top-bar, .top-bar-left, .top-bar-right{
-        padding:0;
+        padding: 0;
         }
 }
 
@@ -148,11 +159,16 @@ html{
     #menu{
         height: calc(100% - #{getHeightHeaderBigSingleLineButtons(1)});
         top: getHeightHeaderBigSingleLineButtons(1);
+        padding: map-get($content-padding-top, large) 0 0 0;
         }
     #quick-menu .button{
         height: $HeightQuickMenuButtonSingleLine;
         }
+    .off-canvas-content{
+        padding: map-get($content-padding-top, large) map-get($content-padding-horizontal, large) 0 map-get($content-padding-horizontal, large);
+        }
 }
+
 
 @include breakpoint(huge up) {
     .title-bar{
@@ -181,24 +197,38 @@ html{
         transition-delay: $DelayTransitionQuickMenu;
         }
     #menu{
-        height: calc(100% - $HeightTitleBarForHuge);
+        height: calc(100% - #{$HeightTitleBarForHuge});
         top: $HeightTitleBarForHuge;
+        padding: map-get($content-padding-top, huge)0 0 0;
     }
     #quick-menu .button{
         height: $HeightQuickMenuButtonDoubleLine;
         }
     .top-bar, .top-bar-left{
-        padding:0;
+        padding: 0 map-get($content-padding-horizontal, huge) 0 0;
         }
-    .top-bar-right{
-        padding: 0 1rem 0 0;
-        }
+
     .menu-icon{
         // The menu icon is hidden by the framework but only after the java scipt has been executed which produces an annoying flicker effect at loading
         display: none;
         }
+    .off-canvas-content{
+        padding: map-get($content-padding-top, huge) map-get($content-padding-horizontal, huge) 0 map-get($content-padding-horizontal, huge);
+        }
 }
 
+@include breakpoint(medium up) {
+    div.button-group a.button.hollow{
+        margin-top: $buttongroup-spacing;
+        &:last-child{
+            margin-top: $buttongroup-spacing;
+            }
+        }
+    }
+
+#quick-menu a.active, #menu li.active > a{
+    cursor: default;
+    }
 
 #menu{
     z-index: 50;
@@ -207,10 +237,24 @@ html{
 
 .off-canvas-content{
     position: relative;
+    @include breakpoint(small only) {
+        padding-bottom: 2px;
+        }
+    @include breakpoint(medium) {
+        padding-bottom: 4px;
+        }
+    @include breakpoint(large) {
+        padding-bottom: 0.4rem;
+        }
+    @include breakpoint(huge) {
+        padding-bottom: 0.6rem;
+        }
     }
 
 .off-canvas.is-closed{
     visibility: visible;
     }
+
+
 
 // end of file

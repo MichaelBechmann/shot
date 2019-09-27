@@ -13,9 +13,9 @@
 /uploads
 /static/site_root
 
-/foundation_old
-
+/foundation_tmpl
 
 /foundation_shot/dist
 /foundation_shot/node_modules
 /foundation_shot/*.*
+/foundation_shot/ExternalAddOns

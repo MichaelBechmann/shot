@@ -1,9 +1,9 @@
 {{extend 'frameset.html'}}
 {{
-from formutils import TableUtils, getActNumberRatio
+from formutils import TableUtils, ContributionCompleteness
 tu = TableUtils()
 
-response.write(H3('Dashboard (%s)'%event))
+response.write(H1('Dashboard (%s)'%event))
 
 response.write(P('Statistik zu den Kommissionsnummern:'))
 response.write(TABLE(TR('Insgesamt zu vergebene Nummern', n_limit,     _class = tu.get_class_evenodd()),
@@ -26,7 +26,7 @@ aux = [('Öffentliche Schichten insgesamt', n_shifts_public['taken'], n_shifts_p
        ('Team-Schichten insgesamt',        n_shifts_team['taken'],   n_shifts_team['total'])]
 aux.extend([('%s, %s, %s' % (s.day, s.time, s.activity), s.actual_number, s.target_number) for s in shifts])
 response.write(TABLE(
-                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = getActNumberRatio(x[1], x[2])['_class']), _class = tu.get_class_evenodd()) for x in aux],
+                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = ContributionCompleteness(x[1], x[2])._class), _class = tu.get_class_evenodd()) for x in aux],
                      _class = 'list' ))
 response.write(BR())
 response.write(BR())
@@ -38,7 +38,7 @@ tu.reset()
 aux = [('Insgesamt', n_donations['taken'], n_donations['total'])]
 aux.extend([(d.item, d.actual_number, d.target_number) for d in donations])
 response.write(TABLE(
-                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = getActNumberRatio(x[1], x[2])['_class']), _class = tu.get_class_evenodd()) for x in aux],
+                     *[TR(x[0], TD('%d / %d' % (x[1], x[2]), _class = ContributionCompleteness(x[1], x[2])._class), _class = tu.get_class_evenodd()) for x in aux],
                      _class = 'list' ))
-            
+
 }}

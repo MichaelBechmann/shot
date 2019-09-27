@@ -166,14 +166,14 @@ config.msg.wait                 = 'The processing of your data takes some time. 
 
 
 
-config.progress.registration_sale = {'label': 'Ihr Gesamtfortschritt bei der Anmeldung',
-                                     'steps': ['Registrierungsformular ausfüllen',
+config.progress.registration_sale = {'label': 'Ihr Fortschritt bei der Anmeldung:',
+                                     'steps': ['Formular zur Registrierung ausfüllen',
                                                'Registrierung überprüfen und absenden',
                                                'E-Mail-Adresse verifizieren',
                                                'Anmeldeformular zum Markt ausfüllen',
-                                               'Anmeldung zum Markt überprüfen und absenden']
+                                               'Anmeldung überprüfen und absenden']
                                      }
-config.progress.appropriation     = {'label': 'Ihr Fortschritt',
+config.progress.appropriation     = {'label': 'Ihr Fortschritt beim Förderantrag:',
                                      'steps': ['Antragsformular ausfüllen',
                                                'Antrag überprüfen und absenden']
                                      }
@@ -252,11 +252,25 @@ config.colsets_auth['email_subscription'] = ['auth_email_subscription.id', 'auth
 
 config.shift_scopes = ('public', 'team')
 
-config.mail_enabled_options = {}
-config.mail_enabled_options['yes'] = 'Bitte senden Sie mir persönliche Einladungen für zukünftige Märkte zu.'
-config.mail_enabled_options['no']  = 'Ich möchte lieber keine Einladungen erhalten.'
 
 config.data_use_agreed_option = {}
 config.data_use_agreed_option['registration']  = 'Ich erlaube dem Secondhand-Team, meine persönlichen Daten für die Organisation der Secondhand-Märkte zu speichern und zu verarbeiten.'
 config.data_use_agreed_option['appropriation'] = 'Ich erlaube dem Secondhand-Team, meine persönlichen Daten sowie die Angaben zu meinem Projekt zur Bearbeitung meines Antrags zu speichern und zu verarbeiten.'
+
+
+config.radio_options_mail_enabled = {}
+config.radio_options_mail_enabled['yes'] = 'Bitte senden Sie mir persönliche Einladungen für zukünftige Märkte zu.'
+config.radio_options_mail_enabled['no']  = 'Ich möchte lieber keine Einladungen erhalten.'
+
+
+config.radio_options_contact = {}
+config.radio_options_contact['help']    = 'Helferschichten oder Kuchenspenden'
+config.radio_options_contact['tech']    = 'Technische Probleme mit dieser Seite'
+config.radio_options_contact['data']    = 'Anliegen zum Schutz persönlicher Daten, z.B. einen Löschauftrag.'
+config.radio_options_contact['general'] = 'Sonstiges'
+
+config.mapping_yes_no_bool = {'yes': True, 'no': False, True: 'yes', False: 'no'}
+
+
+
 

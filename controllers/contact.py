@@ -4,27 +4,21 @@ This file contains everything related to the contact form.
 
 # Static analyzer import helpers: (STATIC_IMPORT_MARK)
 if 0:
-    from gluon.languages import translator as T
+    from gluon.packages.dal.pydal.validators import *
     from gluon import *
     import gluon
     global request
     global response
     global session
     global shotdb
+    global T
 
 from shotmail import *
-from formutils import regularizeName
+from formutils import *
 from urlutils import URLWiki
 from shoterrors import ShotErrorRobot
 
 T.force('de')
-
-def __regularize_form_input(form):
-    '''
-    This function brings the user input to standard.
-    '''
-    for field in ('forename', 'name'):
-        form.vars[field] = regularizeName(form.vars[field])
 
 def form():
     '''
@@ -34,20 +28,21 @@ def form():
 
     display_fields = ['forename', 'name', 'email']
 
-    form = SQLFORM(shotdb.person, fields = display_fields, submit_button = T('go!'))
+    extra_fields = [Field('category', 'string', label = 'Ihre Nachrich betrifft:', widget = lambda field, value: FoundationWidgetRadio(field, value, config.radio_options_contact, 'general')),
 
-    # Add additional elements: see web2py book, 'Forms and Validators'
+                    Field('message', 'text', label = 'Nachricht:', widget = FoundationWidgetText,
+                          comment  = 'Geben Sie hier bitte Ihre Nachricht oder Frage an uns ein.',
+                          requires = IS_NOT_EMPTY(error_message = 'Bitte vergessen Sie Ihr Anliegen nicht.'))
+                    ]
+
+    form = SQLFORM(shotdb.person,
+                   fields = display_fields,
+                   extra_fields = extra_fields,
+                   formstyle= generateFoundationForm,
+                   buttons = [FormButton().send('Nachricht senden')])
 
 
-    form[0].insert(-1, TR('',                TD( INPUT(_type='radio', _name='category', _value = 'help'),                       'betrifft die Helferschichten oder Spenden.')))
-    form[0].insert(-1, TR(T('My message:'),  TD( INPUT(_type='radio', _name='category', _value = 'tech'),                       'betrifft technische Probleme mit dieser Seite.')))
-    form[0].insert(-1, TR(T(''),             TD( INPUT(_type='radio', _name='category', _value = 'data'),                       'Anliegen zum Schutz persönlicher Daten, z.B. einen Löschauftrag.')))
-    form[0].insert(-1, TR('',                TD( INPUT(_type='radio', _name='category', _value = 'general', value = 'general'), 'betrifft sonstiges.')))
-
-    form[0].insert(-1, TR('',   TEXTAREA(_type = 'text', _name='message', _cols = 50, _rows = 8)))
-
-
-    if form.validate(onvalidation = __regularize_form_input):
+    if form.validate(onvalidation = regularizeFormInputPersonForm):
         name  = form.vars.forename + ' ' + form.vars.name
         msg   = form.vars.message
         email = form.vars.email

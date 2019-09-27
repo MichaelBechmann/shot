@@ -1,0 +1,392 @@
+/*
+ * This file contains all styles for the actual contents like text, links, components, cards, etc.
+*/
+
+
+/*
+ * Text elements
+*/
+
+p {
+    text-align: justify;
+    text-justify: inter-word;
+    }
+
+a.intext {
+    border-bottom: 2px dotted;
+    color: $black;
+    &:hover{
+        color: $primary-color;
+        }
+    }
+
+.error-component{
+    text-align: center;
+    color: gray;
+    font-style:italic;
+    }
+
+
+@mixin padding-event-cards($val){
+    & .cell.stacked, & .cell.side-by-side{
+        padding: 0 $val $val $val;
+        &:last-child{
+            padding: 0 $val 0 $val;
+            }
+        }
+    }
+
+//announcement of events
+.announcement-events{
+    max-width: 32em;
+    padding: 0;
+    @include padding-event-cards(4px)
+
+    text-align: center;
+    .card-divider{
+        display: block;
+        font-weight: bold;
+        }
+    }
+
+// all dates tables
+.overview-all-dates{
+    max-width: 34em;
+    padding: 0;
+
+    @include padding-event-cards(4px)
+
+    text-align: center;
+    .card-divider{
+        display: block;
+        font-weight: bold;
+        }
+    table{
+        width: 100%;
+
+        }
+
+    td{
+        padding: 0.4em 0 0 0;
+        }
+    tr:first-child > td{
+        padding: 0;
+        }
+
+    td:first-child{
+        @include breakpoint(small){
+            width: 8em;
+            }
+        @include breakpoint(medium){
+            width: 40%;
+            }
+        @include breakpoint(large up){
+            width: 14em;
+            }
+        }
+    }
+
+
+.overview-all-dates table{
+    tbody {
+        border: none;
+        }
+
+    tbody tr:nth-child(2n){
+        background-color: $white;//scale-color($primary-color, $lightness: $table-background-lightness);
+        }
+    }
+
+/*
+ * Data grids on confirmation pages
+*/
+div.ctblconfdat {
+
+    & .grid-x{
+        margin-bottom: $grid-margin-gutters;
+        }
+    }
+
+/*
+ * Flyer cards
+*/
+div.flyers{
+    @include flex;
+    flex-flow  : row wrap;
+    margin: 0 0 $paragraph-margin-bottom 0;
+
+    & .card{
+        width: 300px;
+        flex-grow  : 0;
+        flex-shrink: 1;
+    }
+    @include breakpoint(large down){
+        justify-content: space-evenly;
+        & .card{
+            margin: 0 0 0.5em 0;
+            }
+        }
+    @include breakpoint(huge){
+        justify-content: flex-start;
+        & .card{
+            margin: 0 0.5em 0.5em 0;
+            }
+        }
+}
+
+/*
+ * collection of request cards
+*/
+
+@mixin bottom-line-fading{
+    content: '';
+    pointer-events: none;
+    position: absolute;
+
+    height: 1.25em;
+    width: 50%;
+    bottom: 0;
+    right: 0;
+
+    background-image: -webkit-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+    background-image: -moz-linear-gradient(right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+    background-image: -ms-linear-gradient(right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+    background-image: -o-linear-gradient(right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+    background-image: linear-gradient(to right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
+}
+
+$card-elements-margin: 0 0 0.6em 0;
+$card-distance: 0.2rem;
+
+.requests-collection{
+    @include flex;
+    flex-flow: row wrap;
+    padding: 0;
+
+    .card{
+        width: 25rem;
+        margin: $card-distance;
+        padding: 0 0.25em 0 0.25em;
+
+        .card-divider{
+            height: 2.5em;
+            line-height: 1.2em;
+            justify-content: space-between;
+            overflow: hidden;
+            text-align: justify;
+            padding: 0;
+            margin: $card-elements-margin;
+
+            div:first-child{
+                font-weight: bold;
+                }
+            & > div:first-child{
+                position: relative;
+                &::after{
+                    @include bottom-line-fading
+                    }
+                }
+            }
+        }
+    .req_amounts{
+        min-width: 5.5em;
+        text-align: right;
+        }
+    .req_amount_req{
+        font-size: 1.2em;
+        }
+    .req_amount_spent{
+        color: $primary-color;
+        }
+    .req_orga{
+        @include flex;
+        justify-content: space-between;
+        height: 2.5em;
+        line-height: 1.2em;
+        margin: $card-elements-margin;
+
+        & > div:first-child{
+            position: relative;
+            overflow: hidden;
+            text-align: justify;
+
+            &::after{
+                @include bottom-line-fading
+                }
+            }
+        & > div:last-child{
+            padding: 0 0 0 0.6em;
+            }
+        }
+    .req_descr{
+        position: relative;
+        height: 5em;
+        line-height: 1.2em;
+        overflow: hidden;
+        text-align: justify;
+
+        &::after{
+            @include bottom-line-fading
+            }
+        }
+    .req_controls{
+        span{
+            font-style: italic;
+            &::before{
+                font-style: normal;
+                margin: 0 0.5em 0 0;
+                }
+            }
+        a:first-child{
+            margin: 0 3em 0 0;
+            & span::before{
+                @include req-card-details-icon;
+                }
+            }
+        a:last-child span::before{
+            @include req-card-edit-icon;
+            }
+        }
+    }
+
+/*
+ * collection of shifts in sale form
+*/
+.shifts-collection, .donations-collection{
+    @include flex;
+    flex-flow: row wrap;
+    padding: 0;
+    align-items: flex-start;
+
+    .card{
+        width: 20rem;
+        margin: $card-distance;
+        padding: 0.25em;
+
+        .card-divider{
+            line-height: 1.2em;
+            justify-content: space-between;
+            overflow: hidden;
+            padding: 0;
+            margin: 0;
+
+            div:first-child{
+                font-weight: bold;
+                text-align: left;
+                }
+            div:last-child{
+                flex-shrink: 0;
+                font-size:0.75em;
+                }
+            }
+        .card-section{
+            padding: 0;
+            margin: 0.5em 0 0 0;
+            .afe{
+                margin: 0 0 0 1em;
+                }
+            }
+        &.cctrbpasv{
+            color: $medium-gray;
+            }
+        &.cctrbactv{
+            .cactnl {
+                color: $color-for-incomplete;
+                }
+            .cactnm {
+                color: $black;
+                }
+            .cactnh {
+                color: $color-for-complete;
+                }
+            }
+        }
+    }
+
+.card.flex_last_row_filler{
+    border: none;
+    margin: 0 $card-distance 0 0;
+    padding: 0;
+    }
+
+div[data-toggler].default-hidden{
+    display: none;
+    }
+
+.is_hidden{
+    display: none;
+    }
+
+p.toggle-close{
+    text-align: right;
+    }
+
+
+#isnumform {
+    margin: 0 $card-distance;
+    div.afe{
+        @include flex;
+        flex-flow: row wrap;
+        justify-content: center;
+        margin: 0.5em 0;
+        }
+    }
+
+.callout{
+    margin: 1em $card-distance;
+    }
+
+div.ctblconfdat p{
+    line-height: $global-lineheight;
+    margin: 0;
+    text-align: left;
+    }
+
+div.shift_comment{
+    text-align: justify;
+    }
+
+div.donation_note > {
+    div:first-child{
+        text-align: justify;
+        }
+    ul{
+        list-style-type: none;
+        margin: 0 0 0 1em;
+        }
+    }
+
+#inoctrb .afe{
+    margin: 0 0 0 1em;
+    }
+
+
+table.number_status_map td{
+    border: 1px solid $medium-gray;
+    text-align: center
+    }
+
+table.number_status_map td.free {
+    background: #ffffff;
+}
+table.number_status_map td.reserved {
+    background: #ffffbb;
+}
+table.number_status_map td.reserved_team {
+    background: #ffff00;
+}
+table.number_status_map td.new {
+    background: #99ddff;
+}
+table.number_status_map td.old_number {
+    background: #aaffaa;
+}
+table.number_status_map td.not_old_number {
+    background: #ff6f6f;
+}
+table.number_status_map td.not_old_but_missed_previous {
+    background: #ffcfcf;
+}
+table.number_status_map td.unknown {
+    background: #bbbbbb;
+}

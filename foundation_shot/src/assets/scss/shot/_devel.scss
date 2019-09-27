@@ -1,2 +1,13 @@
 // This file contains temporary definitions for development and testing purposes only.
+//
+
+@font-face {
+  font-family: myFirstFont;
+  src: url("../fonts/fa-regular-400.woff");
+}
+
+div.test {
+  font-family: myFirstFont;
+}
+div.test:before{content:"\f007"}
 

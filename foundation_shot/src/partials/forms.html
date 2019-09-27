@@ -1,0 +1,211 @@
+<h1>The Forms</h1>
+
+<h2>The Progress Bar</h2>
+<div class="cprogressbar">
+    <div class="cprogresslabel">
+        Ihr Gesamtfortschritt bei der Anmeldung
+    </div>
+    <div class="cprogresssteps">
+        <div class="cprogressdone">
+            1. Formular zur Registrierung ausfüllen
+        </div>
+        <div class="cprogressdone">
+            2. Registrierung überprüfen und absenden
+        </div>
+        <div class="cprogresscurrent">
+            3. E-Mail-Adresse verifizieren
+        </div>
+        <div class="cprogressmissing">
+            4. Anmeldeformular zum Markt ausfüllen
+        </div>
+        <div class="cprogressmissing">
+            5. Anmeldung zum Markt überprüfen und absenden
+        </div>
+    </div>
+</div>
+
+
+
+
+<h2>Forms with grid container</h2>
+<form>
+  <div class="grid-container">
+    <div class="grid-x grid-padding-x">
+        <div class="small-2 cell">
+          <label for="right-label" class="text-left">Label</label>
+        </div>
+        <div class="small-10 cell">
+          <input type="text" id="right-label" placeholder="Right-aligned text input">
+        </div>
+    </div>
+    <div class="grid-x grid-padding-x">
+        <div class="small-2 cell">
+          <label for="right-label" class="text-right middle">Label</label>
+        </div>
+        <div class="small-10 cell">
+          <input type="text" id="right-label" placeholder="Right-aligned text input">
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-x">
+        <div class="small-12 medium-2 cell">
+          <label for="xxx" class="text-left medium-middle">Label</label>
+        </div>
+        <div class="small-12 medium-10 cell">
+          <input type="text" id="xxx" placeholder="Right-aligned text input" value = "This is invalid content!" class="invalidinput">
+
+          <div class="error_wrapper"><div class="error" id="forename__error" style="">Bitte geben Sie Ihren Vornamen an.</div></div>
+
+        </div>
+    </div>
+
+    <div class="grid-x grid-padding-x">
+        <div class="small-2 cell">
+          <label for="message" class="text-right middle">Your Message</label>
+        </div>
+        <div class="small-10 cell">
+          <textarea  id="message" placeholder="This is your message"></textarea>
+        </div>
+    </div>
+
+    <fieldset class="fieldset">
+      <legend>Check these out</legend>
+      <div class="afe">
+      <input  id="checkbox12" type="checkbox">
+
+        <div class="error_wrapper">
+            <div class="error" id="data_use_agreed__error" style="">
+                Ohne Ihre explizite Einwilligung werden wir Ihre Daten nicht verarbeiten.
+            </div>
+        </div>
+
+      <label for="checkbox12" >Checkbox 1</label>
+      </div>
+      <div class="afe">
+      <input  id="checkbox22" type="checkbox" checked>
+      <label for="checkbox22">Checkbox 2</label>
+      </div>
+      <div class="afe">
+      <input  id="checkbox32" type="checkbox">
+      <label for="checkbox32">Checkbox 3, This is some extraordinarily long label for testing.</label>
+      </div>
+    </fieldset>
+
+    <fieldset class="fieldset no-bottom-padding">
+      <legend>Check these out</legend>
+      <div class="afe">
+      <input  id="radio12" type="radio" name="radios_xxx">
+      <label for="radio12" >Checkbox 1, This is some extraordinarily long label for testing.</label>
+      </div>
+      <div class="afe">
+      <input  id="radio22" type="radio" checked name="radios_xxx">
+      <label for="radio22">Checkbox 2</label>
+      </div>
+      <div class="afe">
+      <input  id="radio32" type="radio" name="radios_xxx">
+      <label for="radio32">Checkbox 3</label>
+      </div>
+    </fieldset>
+
+<div class="switch">
+  <input class="switch-input" id="exampleRadioSwitch1xxx" type="radio"  value="a" name="testGroup">
+  <label class="switch-paddle" for="exampleRadioSwitch1xxx">
+    <span class="show-for-sr">Bulbasaur</span>
+  </label>
+</div>
+<div class="switch">
+  <input class="switch-input" id="exampleRadioSwitch2xxx" type="radio"  value="b" name="testGroup">
+  <label class="switch-paddle" for="exampleRadioSwitch2xxx">
+    <span class="show-for-sr">Bulbasaur2</span>
+  </label>
+</div>
+
+<p>Foundation's switches use a checkbox to toggle the switch states. You can also use <code>&lt;input type="radio"&gt;</code> instead of <code>checkbox</code> to create a series of options. Make sure your switches each use a unique id and that id matches the id in the <code>for=""</code> attribute of the label.</p>
+
+<p>To start a switch in the active state, add the <code>checked</code> attribute to the <code>input</code>.</p>
+
+<div class="switch tiny">
+  <input class="switch-input" id="exampleRadioSwitch1" type="radio" checked name="testGroup">
+  <label class="switch-paddle" for="exampleRadioSwitch1">
+    <span class="show-for-sr">Bulbasaur</span>
+  </label>
+</div>
+
+<div class="switch small">
+  <input class="switch-input" id="exampleRadioSwitch2" type="radio" name="testGroup">
+  <label class="switch-paddle" for="exampleRadioSwitch2">
+    <span class="show-for-sr">Bulbasaur</span>
+  </label>
+</div>
+
+<div class="switch">
+  <input class="switch-input" id="exampleRadioSwitch3" type="radio" name="testGroup">
+  <label class="switch-paddle" for="exampleRadioSwitch3">
+    <span class="show-for-sr">Bulbasaur</span>
+  </label>
+</div>
+
+
+<p>Do you like me?</p>
+<div class="switch large">
+  <input class="switch-input" id="yes-no" type="checkbox" name="exampleSwitch">
+  <label class="switch-paddle" for="yes-no">
+    <span class="show-for-sr">Do you like me?</span>
+    <span class="switch-active" aria-hidden="true">Yes</span>
+    <span class="switch-inactive" aria-hidden="true">No</span>
+  </label>
+</div>
+
+<label>
+  What books did you read over summer break?
+  <textarea placeholder="None">blub</textarea>
+</label>
+
+    <div class="grid-x grid-padding-x">
+      <div class="medium-6 cell">
+        <label>Vorname
+          <input type="text" placeholder="Ihr Vorname">
+        </label>
+      </div>
+      <div class="medium-6 cell">
+        <label>Nachname
+          <input type="text" placeholder="Ihr Nachname">
+        </label>
+      </div>
+      <div class="medium-6 cell">
+        <label>E-Mail
+          <input type="text" placeholder="jemand@dort.eu">
+        </label>
+      </div>
+    </div>
+  </div>
+</form>
+
+<h2>without grid container</h2>
+<form>
+    <div class="grid-x grid-padding-x">
+      <div class="medium-6 cell">
+        <label>Input Label
+          <input type="text" placeholder=".medium-6.cell">
+        </label>
+      </div>
+      <div class="medium-6 cell">
+        <label>Input Label
+          <input type="text" placeholder=".medium-6.cell">
+        </label>
+      </div>
+    </div>
+</form>
+
+
+<h2>form buttons</h2>
+<form action="#" enctype="multipart/form-data" method="post">
+    <div class="expanded button-group">
+        <button type='button' class="button back">zurück</button>
+        <button type='button' class="button next">weiter</button>
+        <button type='submit' class="button send">senden</button>
+    </div>
+</form>
+
+
+

@@ -19,3 +19,6 @@ def URLUser(args = 'profile'):
 
 def URLTask(args = 'send_invitation'):
     return URL('tasks', 'start', args = args)
+
+def URLEventFile(event_id, filename):
+    return URL('static', 'event%d/%s' % (event_id, filename))

@@ -10,11 +10,11 @@
                 <button class="menu-icon" type="button" data-toggle="menu" data-responsive-toggle="dummy" data-hide-for="huge"></button>
             </div>
             <div class="title-bar-title">
-
+                <a href = "{{=menu.createTitleLink()}}">
                     <span>Secondhand</span>
                     <span><img src={{=URL('static', 'logo/logo.png')}} id="logo"></span>
                     <span>Ottersweier</span>
-
+                </a>
             </div>
             <div class="title-bar-right">
                 <div>
@@ -38,5 +38,13 @@
     </div>
     <div class="off-canvas-content" data-off-canvas-content>
         {{include}}
+        {{
+        if config.enable_debug:
+            response.write(BR())
+            response.write(H1('Debug information', _class = 'debug'))
+            response.write(response.toolbar())
+            pass
+        }}
     </div>
+
 </div>

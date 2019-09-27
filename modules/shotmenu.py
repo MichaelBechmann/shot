@@ -3,19 +3,17 @@
 creation: bechmann, May 29, 2014
 
 '''
-from gluon.contrib.pg8000.core import TRUE
+
 if 0:
     global auth
     global config
     global URL
-
 
 from shotconfig import *
 from shotdbutil import User
 from gluon.html import *
 from gluon import current
 from urlutils import *
-
 
 
 class extendedMENU(MENU):
@@ -167,8 +165,13 @@ class ShotMenu(object):
             link     = URLTask(task)
         return [b_active, link]
 
+    def createTitleLink(self):
+        (b_active, link) = self._checkActiveURLWiki('start')
+        return link
+
+
     def createQuickMenu(self):
-        quick_menu_items = [['Termine',                     self._checkActiveURLWiki('start')],
+        quick_menu_items = [['Alle Termine',                self._checkActiveURLWiki('all-dates')],
                             ['Fördermittel beantragen',     self._checkActiveURLWiki('appropriation-start')],
                             ['Kontakt',                     self._checkActiveURL    ('contact', 'form')]
                            ]

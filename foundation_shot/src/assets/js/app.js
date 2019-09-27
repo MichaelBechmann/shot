@@ -33,44 +33,68 @@ Triggers.Initializers.addGlobalListeners();
 $.triggersInitialized = true;
 //Foundation.IHearYou = Triggers.Initializers.addGlobalListeners
 
+
+
+/**
+ *  Add classes to style elements with special content.
+ */
+$.extend($.expr[':'], {
+    containsExact: function(elem, i, m) {
+        return $(elem).text() === m[3]; // m[3] contains the string in the parentheses of the call, see http://www.jameswiseman.com/blog/2010/04/19/creating-a-jquery-custom-selector/
+    }
+});
+
+$('td:containsExact(True), span.value:containsExact(True)')
+.addClass("true");
+$('td:containsExact(False), span.value:containsExact(False)')
+.addClass("false");
+$('td:containsExact(None), span.value:containsExact(None), div.w2p_fw:containsExact(None)')
+.addClass("none");
+// Loop through all the div.thatSetsABackgroundWithAnIcon on your page
+$('#ps_data_table td > div').each(function(){
+      var $div = $(this);
+      // Set the div's height to its parent td's height
+      $div.height($div.closest('td').height());
+});
+//***********************************************************++++
+
 $(document).foundation();
 
 $(document).ready(function(){
-
 
     // Add information to some elements to facilitate the correct positioning depending
     // on a variable number of elements
     var classname = 'quick-menu-items-' + $('#quick-menu .button').length.toString();
     $('#content-wrapper, .top-bar').addClass(classname);
 
-     // Add and remove a class to the off-canvas elements (side menu)
-     // if the size of the title bar changes.
-     // With the class the off-canvas elements can be shifted up and down accordingly.
-     $('.top-bar').on('sticky.zf.stuckto:top', function(){
-         var h_window  = window.innerHeight;
-         var h_content = $('.off-canvas-content').height();
-         if(h_content > 1.2*h_window){
-             /* This condition checks whether or not the page is long enough for the top bar to be minified.
-              * This is necessary to avoid toggling when the page is just fits on the display when the top bar is minified
-              * but cannot be displayed completely with the extended top bar.
-              */
-             $('.top-bar').addClass('can-minify');
-             $('.off-canvas').addClass('title-bar-slim');
-             $('.title-bar-big').removeClass('title-bar-big');
-         }
-     }).on('sticky.zf.unstuckfrom:top', function(){
-         $('.off-canvas').addClass('title-bar-big');
-         $('.top-bar').removeClass('can-minify');
-         $('.title-bar-slim').removeClass('title-bar-slim');
-     });
+    // Add and remove a class to the off-canvas elements (side menu)
+    // if the size of the title bar changes.
+    // With the class the off-canvas elements can be shifted up and down accordingly.
+    $('.top-bar').on('sticky.zf.stuckto:top', function(){
+        var h_window  = window.innerHeight;
+        var h_content = $('.off-canvas-content').height();
+        if(h_content > 1.2*h_window){
+            /* This condition checks whether or not the page is long enough for the top bar to be minified.
+             * This is necessary to avoid toggling when the page is just fits on the display when the top bar is minified
+             * but cannot be displayed completely with the extended top bar.
+             */
+            $('.top-bar').addClass('can-minify');
+            $('.off-canvas').addClass('title-bar-slim');
+            $('.title-bar-big').removeClass('title-bar-big');
+        }
+    }).on('sticky.zf.unstuckfrom:top', function(){
+        $('.off-canvas').addClass('title-bar-big');
+        $('.top-bar').removeClass('can-minify');
+        $('.title-bar-slim').removeClass('title-bar-slim');
+    });
 
-     /**
-      * The sticky plugin is normally initialized when the page is completely loaded including all images.
-      * Here the plugin is applied programmatically (intended way: simply use attribute data-sticky in the top bar).
-      * This is done to use the code in foundation_shot/node_modules/foundation-sites/js/foundation.sticky.js
-      * instead of any code in /dist.
-      * The code in foundation.sticky.js is modified such that the plugin is initialized when the document is ready.
-      */
+    /**
+     * The sticky plugin is normally initialized when the page is completely loaded including all images.
+     * Here the plugin is applied programmatically (intended way: simply use attribute data-sticky in the top bar).
+     * This is done to use the code in foundation_shot/node_modules/foundation-sites/js/foundation.sticky.js
+     * instead of any code in /dist.
+     * The code in foundation.sticky.js is modified such that the plugin is initialized when the document is ready.
+     */
      var options = {marginTop:0, marginBottom: 0};
      let MyStickyTopBar = new Sticky($('#MyStickyTopBar'), options);
      MyStickyTopBar._setTransitionTrigger();
@@ -101,6 +125,18 @@ $(document).ready(function(){
          $(this).parent().toggleClass('is-active');
      });
 
+     /**
+      * Addon to Foundation data toggle plugin with check boxes or radio buttons:
+      * Hide data initially only if check box is not checked.
+      * Use case: Return to a form with pre-checked elements.
+      */
+     $('label[data-toggle]').each(function(i){
+         var id_form   = $(this).attr('for');
+         if($("#" + id_form).is(":not(:checked)")){
+             var id_toggle = $(this).attr('data-toggle');
+             $('#' + id_toggle).toggleClass('is_hidden');
+         }
+     });
 
 
 });

@@ -1,9 +1,9 @@
 {{response.flash = ''}}
 {{extend 'frameset.html'}}
 {{from formutils import Progress}}
-<h3>
-Bitte füllen Sie das Antragsformular vollständig und gewissenhaft aus.
-</h3>
+{{=H1('Antrag auf Fördermittel')}}
+{{=P('Bitte füllen Sie das Antragsformular vollständig und gewissenhaft aus.')}}
+
 {{=form}}
 
 {{p = Progress(config.progress.appropriation, 1)}}

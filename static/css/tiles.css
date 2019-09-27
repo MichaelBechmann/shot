@@ -31,7 +31,7 @@
 
 @media only screen and (max-width: 619px) {
     .tile{
-        width:  100%; 
+        width:  100%;
     }
 }
 
@@ -91,7 +91,7 @@
     text-align: right;
     font-size: 1em;
 }
-	
+
 .req_descr{
 	width: 100%;
 	height: 56px;
@@ -110,7 +110,7 @@
     height: 14px;
     bottom: 0;
     right: 0;
-    
+
     background-image: -webkit-linear-gradient(left, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
     background-image: -moz-linear-gradient(right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));
     background-image: -ms-linear-gradient(right, rgba(255, 255, 255, 0), rgba(255, 255, 255, 1));

@@ -1,0 +1,17 @@
+{{
+if not events:
+    response.write(DIV('Die Termine für unsere nächsten Märkte stehen leider noch nicht fest.'))
+else:
+list = [DIV(DIV(DIV(e.label, _class = 'card-divider'),
+                    DIV(TABLE(TR(TD('Verkauf:'), TD('%s, %s' % (e.date, e.time))),
+                          TR(TD('Anmeldung für Verkäufer:'), TD('ab %s' % (e.enrol_date))),
+                          TR(TD('Annahme der Ware:'), TD('%s, %s' % (e.date_delivery, e.time_delivery))),
+                          TR(TD('Rückgabe der Ware:'), TD('%s, %s' % (e.date_return, e.time_return))),
+                          TR(TD('Voreinkauf für Helfer:'), TD('%s, %s' % (e.date_helper_sale, e.time_helper_sale)) if e.date_helper_sale != 'none' and e.time_helper_sale != 'none' else 'Wird bei diesem Markt nicht angeboten!'),
+                          ),
+                        _class = 'card-section'),
+                _class = 'card'),
+            _class = 'cell stacked') for e in events]
+    response.write(DIV(DIV(*list, _class = 'grid-x'), _class = 'grid-container overview-all-dates'))
+    pass
+}}

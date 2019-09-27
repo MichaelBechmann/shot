@@ -11,5 +11,15 @@ if 0:
 
 from shotdbutil import Events
 
-def schedule():
-    return dict(announcements = Events(shotdb).get_visible())
+
+def error():
+    return DIV('Diese Komponente konnte aufgrund eines Fehlers nicht geladen werden!')
+
+def announcement_events():
+    return dict(events = Events(shotdb).get_visible())
+
+def all_dates_events():
+    return dict(events = Events(shotdb).get_visible_all_dates())
+
+def all_flyers_events():
+    return dict(events = Events(shotdb).get_visible())

@@ -19,13 +19,22 @@ T.force('de')
 
 
 def error():
+    url = request.vars['request_url']
+
     if config.enable_error_mail:
         ErrorMail().send()
     ticket = request.vars.ticket
 
     if config.redirect_to_ticket and ticket:
             redirect(config.shotticketurl + ticket)
-    redirect(URLWiki('error'))
+
+    if '/components/' in url:
+        return DIV('Diese Komponente konnte aufgrund eines Fehlers nicht geladen werden!', _class = 'error-component')
+    else:
+        redirect(URLWiki('error'))
+
+
+
 
 def redirect_https():
 
@@ -72,6 +81,7 @@ def wiki():
 
     return wiki
 
+
 def wiki_snippet():
     slug = request.args(0)
     if slug:
@@ -79,20 +89,7 @@ def wiki_snippet():
     else:
         return 'Bitte verwenden Sie einen gültigen slug: @{component:main/wiki_snippet/the_slug}'
 
-def announcement_events():
-    announcements = Events(shotdb).get_visible()
-    if announcements:
-        return TABLE([TD('%s am %s, %s' % (r.label, r.date, r.time)) for r in announcements], _id="tbl_next_event_date")
 
-    else:
-        return SPAN('Die Termine für die nächsten Märkte stehen noch nicht fest.')
-
-def announcement_enroll():
-    enrol_dates = Events(shotdb).get_visible()
-    if enrol_dates:
-        return TABLE([TD('ab ', SPAN(r.enrol_date, _id = 'enrol_date'), ' für den %s  am %s' % (r.label, r.date)) for r in enrol_dates], _id = 'tbl_enrol_dates')
-    else:
-        return 'Die Anmeldetermine für die nächsten Märkte stehen noch nicht fest.'
 
 def lost_and_found():
     '''

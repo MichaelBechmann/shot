@@ -22,6 +22,10 @@ html * {
     text-align: right;
     }
 
+.title-bar-title > a > span{
+    color: $primary-color;
+    }
+
 
 .title-bar-title > div, .title-bar-right > div{
     padding-bottom: 0.3em;
@@ -85,6 +89,11 @@ $menu-transition: all $menu-transition-time ease-out;
     transition-delay: $transition-delay;
     }
 
+@mixin active_button_hollow($color: $primary-color, $transition-delay: 0){
+    border-color: scale-color($color, $lightness: $active-button-lightness);
+    transition: $menu-transition;
+    transition-delay: $transition-delay;
+    }
 
 // quick menu
 #quick-menu .button{
@@ -102,12 +111,6 @@ $menu-transition: all $menu-transition-time ease-out;
     }
     &.active{
         @include active_button();
-        }
-    @include breakpoint(small only){
-        margin: 0 0 $SpaceQuickMenuButtons 0;
-        }
-    @include breakpoint(medium up){
-        margin: 0 $SpaceQuickMenuButtons 0 0;
         }
     }
 
@@ -274,6 +277,36 @@ html[data-whatintent='keyboard'] #menu {
     .is-accordion-submenu-parent.admin > a:focus:after{
         @include active_submenu_dropdown_symbol($primary-admin-color);
         }
+    }
+
+
+html[data-whatintent='mouse'] .button{
+    &:hover{
+        @include active_button($transition-delay: $menu-transition-delay);
+        }
+    }
+html[data-whatintent='mouse'] .button.hollow{
+    &:hover{
+        @include active_button_hollow($transition-delay: $menu-transition-delay);
+        }
+    }
+
+// form buttons
+html[data-whatintent='mouse'] form .button{
+    $afe-font-family: 'Font Awesome 5 Free', sans-serif;
+    }
+
+button.back:before{
+    @include button-icon-back;
+    margin-right: $button-icon-margin;
+    }
+button.next:after{
+    @include button-icon-next;
+    margin-left: $button-icon-margin;
+    }
+button.send:after{
+    @include button-icon-send;
+    margin-left: $button-icon-margin;
     }
 
 // end of file

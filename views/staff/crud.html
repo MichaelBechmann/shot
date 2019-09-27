@@ -5,10 +5,10 @@ if action in ['add', 'edit']:
 else:
     b_modify_db = False
     response.b_responsive = True
-    pass    
+    pass
 }}
 
-{{extend 'frameset.html'}}   
+{{extend 'frameset.html'}}
 
 {{if b_modify_db:
     response.write(H3('You are about to modify the database. Please be careful!'))
@@ -22,6 +22,6 @@ else:
 
 {{
 if not b_modify_db:
-    response.write(A(DIV('Zurück zur Übersicht', _class = 'pseudo_button'), _href = return_page))
+    response.write(A(DIV('Zurück zur Übersicht', _class = 'button'), _href = return_page))
     pass
 }}

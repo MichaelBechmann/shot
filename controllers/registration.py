@@ -18,7 +18,7 @@ from shotmail import *
 from shotdbutil import *
 from gluon.storage import Storage
 from shoterrors import ShotError, ShotErrorRobot
-from formutils import regularizeFormInputPersonorm, getPersonDataTable, addMailEnabledElement, addDataAgreedElement
+from formutils import regularizeFormInputPersonForm, getPersonDataOverview, generateFoundationForm, FoundationWidgetFieldsetSingleCheckbox, FoundationWidgetRadio, FormButton
 from urlutils import URLWiki
 import re
 
@@ -26,14 +26,9 @@ T.force('de')
 
 
 def __onvalidation_registration(form):
-    regularizeFormInputPersonorm(form)
-
-    if not form.vars['mail_enabled']:
-        form.errors.mail_enabled = 'Bitte wählen Sie eine der beiden Optionen!'
-
-    if not form.vars['data_use_agreed']:
-        form.errors.data_use_agreed = 'Ohne Ihre Zustimmung können wir Ihre Teilnahme am Markt nicht organisieren.'
-
+    regularizeFormInputPersonForm(form)
+    # conversion from string value for radio input fields to boolean database value
+    form.vars['mail_enabled'] = config.mapping_yes_no_bool[form.vars['mail_enabled']]
 
 def form():
     # detect robots
@@ -48,11 +43,18 @@ def form():
         redirect(URLWiki('registration-locked'))
 
 
-    display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email']
-    form = SQLFORM(shotdb.person, fields = display_fields, submit_button = T('submit'))
+    display_fields = ['forename', 'name', 'place', 'zip_code', 'street', 'house_number', 'telephone', 'email', 'mail_enabled', 'data_use_agreed']
 
-    addMailEnabledElement(form)
-    addDataAgreedElement(form, type = 'registration')
+
+
+    shotdb.person.mail_enabled.widget    = lambda field, value: FoundationWidgetRadio(field, value, config.radio_options_mail_enabled)
+    shotdb.person.data_use_agreed.widget = lambda field, value: FoundationWidgetFieldsetSingleCheckbox(field, value, config.data_use_agreed_option['registration'])
+
+
+    form = SQLFORM(shotdb.person,
+                   fields = display_fields,
+                   formstyle= generateFoundationForm,
+                   buttons = [FormButton().next()])
 
     if i.b_verified:
         # pre-populate form if function is called with personal code link
@@ -77,12 +79,15 @@ def form():
         # see book, section 'Pre-populating the form' in chapter 'Forms and Validators'
         form.vars = session.registration_person
 
-
     # There is a mistake in the book: form.validate() returns True or False. form.process() returns the form itself
     # see http://osdir.com/ml/web2py/2011-11/msg00467.html
+
     if form.validate(onvalidation = __onvalidation_registration):
         session.registration_person = form.vars
+        # conversion from boolean database value to string value for radio input fields
+        session.registration_person.mail_enabled = config.mapping_yes_no_bool[form.vars['mail_enabled']]
         redirect(URL('registration','confirm'))
+
 
     return dict(form=form)
 
@@ -91,17 +96,15 @@ def confirm():
     if session.registration_person == None:
         redirect(URLWiki('start'))
     # construct display of data to be confirmed
-    data = getPersonDataTable(session.registration_person, type = 'registration')
+    data = getPersonDataOverview(session.registration_person, type = 'registration')
 
-
-    # The _name arguments are important as the one of the pressed button will appear in request.vars.
-    form = FORM(TABLE(TR(
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit back', _value = T('back')),
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = T('go!'), _id = config.cssid.waitmsgtrig)
-                         )
-                       ),
-                DIV(T(config.msg.wait), _id = config.cssid.waitmsg)
+    form = FORM(DIV(
+                    FormButton().back(),
+                    FormButton().send('Registrierung senden'),
+                    _class = 'expanded button-group'
+                    )
                 )
+    data.append(form)
 
     if 'submit back' in request.vars:
         redirect(URL('form'))
@@ -139,7 +142,7 @@ def confirm():
 
         redirect(nextpage)
 
-    return(dict(data = data, form = form))
+    return(dict(data = data))
 
 def final():
     return dict()
@@ -165,9 +168,12 @@ def check():
             del session[k]
 
         session.registration_person_id = i.id
-        redirect(URLWiki('registration-email-confirmed'))
+        redirect(URL('registration', 'email_confirmed'))
 
     redirect(URLWiki('registration-check-error'))
+
+def email_confirmed():
+    return dict()
 
 def disable_mail():
     # This function is called from a dedicated personal link in e-mails.

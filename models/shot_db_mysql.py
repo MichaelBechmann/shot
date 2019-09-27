@@ -1,13 +1,17 @@
 # -*- coding: utf-8 -*-
 if 0:
-    from gluon.languages import translator as T
     from gluon import *
+    from gluon.packages.dal.pydal.validators import *
     global response
     global auth
-
+    global T
 
 from shotconfig import config
 from shotauth import ShotAuth
+from formutils import *
+
+# version number for static assets
+response.static_version = '1.1.13'
 
 T.force('de')
 
@@ -28,37 +32,55 @@ shotdb.define_table('event_type',
 # The table 'event' contains all configuration data of the market events.
 shotdb.define_table('event',
 
-    Field('label',      'string',   label = T('Event label'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a unique identifying label for the event.'))),
+    Field('label',                 'string',   label = T('Event label'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a unique identifying label for the event.'))),
 
     # Some functions relate the current event to former events, sometimes only to those of the same type!
-    Field('type',       shotdb.event_type),
+    Field('type', shotdb.event_type),
 
     # Which templates (views, texts, email) shall be used?
-    Field('template_set',   'string',   label = T('Template set'),  requires = IS_IN_SET(('child','toys'))),
+    Field('template_set',          'string',   label = T('Template set'),      requires = IS_IN_SET(('child','toys'))),
 
     # Is the event active, i.e., the current event?
-    Field('active',    'boolean',  label = T('Active')),
+    Field('active',                'boolean',  label = T('Active')),
 
     # Is the event visible for visitors, i.e., shall the related dates be displayed?
-    Field('visible',    'boolean',  label = T('Visible')),
+    Field('visible',               'boolean',  label = T('Visible')),
 
-    # Date of the event
-    Field('date',  'string',   label = T('Date'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 28. September 2013".'))),
+    # Date of the event (sale)
+    Field('date',                  'string',   label = T('Date'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 28. September 2013".'))),
 
-    # Time of the event
-    Field('time',  'string',   label = T('Time'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a time string, e.g., "9 - 12:30 Uhr".'))),
+    # Time of the event (sale)
+    Field('time',                  'string',   label = T('Time'),                   requires = IS_NOT_EMPTY(error_message = T('Please enter a time string, e.g., "9 - 12:30 Uhr".'))),
 
-    # Date of the start of the enrolment of the vendors
-    Field('enrol_date',  'string',   label = T('Enrol date'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 24. August 2013".'))),
+    # Date of the delivery
+    Field('date_delivery',         'string',   label = T('Date of delivery'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Freitag, den 27. September 2013".'))),
+
+    # Time of the delivery
+    Field('time_delivery',         'string',   label = T('Time of delivery'),       requires = IS_NOT_EMPTY(error_message = T('Please enter a time string, e.g., "14 - 16 Uhr".'))),
+
+    # Date of the return
+    Field('date_return',           'string',   label = T('Date of return'),         requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 28. September 2013".'))),
+
+    # Time of the return
+    Field('time_return',           'string',   label = T('Time of return'),         requires = IS_NOT_EMPTY(error_message = T('Please enter a time string, e.g., "15 - 14 Uhr".'))),
+
+    # Date of the helper sale
+    Field('date_helper_sale',      'string',   label = T('Date of helper sale'),    requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 28. September 2013".'))),
+
+    # Time of the helper sale
+    Field('time_helper_sale',      'string',   label = T('Time of helper sale'),    requires = IS_NOT_EMPTY(error_message = T('Please enter a time string, e.g., "8 - 9 Uhr".'))),
+
+    # Date of the start of the enrollment of the vendors
+    Field('enrol_date',            'string',   label = T('Enroll date'),            requires = IS_NOT_EMPTY(error_message = T('Please enter a date string, e.g., "Samstag, den 24. August 2013".'))),
 
     # the available sale numbers; adjacent pairs define ranges
-    Field('number_ranges',    'string', label = T('Number ranges'), requires = IS_NOT_EMPTY(error_message = T('Please enter pairs of numbers, like 200-250; 300-350.'))),
+    Field('number_ranges',         'string',   label = T('Number ranges'),          requires = IS_NOT_EMPTY(error_message = T('Please enter pairs of numbers, like 200-250; 300-350.'))),
 
     # optional limit of sale numbers
-    Field('numbers_limit', 'integer', label = T('Numbers limit')),
+    Field('numbers_limit',         'integer',  label = T('Numbers limit')),
 
     # option for the generation of emails: shall a request to bring something (wiki page snippet) be added via email PLACEHOLDER?
-    Field('email_bring_request',    'boolean',  label = T('Insert bring request (email)')),
+    Field('email_bring_request',   'boolean',  label = T('Insert bring request (email)')),
 
     # define how a record is represented if referenced from other tables
     #format='%(label)s, %(date)s'
@@ -70,26 +92,28 @@ shotdb.define_table('event',
 # The table 'person' contains all data personal data of the registered people.
 shotdb.define_table('person',
 
-    Field('name',           'string',   label = T('name'),          requires=IS_NOT_EMPTY(error_message = T('Please enter your name.'))),
-    Field('forename',       'string',   label = T('forename'),      requires=IS_NOT_EMPTY(error_message = T('Please enter your forename.'))),
-    Field('place',          'string',   label = T('place'),         requires=IS_NOT_EMPTY(error_message = T('Please enter your place of living.'))),
-    Field('zip_code',       'string',   label = T('zip code'),      requires=IS_NOT_EMPTY(error_message = T('Please enter your zip code.'))),
-    Field('street',         'string',   label = T('street'),        requires=IS_NOT_EMPTY(error_message = T('Please enter the street name.'))),
-    Field('house_number',   'string',   label = T('house number'),  requires=IS_NOT_EMPTY(error_message = T('Please enter your house number.'))),
-    Field('telephone',      'string',   label = T('telephone'),     requires=IS_NOT_EMPTY(error_message = T('Please enter your telephone number.'))),
-    Field('email',          'string',   label = T('email'),         requires=IS_EMAIL(    error_message = T('Please enter your valid email address.'))),
+    Field('name',            'string',   label = 'Name',          comment = 'Ihr Nachname',                            widget = FoundationWidgetString, requires=IS_NOT_EMPTY(error_message = T('Please enter your name.'))),
+    Field('forename',        'string',   label = 'Vorname',       comment = 'Ihr Vorname',                             widget = FoundationWidgetString, requires=IS_NOT_EMPTY(error_message = T('Please enter your forename.'))),
+    Field('place',           'string',   label = 'Ort',           comment = 'Ihr Wohnort',                             widget = FoundationWidgetString, requires=IS_NOT_EMPTY(error_message = T('Please enter your place of living.'))),
+    Field('zip_code',        'string',   label = 'PLZ',           comment = 'Ihre Postleitzahl',                       widget = FoundationWidgetString, requires=IS_NOT_EMPTY(error_message = T('Please enter your zip code.'))),
+    Field('street',          'string',   label = 'Straße',        comment = 'Ihre Straße',                             widget = FoundationWidgetString, requires=IS_NOT_EMPTY(error_message = T('Please enter the street name.'))),
+    Field('house_number',    'string',   label = 'Nummer',        comment = 'Ihre Hausnummer',                         widget = FoundationWidgetString, requires=IS_NOT_EMPTY(error_message = T('Please enter your house number.'))),
+    Field('telephone',       'string',   label = 'Telefon',       comment = 'Ihre Festnetz- oder Mobiltelefonnummer',  widget = FoundationWidgetString, requires=IS_NOT_EMPTY(error_message = T('Please enter your telephone number.'))),
+    Field('email',           'string',   label = 'E-Mail',        comment = 'jemand@irgendwo.xy',                      widget = FoundationWidgetString, requires=IS_EMAIL(    error_message = T('Please enter your valid email address.'))),
 
     # checksum string for verification of the email address
-    Field('code',           'string'),
+    Field('code',            'string'),
 
     # id of the most recent event for which the email address has been verified with
-    Field('verified',       'integer'),
+    Field('verified',        'integer'),
 
     # flag indicating if round mails are enabled
-    Field('mail_enabled',   'boolean'),
+    # Note: The widget is set in the controller
+    Field('mail_enabled',    'boolean',  label = 'Einladungen zu künftigen Märkten per E-Mail', requires = IS_NOT_EMPTY(error_message = 'Bitte wählen Sie, ob Sie zukünftig Einladungen erhalten möchten oder nicht.')),
 
     # flag indicating if storage and use of personal data have been agreed
-    Field('data_use_agreed',   'boolean'),
+    # Note: The widget is set in the controller (slightly different widgets in different controllers!)
+    Field('data_use_agreed', 'boolean',  label = 'Einwilligung in die Datenverarbeitung:', requires = IS_NOT_EMPTY(error_message = 'Ohne Ihre Einwilligung können wir Ihre Daten nicht verarbeiten.')),
 
     # automatically generated log data when the record is updated
     Field('log',            'text'),
@@ -248,11 +272,11 @@ shotdb.define_table('request',
     # relation to the person
     Field('person', shotdb.person),
 
-    Field('project',            'string',   label = 'Projektbezeichnung',         requires = IS_NOT_EMPTY(error_message = 'Bitte geben Sie eine Bezeichnung Ihres Projektes an.')),
-    Field('organization',       'string',   label = 'Organisation',               requires = IS_NOT_EMPTY(error_message = 'Bitte geben Sie Ihren Verein oder Ihre Institution oder "privat" an.')),
-    Field('amount_total',       'integer',  label = 'Gesamtkosten (EUR)',         requires = IS_INT_IN_RANGE(0, 1e100, error_message = 'Bitte geben Sie in Ziffern (ohne Punkt, Komma oder EUR!) die geschätzten Gesamtkosten Ihres Projektes an.')),
-    Field('amount_requested',   'integer',  label = 'Beantragte Mittel (EUR)',    requires = IS_INT_IN_RANGE(0, 1e100, error_message = 'Bitte geben Sie in Ziffern (ohne Punkt, Komma oder EUR!) an, welchen Betrag Sie als Förderung beantragen möchten.')),
-    Field('description',        'text',     label = 'Projektbeschreibung',        requires = IS_NOT_EMPTY(error_message = 'Bitte beschreiben Sie Ihr Projekt kurz und begründen Sie Ihren Antrag.')),
+    Field('project',            'string',   label = 'Projektbezeichnung',    comment = 'Name Ihres Projektes',                                                        widget = FoundationWidgetString, requires = IS_NOT_EMPTY(error_message =              'Bitte geben Sie eine Bezeichnung bzw. einen Namen für Ihr Projekt an.')),
+    Field('organization',       'string',   label = 'Organisation',          comment = 'Name Ihrer Organisation',                                                     widget = FoundationWidgetString, requires = IS_NOT_EMPTY(error_message =              'Bitte geben Sie Ihren Verein oder Ihre Institution oder "privat" an.')),
+    Field('amount_total',       'integer',  label = 'Gesamtkosten [€]',      comment = 'z.B. 1000',                                                                   widget = FoundationWidgetString, requires = IS_INT_IN_RANGE(0, 1e100, error_message = 'Bitte geben Sie in Ziffern (ohne Punkt, Komma oder EUR!) die geschätzten Gesamtkosten Ihres Projektes an.')),
+    Field('amount_requested',   'integer',  label = 'Beantragte Mittel [€]', comment = 'z.B. 500',                                                                    widget = FoundationWidgetString, requires = IS_INT_IN_RANGE(0, 1e100, error_message = 'Bitte geben Sie in Ziffern (ohne Punkt, Komma oder EUR!) an, welchen Betrag Sie als Förderung beantragen möchten.')),
+    Field('description',        'text',     label = 'Projektbeschreibung',   comment = 'Bitte beschreiben Sie hier Ihr Projekt kurz und begründen Sie Ihren Antrag.', widget = FoundationWidgetText,   requires = IS_NOT_EMPTY(error_message =              'Bitte vergessen Sie nicht, Ihr Projekt zu erläutern.')),
     Field('date_of_receipt',    'string'    ),
     Field('comment',            'text'      ),
     Field('amount_spent',       'integer',  requires = IS_EMPTY_OR(IS_INT_IN_RANGE(0, 1e100))),
@@ -318,5 +342,4 @@ shotdb.auth_user['person'].writable = False
 shotdb.auth_user['sale_numbers'].readable = False
 shotdb.auth_user['sale_numbers'].writable = False
 
-# version number for static assets
-response.static_version = '0.1.96'
+

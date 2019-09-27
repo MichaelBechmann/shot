@@ -1,0 +1,8 @@
+{{
+if not events:
+    response.write(DIV('Die Termine für unsere nächsten Märkte stehen leider noch nicht fest.'))
+else:
+    list = [DIV(DIV(DIV(e.label, _class = 'card-divider'), DIV('%s, %s' % (e.date, e.time), _class = 'card-section'), _class = 'card'), _class = 'cell stacked') for e in events]
+    response.write(DIV(DIV(*list, _class = 'grid-x'), _class = 'grid-container announcement-events'))
+    pass
+}}

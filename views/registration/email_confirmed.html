@@ -1,0 +1,10 @@
+{{extend 'frameset.html'}}
+
+{{from shotconfig import config}}
+{{from formutils import Progress}}
+
+{{=auth.get_shotwiki_page(slug_base = 'registration-email-confirmed')}}
+
+
+{{p = Progress(config.progress.registration_sale, 4)}}
+{{=p.getProgressBar()}}

@@ -2,44 +2,42 @@
 {{extend 'frameset.html'}}
 
 {{
-tiles = []
+cards = []
     for r in rows:
         amounts = [DIV('€ %d' % r.amount_requested,                    _class = 'req_amount_req'     )]
         if r.amount_spent:
             amounts.append(DIV('bez. € %d' % r.amount_spent,           _class = 'req_amount_spent'   ))
             pass
-    
-        tile = DIV(TABLE(TR(
-                            TD(DIV(r.project,  DIV('',                 _class = 'fade'               ),
-                                                                       _class = 'req_project'        )),
-                            TD(DIV(*amounts,                           _class = 'req_amounts'        ))
-                                                                                                     ),
-                                                                       _class = 'req_line_project'   ),
-                   
-                   TABLE(TBODY(TR(
-                            TD(DIV(r.organization,  DIV('',            _class = 'fade'               ),
-                                                                       _class = 'req_org'            )),
-                            TD(DIV(r.date_of_receipt.split(' ')[0],    _class = 'req_date'           ))
-                                                                                                     )),
-                                                                       _class = 'req_line_orga'      ),
-                   
-                   DIV(r.description, DIV('',                          _class = 'fade'               ),
-                                                                       _class = 'req_descr'          ),
-                   DIV(A(SPAN('',                                      _class = 'icon_details'       ),
-                                 'Details anzeigen', 
+
+        card = DIV(DIV(
+                        DIV(r.project),
+                        DIV(*amounts, _class = 'req_amounts'),
+                                                                       _class = 'card-divider'   ),
+
+                   DIV(
+                        DIV(r.organization),
+                        DIV(r.date_of_receipt.split(' ')[0]),
+                        _class = 'req_orga'),
+
+                   DIV(r.description, _class = 'req_descr'),
+
+                   DIV(A(SPAN('Details'),
                                   _href=URL('staff','crud',
                                   args =['request', 'view'],
                                   vars = dict(id = r.id))),
-                       A(SPAN('',                                      _class = 'icon_edit'          ),
-                                 'Antrag bearbeiten',
+                       A(SPAN('Antrag bearbeiten'),
                                   _href=URL('staff','crud',
                                   args =['request', 'edit'],
                                   vars = dict(id = r.id))),
-                                                                       _class = 'req_req_line_bottom'),
-                   
-                                                                       _class = 'tile'               )
-        tiles.append(tile)
+                                                                       _class = 'req_controls'),
+
+                                                                       _class = 'card'               )
+        cards.append(card)
+        pass
+
+    for i in range(5):
+        cards.append(DIV(_class = 'card flex_last_row_filler'))
         pass
 }}
-    
-{{=DIV(*tiles, _class = 'tilescollection')}}
+
+{{=DIV(*cards, _class = 'requests-collection')}}

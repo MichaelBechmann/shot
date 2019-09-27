@@ -1,22 +1,19 @@
 // This file contains definitions related to sizes and positions of the basic layout.
 
 
-$BaseFotnSize: 16px; // base scale for quantities in rem
-
 $HeightTitleBarSlim: 2rem;
 $HeightTitleBarBig:  3.2rem;
 $HeightTitleBarForHuge:  4rem;
 
-$LogoSmall: 1.4em;
-$LogoBig:   1.8em;
+$LogoSmall: 1.3em;
+$LogoBig:   1.7em;
 
 $HeightQuickMenuButtonSingleLine: 2rem;
 $HeightQuickMenuButtonDoubleLine: 3rem;
-$SpaceQuickMenuButtons: 0.12rem;
 
 
 @function __getHeightQuickMenu($num-lines-quick-menu, $height-button){
-    @return $num-lines-quick-menu * $height-button + ($num-lines-quick-menu - 1) * $SpaceQuickMenuButtons;
+    @return $num-lines-quick-menu * $height-button + ($num-lines-quick-menu - 1) * $buttongroup-spacing;
     };
 @function __getHeightHeaderBig($num-lines-quick-menu, $height-button){
     @return $HeightTitleBarBig + __getHeightQuickMenu($num-lines-quick-menu, $height-button)
@@ -45,6 +42,7 @@ $SpaceQuickMenuButtons: 0.12rem;
 
 $HeightHeaderSlim:   $HeightTitleBarSlim;
 $HeightHeaderBig0:   $HeightTitleBarBig;
+
 
 
 

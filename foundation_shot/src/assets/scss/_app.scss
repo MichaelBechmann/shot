@@ -1,5 +1,9 @@
 @charset 'utf-8';
 
+@import "fontawesome";
+@import "regular";
+@import "solid";
+
 @import 'settings';
 @import 'foundation';
 @import 'motion-ui';
@@ -19,36 +23,36 @@
 @include foundation-button-group;
 @include foundation-close-button;
 @include foundation-label;
-@include foundation-progress-bar;
-@include foundation-slider;
-@include foundation-switch;
+//@include foundation-progress-bar;
+//@include foundation-slider;
+//@include foundation-switch;
 @include foundation-table;
 // Basic components
-@include foundation-badge;
-@include foundation-breadcrumbs;
+//@include foundation-badge;
+//@include foundation-breadcrumbs;
 @include foundation-callout;
 @include foundation-card;
-@include foundation-dropdown;
-@include foundation-pagination;
-@include foundation-tooltip;
+//@include foundation-dropdown;
+//@include foundation-pagination;
+//@include foundation-tooltip;
 
 // Containers
-@include foundation-accordion;
-@include foundation-media-object;
-@include foundation-orbit;
-@include foundation-responsive-embed;
-@include foundation-tabs;
-@include foundation-thumbnail;
+//@include foundation-accordion;
+//@include foundation-media-object;
+//@include foundation-orbit;
+//@include foundation-responsive-embed;
+//@include foundation-tabs;
+//@include foundation-thumbnail;
 // Menu-based containers
 @include foundation-menu;
 @include foundation-menu-icon;
 @include foundation-accordion-menu;
-@include foundation-drilldown-menu;
-@include foundation-dropdown-menu;
+//@include foundation-drilldown-menu;
+//@include foundation-dropdown-menu;
 
 // Layout components
 @include foundation-off-canvas;
-@include foundation-reveal;
+//@include foundation-reveal;
 @include foundation-sticky;
 @include foundation-title-bar;
 @include foundation-top-bar;
@@ -61,12 +65,23 @@
 
 // Motion UI
 @include motion-ui-transitions;
-@include motion-ui-animations;
+//@include motion-ui-animations;
 
+
+
+// RedCastor, Font Awesome form elements
+// see https://github.com/RedCastor/awesome-foundation6-checkbox
+
+
+//@import 'awesome-foundation6-checkbox';
 
 @import 'shot/def/sizes';
 @import 'shot/def/misc';
 @import 'shot/frameset';
 @import 'shot/skin';
+@import 'shot/contents';
+@import 'shot/atomicformelements';
+@import 'shot/forms';
+@import 'shot/crud';
 //@import 'shot/devel';
 

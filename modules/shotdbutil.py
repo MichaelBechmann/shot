@@ -130,7 +130,17 @@ class Events():
         '''
         This method returns a rows object of all events for which the visible flag is set.
         '''
-        return self.db(self.db.event.visible == True).select(self.db.event.label, self.db.event.date, self.db.event.time, self.db.event.enrol_date)
+        return self.db(self.db.event.visible == True).select(self.db.event.id, self.db.event.label, self.db.event.date, self.db.event.time, self.db.event.enrol_date)
+
+    def get_visible_all_dates(self):
+        '''
+        This method returns a rows object of all events for which the visible flag is set. All dates and times are included.
+        '''
+        return self.db(self.db.event.visible == True).select(self.db.event.label, self.db.event.enrol_date,
+                                                             self.db.event.date,             self.db.event.time,
+                                                             self.db.event.date_delivery,    self.db.event.time_delivery,
+                                                             self.db.event.date_return,      self.db.event.time_return,
+                                                             self.db.event.date_helper_sale, self.db.event.time_helper_sale)
 
     def type(self, eid = 0):
         '''

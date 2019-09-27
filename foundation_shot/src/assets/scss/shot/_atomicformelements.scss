@@ -1,0 +1,104 @@
+/*
+ * This file contains all styles for atomic form elements, e.g. checkboxes, radiobuttons, etc.
+ * The corresponding configuration variables share the prefix afe_ and can be modified in the settings file.
+*/
+
+
+@mixin _checked-symbol($color: $primary-color){
+        font-family: $afe-font-family;
+        font-weight: $afe-checkbox-font-weight;
+        content: $afe-checkbox-checked-icon;
+        color: $color;
+    }
+
+@mixin _radio-button-pressed-symbol($color: $primary-color){
+        font-family: $afe-font-family;
+        font-weight: $afe-radio-button-font-weight;
+        content: $afe-radio-button-pressed-icon;
+        color: $color;
+    }
+
+
+div.afe > input[type=checkbox]{
+    display: none;
+
+    & ~ label{
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+        padding-left: $afe-checkbox-size + $input-padding;
+        margin: 0;
+        }
+
+    & ~ label::before{
+        content: "";
+        display: inline-block;
+        position: absolute;
+        width: $afe-checkbox-size;
+        height: $afe-checkbox-size;
+        left: 0;
+        top: 0.35rem;
+        border: $input-border;
+        border-radius: $input-radius;
+        background-color: $white;
+        }
+
+    &:checked ~ label::after{
+        @include _checked-symbol;
+        font-size: $afe-checkbox-checked-icon-size;
+        display: inline-block;
+        box-sizing: inherit;
+        position: absolute;
+        left:   ($afe-checkbox-size - $afe-checkbox-checked-icon-size) / 2;
+        top: ($afe-checkbox-size - 1.8*$afe-checkbox-checked-icon-size) / 2 + 0.35rem;
+        }
+    }
+
+div.afe > input[type=radio]{
+    display: none;
+
+    & ~ label{
+        display: inline-block;
+        position: relative;
+        vertical-align: middle;
+        padding-left: $afe-radio-button-size + $input-padding;
+        margin: 0;
+    }
+    & ~ label::before{
+        content: "";
+        display: inline-block;
+        position: absolute;
+        width: $afe-checkbox-size;
+        height: $afe-checkbox-size;
+        left: 0;
+        top: 0.35rem;
+        border: $input-border;
+        border-radius: 50%;
+        background-color: $white;
+        }
+
+    &:checked ~ label::after{
+        content: "";
+        display: inline-block;
+        position: absolute;
+        width:  $afe-checkbox-size * $afe-radio-button-inner-factor;
+        height: $afe-checkbox-size * $afe-radio-button-inner-factor;
+        left: (1 - $afe-radio-button-inner-factor) / 2 * $afe-checkbox-size;
+        top:  (1 - $afe-radio-button-inner-factor) / 2 * $afe-checkbox-size + 0.35rem;
+        border-radius: 50%;
+        background-color: $primary-color;
+        }
+    }
+
+div.afe .error_wrapper, div.afe .error{
+    margin: 0;
+    }
+
+// In fieldsets all radio buttons get an error message. This cannot be fixed in web2py. Therefore, display the first error element only!
+fieldset > div.afe > div.error_wrapper{
+    display: none;
+    }
+fieldset > div.afe:first-of-type > div.error_wrapper{
+    display: block;
+    }
+

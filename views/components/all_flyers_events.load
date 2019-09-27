@@ -1,0 +1,17 @@
+{{from urlutils import URLEventFile}}
+{{
+if not events:
+    response.write(DIV('Die Termine für unsere nächsten Märkte stehen leider noch nicht fest.'))
+else:
+    for e in events:
+        response.write(H2('%s am %s' % (e.label, e.date)))
+        flyers = []
+        for f in ['Flyer', 'Flyer4']:
+            flyer = DIV(DIV(A(IMG(_src = URLEventFile(e.id, f + '.png')),  _href = URLEventFile(e.id, f + '.pdf')), _class = 'card-section'), _class = 'card')
+            flyers.append(flyer)
+            pass
+        response.write(DIV(*flyers, _class = 'flyers'))
+        pass
+    pass
+
+}}

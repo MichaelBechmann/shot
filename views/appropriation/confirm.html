@@ -1,23 +1,16 @@
-{{response.files.append(URL('static','js/confirm.js'))}}
 {{extend 'frameset.html'}}
 {{from formutils import Progress}}
 
+{{=H1('Ihre Antragsdaten')}}
+{{=P('Bitte überprüfen Sie Ihre Angaben noch einmal. Vergessen Sie nicht, Ihren Antrag auch ', STRONG('abzusenden'), '!')}}
 
-<h3>
-Bitte überprüfen und bestätigen Sie Ihre Daten.
-</h3>
+{{=H2('Ihre Angaben zur Kontaktperson')}}
 
-<h4>
-Ihre Angaben zur Kontaktperson:
-</h4>
 {{=DIV(data_person)}}
 
-<h4>
-Ihre Angaben zum Projekt:
-</h4>
-{{=DIV(data_project)}}
+{{=H2('Ihre Angaben zum Projekt')}}
 
-{{=form}}
+{{=DIV(data_project)}}
 
 {{p = Progress(config.progress.appropriation, 2)}}
 {{=p.getProgressBar()}}

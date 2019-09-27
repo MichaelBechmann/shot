@@ -3,6 +3,7 @@
 This file contains everything related to the sale data (sale number, contributions, etc.).
 '''
 # Static analyzer import helpers: (STATIC_IMPORT_MARK)
+from _ast import If
 if 0:
     from gluon.languages import translator as T
     from gluon import *
@@ -17,7 +18,7 @@ from shotmail import *
 from shotdbutil import *
 import re
 from shoterrors import ShotError
-from formutils import regularizeName, getActNumberRatio
+from formutils import regularizeName, ContributionCompleteness, FoundationCheckbox, FormButton, getEnrolmentDataOverview
 from urlutils import URLWiki
 
 
@@ -32,44 +33,16 @@ def __validateform(form):
     sale = form.sale
     sale.analyzecheckboxes(form.vars)
     if not (sale.b_does_contribute or sale.b_wants_sale_number):
-        form.errors.msg = 'Sie haben angegeben, daß Sie weder eine Kommissionsnummer haben möchten noch helfen oder Kuchen spenden möchten. Bitte wählen Sie etwas aus!'
+        form.errors.msg = 'Sie haben angegeben, daß Sie weder eine Kommissionsnummer haben möchten noch helfen oder Kuchen spenden möchten. Bitte wählen Sie etwas aus.'
     elif sale.b_open_contributions_available and not sale.b_does_contribute and not sale.b_cannot_contribute and sale.b_wants_sale_number:
         form.errors.msg = 'Sie haben sich weder für eine Helferschicht noch für eine Kuchenspende eingetragen. Bitte bestätigen Sie, daß Sie nicht helfen können.'
     elif sale.b_does_contribute and sale.b_cannot_contribute:
-        form.errors.msg = 'Sie haben widersprüchliche Angaben gemacht! Bitte tragen Sie sich entweder für eine Helferschicht oder einen Kuchen ein oder markieren Sie, daß Sie nicht helfen können.'
+        form.errors.msg = 'Sie haben widersprüchliche Angaben gemacht. Bitte tragen Sie sich entweder für eine Helferschicht oder einen Kuchen ein oder markieren Sie, daß Sie nicht helfen können.'
 
 
     for donation in sale.getdonations():
         if donation.name_note in form.vars:
             form.vars[donation.name_note] = regularizeName(form.vars[donation.name_note])
-
-def __contribelement(label, formname, a, t):
-    '''
-    This function returns a list containing the complete contribution form elements (shift or donation).
-    format: [ checkbox or dummy, SPAN element with the complete label]
-    '''
-    # database may contain None for the target (during configuration)
-    if t != None and t > a:
-        tmp = getActNumberRatio(a, t)
-        r = tmp['ratio']
-        c  = tmp['_class']
-        cl = config.cssclass.contribactive
-    else:
-        r = 100
-        c  = config.cssclass.actnumberhigh
-        cl = config.cssclass.contribpassive
-
-    fe = [] # fe: form elements
-    if a < t:
-        # target number not reached yet => provide checkbox
-        # toggle trigger class is necessary only for donations with notes active but doen't hurt for the other check boxes
-        fe.append(INPUT(_type = 'checkbox', _name = formname, _class = config.cssclass.tggltrig))
-    else:
-        fe.append('')
-    s = ' (%d%% belegt) ' % r
-    fe.append(SPAN(label, SPAN(s, _class = c), _class = cl))
-
-    return fe
 
 
 def form():
@@ -89,91 +62,104 @@ def form():
         else:
             raise ShotError('Session object does not contain a valid person id!')
 
-    # construct the form from the database tables
-    formelements = []
-
-    elem_sale_number = TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.sale_number, _checked = 'checked',_value = 'on'),'Ich möchte eine Kommissionsnummer haben.'), _id = config.cssid.salenumberform)
 
     if sale.shift_scope == 'team':
         status_text = 'Als Mitglied des Secondhand-Team Ottersweier erhalten Sie sofort Ihre Nummer.'
     else:
         status_text = WaitList(shotdb).status_text(session.registration_person_id)
 
-    elem_status = TABLE(TR('Aktueller Status:', status_text), _id = config.cssid.salenumberstatus)
+    # sale number
+    element_sale_number = DIV(DIV(FoundationCheckbox('Ich möchte eine Kommissionsnummer haben.', config.formname.sale_number, value = True),
+                                  P('Aktueller Status: ' + status_text),
+                                  _class = 'card-section'),
+                              _class = 'card',
+                              _id = config.cssid.salenumberform)
 
-
-    formelements.append(DIV(elem_sale_number, elem_status,  _id = config.cssid.salenumber))
-
-    # check box 'I cannot help'; display only if there are still oen shifts to choose from
-    if sale.b_open_contributions_available:
-        formelements.append(TABLE(TR(INPUT(_type = 'checkbox', _name = config.formname.no_contrib), 'Ich kann weder eine Helferschicht übernehmen noch einen Kuchen / Waffelteig für das Café spenden.'), _id = config.cssid.nocontrib))
-    formelements.extend([BR(), BR()])
-
-    # all shifts related to the current event
-    formelements.append(DIV('Ich kann folgende Helferschicht(en) übernehmen:', _class = config.cssclass.contribheading))
-
-    # display shifts arranged in groups
-    groups = {}
-    groupheads = {}
+    # shifts
+    shifts_collection = DIV(_class = 'shifts-collection')
     for shift in sale.getshifts():
-        a = shift.actual_number
-        t = shift.target_number
-        ce =__contribelement(shift.activity, shift.name, a, t)
-        d = shift.display
-        if d not in groupheads:
-            groupheads[d] = shift.timelabel
-        elif session.form_passive and (groupheads[d] != shift.timelabel):
-            # The shifts grouped together have different times => notify admin
-            ce.append(SPAN(T('check times!!'), _class = config.cssclass.configwarn))
+        status = ContributionCompleteness(shift.actual_number, shift.target_number)
 
-        if d in groups:
-            groups[d].append(TR(ce))
-        else:
-            groups[d] = [TR(ce)]
+        section = DIV(DIV(shift.timelabel), _class = 'card-section')
+        if (not status.complete):
+            # display checkbox and comment
+            label = 'Ich übernehme diese Helferschicht.'
+            if shift.comment:
+                toggle_id = shift.name + '-comment'
+                section.append(FoundationCheckbox(label, shift.name, toggle_id))
+                attributes = {'_id': toggle_id,'_class': 'shift_comment', '_data-toggler': 'is_hidden'}
+                section.append(DIV(shift.comment, **attributes))
+            else:
+                section.append(FoundationCheckbox(label, shift.name))
 
-        if(a < t and shift.comment != None and shift.comment != ''):
-            groups[d].append(TR('', TD(shift.comment, _class = config.cssclass.shiftcomment), _class = config.cssclass.tggl))
+        card = DIV(DIV(DIV(shift.activity), status.html, _class = 'card-divider'), section, _class = 'card ' + status.display_class)
+        shifts_collection.append(card)
 
-    stblgroups = []
-    display = groups.keys()
-    display.sort()
-    for d in display:
-        stblgroups.append(DIV(DIV(groupheads[d], _class = config.cssclass.shiftgrouphead), TABLE(*groups[d]), _class = config.cssclass.shiftgrouptbl))
+    # add dummy elements to fill the last row of the grid => produces equally sized elements
+    for i in range(5):
+        shifts_collection.append(DIV(_class = 'card flex_last_row_filler'))
 
-    if len(stblgroups) & 1:
-        stblgroups.append('')
-
-    formelements.append(TABLE(*[TR(stblgroups[i], stblgroups[i+1], _class = config.cssclass.shifttblrow) for i in range(0, len(stblgroups), 2)], _id = config.cssid.contribtblshifts))
-
-    # all donations related to the current event
-    de = []
+    # donations
+    donations_collection = DIV(_class = 'donations-collection')
     for donation in sale.getdonations():
-        a = donation.actual_number
-        t = donation.target_number
+        status = ContributionCompleteness(donation.actual_number, donation.target_number)
 
-        de.append(TR(*__contribelement(donation.label, donation.name, a, t)))
+        card = DIV(DIV(DIV(donation.item), status.html, _class = 'card-divider'), _class = 'card ' + status.display_class)
 
-        # check for a < t here because if one has NoScript active and target number is reached the notes shall not be visible
-        if (a < t and donation.enable_notes):
-            de.append(TR('', TABLE(TR(T('I bring this:'),      INPUT(_type = 'text', _name = donation.name_note)),
-                                   TR(T('Others bring this:'), SPAN(*map(LI,donation.notes))                    ),
-                        _class = config.cssclass.contribnote),     _class = config.cssclass.tggl))
+        if (not status.complete):
 
-    if de:
-        formelements.append(DIV('Für das Café bringe ich folgendes mit:', _class = config.cssclass.contribheading))
-        formelements.append(TABLE(*de, _id = config.cssid.contribtbldons))
+            if donation.item == 'Torte':
+                article = 'eine'
+                name    = 'Name der Torte'
 
+            else:
+                article = 'einen'
+                name    = 'Name des Kuchens'
 
-    formelements.append(TABLE(TR(
-                                 T('My message:'), TEXTAREA(_type = 'text', _name = config.formname.person_message, _cols = 50, _rows = 3),
-                                 INPUT(_type = 'submit', _class = 'button', _name = 'submit', _value = 'Weiter')
-                                 ), _id = config.cssid.tblsubmit))
+            label = 'Ich spende %s %s.' % (article, donation.item)
+
+            if (donation.enable_notes):
+                toggle_id = donation.name + '-comment'
+                section = DIV(FoundationCheckbox(label, donation.name, toggle_id), _class = 'card-section')
+                attributes = {'_id': toggle_id,'_class': 'donation_note', '_data-toggler': 'is_hidden'}
+                section.append(DIV(DIV('Um etwas Vielfalt an der Kuchentheke zu gewährleisten, können Sie hier eintragen, was genau Sie bringen werden (bitte keine Tiefkühlware):'),
+                               INPUT(_type = 'text', _name = donation.name_note, _placeholder = name),
+                               DIV('Andere bringen dies:'),
+                               UL(*map(LI,donation.notes)),
+                               **attributes
+                               ))
+            else:
+                section = DIV(FoundationCheckbox(label, donation.name), _class = 'card-section')
+
+            card.append(section)
+        donations_collection.append(card)
+
+    # add dummy elements to fill the last row of the grid => produces equally sized elements
+    for i in range(5):
+        donations_collection.append(DIV(_class = 'card flex_last_row_filler'))
+
+    # construct the form
+    formelements = [H2('Kommissionsnummer'),      element_sale_number,
+                    H2('Helferschichten'),        shifts_collection,
+                    H2('Spenden für unser Café'), donations_collection]
+
+    # add check box 'I cannot help'; display only if there are still open shifts or donations to choose from
+    if sale.b_open_contributions_available:
+        element_cannot_contribute = DIV(FoundationCheckbox('Ich kann weder eine Helferschicht übernehmen noch einen Kuchen / Waffelteig für das Café spenden.', config.formname.no_contrib),
+                                        _id = config.cssid.nocontrib)
+        formelements.extend([H2('Sie können nicht helfen?'), element_cannot_contribute])
+
+    # add message box and send button
+    message_box = DIV(DIV(TEXTAREA(_type = 'text', _name = config.formname.person_message, _rows = 3,
+                                   _placeholder = 'Wenn Sie möchten, können Sie hier noch eine Nachricht an uns beifügen.'),
+                                   _class = 'medium-12'),
+                      _class = 'grid-x grid-padding-x')
+    formelements.extend([H2('Haben Sie Fragen oder Anmerkungen?'), message_box, FormButton().next()])
 
     form = FORM(*formelements)
 
-
     if session.form_passive:
-        if 'submit' in request.vars:
+        if 'submit next' in request.vars:
             session.form_passive = None
             session.sale_vars = None
             redirect(URL('config', 'config_event'))
@@ -199,55 +185,61 @@ def confirm():
         redirect(URLWiki('start'))
     sale = Sale(session.registration_person_id)
 
-    # construct display of data to be confirmed
-    de = [] # de: data elements
-    de.append(TR('Ich bin:', STRONG(sale.person_name)))
-
     sale.analyzecheckboxes(session.sale_vars)
 
+    # construct a list of all data to be confirmed
+    dataelements = []
+
+    # person
+    dataelements.append(['Ich bin:', STRONG(sale.person_name)])
+
+    # sale number
     if sale.b_wants_sale_number:
-        de.append(TR('', 'Ich möchte eine Kommissionsnummer haben für den %s.' % sale.announcement))
+        msg = DIV('Ich möchte eine Kommissionsnummer haben für den %s.' % sale.announcement)
         if sale.b_cannot_contribute and not sale.b_is_team_member:
-            de.append(TR('', TD('(Hinweis: %s)' % WaitList(shotdb).status_text(session.registration_person_id)), _class = config.cssclass.confirmcomment))
+            msg.append(BR())
+            msg.append('(Hinweis: %s)' % WaitList(shotdb).status_text(session.registration_person_id))
     else:
-        de.append(TR('', TD('Ich möchte ', STRONG('keine'), ' Kommissionsnummer haben.')))
+        msg = DIV('Ich möchte ', STRONG('keine'), ' Kommissionsnummer haben.')
+    dataelements.append(['Kommissinsnummer:', msg])
 
-    for s in sale.getcheckedshifts():
-        de.append(TR(TD('Hier helfe ich:'), TD(s.day + ', ' + s.time + ', ' + s.activity)))
-        if(s.comment != None and s.comment != ''):
-            de.append(TR('', TD('('+s.comment+')'), _class = config.cssclass.shiftcomment))
-
-    if not sale.b_does_help:
-        de.append(TR('', TD('Ich übernehme keine Helferschicht.')))
-
-    for d in sale.getcheckeddonations():
-        out =  d.item
-        if d.note != None:
-            out += ' (' + d.note + ')'
-        de.append(TR('Das bringe ich mit:', out))
-
-    if not sale.b_does_donate:
-        de.append(TR('', TD('Ich bringe für das Café nichts mit.')))
-
-
-    if session.sale_vars[config.formname.person_message]:
-        de.append(TR('Meine Nachricht:', session.sale_vars[config.formname.person_message]))
-
+    # shifts
     if sale.b_does_help:
-        de.append(TR(STRONG('Unser Hinweis:'), auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text')))
+        for s in sale.getcheckedshifts():
+            msg = DIV(s.day + ', ' + s.time + ', ' + s.activity)
+            if(s.comment != None and s.comment != ''):
+                msg.append(BR())
+                msg.append('(%s)' % s.comment)
+            dataelements.append(['Hier helfe ich:', msg])
+            dataelements.append(['', auth.get_shotwiki_page(slug_base = 'email-snippet-helper-general-text')])
+    else:
+        dataelements.append(['Helferschichten:', 'Ich übernehme keine Helferschicht.'])
+
+    # donations
+    if sale.b_does_donate:
+        for d in sale.getcheckeddonations():
+            out = d.item
+            if d.note != None:
+                out += ' (' + d.note + ')'
+            dataelements.append(['Das bringe ich mit:', out])
+    else:
+        dataelements.append(['Kuchenspenden:', 'Ich bringe für das Café nichts mit.'])
+
+    # message
+    if session.sale_vars[config.formname.person_message]:
+        dataelements.append(['Meine Nachricht:', session.sale_vars[config.formname.person_message]])
 
 
-    data = TABLE(*de, _class = config.cssclass.tblconfirmdata)
+    data = getEnrolmentDataOverview(dataelements)
 
-
-    # The _name arguments are important as the one of the pressed button will appear in request.vars.
-    form = FORM(TABLE(TR(
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit back', _value = 'Zurück'),
-                         INPUT(_type = 'submit', _class = 'button', _name = 'submit send', _value = 'Jetzt anmelden!'), _id = config.cssid.waitmsgtrig)
-                        ),
-                DIV(T(config.msg.wait), _id = config.cssid.waitmsg)
+    form = FORM(DIV(
+                    FormButton().back(),
+                    FormButton().send('Anmeldung absenden'),
+                    _class = 'expanded button-group'
+                    )
                 )
 
+    data.append(form)
 
     if 'submit back' in request.vars:
         redirect(URL('form'))
@@ -265,7 +257,7 @@ def confirm():
         else:
             redirect(URL('sale','final_wait'))
 
-    return(dict(form = form, data = data))
+    return(dict(data = data))
 
 def final():
     return dict()
@@ -321,8 +313,8 @@ class Sale():
         for r in rows:
             r.timelabel = r.day + ', ' + r.time
             r.label     = r.day + ', ' + r.time + ', ' + r.activity
-            # add name of the form element, format: configured marker name '$' database id
-            r.name  = config.formname.shift + '$' + str(r.id)
+            # add name of the form element, format: configured marker name '§' database id
+            r.name  = config.formname.shift + '§' + str(r.id)
 
         # Note: Here a reference is returned!
         return rows
@@ -335,11 +327,11 @@ class Sale():
         for r in rows:
             r.label = r.item
 
-            # add name for the form element, format: configured marker name '$' database id
-            r.name  = config.formname.donation + '$' + str(r.id)
+            # add name for the form element, format: configured marker name '§' database id
+            r.name  = config.formname.donation + '§' + str(r.id)
 
-            # add name for the form element, format: configured marker name '$' database id of donation
-            r.name_note = config.formname.note + '$' +  str(r.id)
+            # add name for the form element, format: configured marker name '§' database id of donation
+            r.name_note = config.formname.note + '§' +  str(r.id)
 
             # add a list of all notes which already exist for this donation
             r.notes = self.contrib.get_notes_list_for_donation(r.id)
@@ -362,7 +354,7 @@ class Sale():
         self.b_does_donate     = False
         # iterate through the dictionary 'vars' containing the form elements
         # for the form elements which have been checked => decode the database table and the id from the key
-        p = re.compile('^([a-z]+)\$([0-9]+)$')
+        p = re.compile('^([a-z]+)§([0-9]+)$')
         for (k, v) in self.vars.iteritems():
             if v == 'on':
                 m = p.match(k)
@@ -377,7 +369,7 @@ class Sale():
                         self.b_does_donate = True
         self.b_does_contribute = self.b_does_help or self.b_does_donate
 
-        p = re.compile('^{n}\$([0-9]+)$'.format(n = config.formname.note))
+        p = re.compile('^{n}§([0-9]+)$'.format(n = config.formname.note))
         for (k, v) in vars.iteritems():
             if v != '':
                 m = p.match(k)

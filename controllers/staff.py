@@ -22,6 +22,7 @@ T.force('de')
 def person_summary():
 
     form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
+                           formstyle= generateFoundationForm,
                            buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')],
                            _class = 'admin_ctrl_form')
     form.custom.widget.person['_class'] = 'autosubmit'
@@ -301,7 +302,7 @@ def manage_help():
         title = A(TABLE(
                     TR(TD('%s, %s:' % (s.day, s.time)),
                        TD(s.activity, _class = 'mh_activity'),
-                       TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class']),
+                       TD('( %d / %d )' % (a, t), _class = ContributionCompleteness(a, t)._class),
                        TD(', %s' % s.scope if s.scope else '', _class = 'mh_shift_scope')
                        ), _class = 'mh_shift_title'), _href = URL('crud/shift/edit', vars = dict(id = s.id)))
 
@@ -340,8 +341,8 @@ def manage_help():
     for k, v in totals.iteritems():
         data_stat_header.append(TH(k if k else 'scope: %s' %k)) # prefix 'scope' if  scope in None (for old events)
         data_stat_number.append(TD(SPAN('%d (' % v['count']), A(' + ', _href = URL('crud/shift/add'), _class = 'mh_add_link'), SPAN(')')))
-        ratio = getActNumberRatio(v['actual'], v['target'])
-        data_stat_assignment.append(TD('%d / %d (%d%%)' % (v['actual'], v['target'], ratio['ratio']), _class = ratio['_class']))
+        ratio = ContributionCompleteness(v['actual'], v['target'])
+        data_stat_assignment.append(TD('%d / %d (%d%%)' % (v['actual'], v['target'], ratio.ratio), _class = ratio._class))
         data_stat_persons.append(TD(len(set(v['persons']))))
 
     table_stat = TABLE(THEAD(TR(*data_stat_header, _class = tu.get_class_evenodd())),
@@ -372,7 +373,7 @@ def manage_donations():
         t_total += t
         title = A(TABLE(TR(
                        TD(d.item, _class = 'mh_activity'),
-                       TD('( %d / %d )' % (a, t), _class = getActNumberRatio(a, t)['_class'])
+                       TD('( %d / %d )' % (a, t), _class = ContributionCompleteness(a, t)._class)
                        ), _class = 'mh_shift_title'), _href=URL('crud/donation/edit', vars = dict(id = d.id)))
 
         data_donation = []
@@ -425,11 +426,11 @@ def manage_donations():
     data_stat.append((TD('number of donation types'),
                       TD(SPAN('%d (' % len(data_elements)), A(' + ', _href = URL('crud/donation/add'), _class = 'mh_add_link'), SPAN(')'))
                       ))
-    ratio = getActNumberRatio(a_total, t_total)
+    ratio = ContributionCompleteness(a_total, t_total)
     a_total_safe = a_total - a_total_denied
-    ratio_safe = getActNumberRatio(a_total_safe, t_total)
-    data_stat.append((TD('number of individual donations'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio['ratio']), _class = ratio['_class'])))
-    data_stat.append((TD('number of safe donations (with sale number)'), TD('%d / %d (%d%%)' % (a_total_safe, t_total, ratio_safe['ratio']), _class = ratio_safe['_class'])))
+    ratio_safe = ContributionCompleteness(a_total_safe, t_total)
+    data_stat.append((TD('number of individual donations'), TD('%d / %d (%d%%)' % (a_total, t_total, ratio.ratio), _class = ratio._class)))
+    data_stat.append((TD('number of safe donations (with sale number)'), TD('%d / %d (%d%%)' % (a_total_safe, t_total, ratio_safe.ratio), _class = ratio_safe._class)))
     data_stat.append((TD('number of assigned persons'), TD('%d' % len(c.get_bringer_list()))))
 
     table_stat = TABLE(*[TR(*x, _class = tu.get_class_evenodd()) for x in data_stat], _class = 'list')
@@ -572,8 +573,6 @@ def __update_person_onvalidation(form):
     pe = PersonEntry(shotdb, form.vars)
 
     person_representation = '%s %s aus %s (ID %d)' % (form.vars.forename, form.vars.name, form.vars.place, pid)
-    form.deletemsg = 'Die Daten von %s wurden gelöscht.' % person_representation
-    form.record_deleted = None # This attribute must be created (used in onaccept function). Form is no storage object?
 
     # check if id of any matching person entry is DIFFERENT from current crud person id:
     if pe.exists and pe.id != pid:
@@ -606,9 +605,15 @@ def __update_person_onvalidation(form):
 
 def __update_person_ondelete(form):
     # This function is  called before the onaccept function below.
+    pid = int(request.get_vars['id'])
+    person_representation = '%s %s aus %s (ID %d)' % (form.vars.forename, form.vars.name, form.vars.place, pid)
+    form.deletemsg = 'Die Daten von %s wurden gelöscht.' % person_representation
+    form.record_deleted = None # This attribute must be created (used in onaccept function). Form is no storage object?
+
     form.record_deleted = True
 
 def __update_person_onaccept(form):
+
     if form.record_deleted:
         response.flash = form.deletemsg
     else:

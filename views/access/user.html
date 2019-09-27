@@ -1,6 +1,6 @@
 {{response.b_noindex = True}}
 {{extend 'frameset.html'}}
-<h3>
+
 {{
 if request.args(0)=='login':
     h = 'Login als Secondhand-Teammitglied'
@@ -17,38 +17,37 @@ elif request.args(0)=='retrieve_username':
 else:
     h = T( request.args(0).replace('_',' ').capitalize() )
 pass
-response.write(h)
+response.write(H1(h))
 }}
-</h3>
-<div id="user_form">
-  {{=DIV(response.flash, _class = 'error')}}
+
+
+{{
+    if response.flash:
+        response.write(DIV(P(response.flash), _class="callout alert"))
+        pass
+}}
   {{=form}}
-</div>
+
 {{
 from urlutils import URLUser
 links = []
 if request.args(0)=='login':
     if not 'register' in auth.settings.actions_disabled:
-        links.append(A('Registrieren', _href = URLUser('register')))
-    pass
-    if links:
-        links.append(', ')
-    pass
+        links.append(A('Registrieren', _href = URLUser('register'), _class = 'button hollow'))
+        pass
+
     if not 'request_reset_password' in auth.settings.actions_disabled:
-        links.append(A('Paßwort vergessen?', _href = URLUser('request_reset_password')))
-    pass
-    if links:
-        links.append(', ')
-    pass
+        links.append(A('Paßwort vergessen?', _href = URLUser('request_reset_password'), _class = 'button hollow'))
+        pass
+
+
     if not 'retrieve_username' in auth.settings.actions_disabled:
-        links.append(A('Benutzernamen vergessen?', _href = URLUser('retrieve_username')))
-    pass
+        links.append(A('Benutzernamen vergessen?', _href = URLUser('retrieve_username'), _class = 'button hollow'))
+        pass
 
 pass
 
 if links:
-    links.insert(0,'[')
-    links.append(']')
-    response.write(P(*links))
-pass
+    response.write(DIV(*links, _class = 'stacked-for-small expanded button-group'))
+    pass
 }}
