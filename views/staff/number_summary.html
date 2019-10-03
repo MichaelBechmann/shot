@@ -1,6 +1,6 @@
 {{extend 'frameset.html'}}
 
-<h3>Number summary</h3>
+<h1>Number summary</h1>
 <p>
 Diese Seite stellt alle Informationen zu einzelnen Kommissionsnummern bereit.
 </p>
@@ -9,7 +9,7 @@ Diese Seite stellt alle Informationen zu einzelnen Kommissionsnummern bereit.
 
 {{
 if data:
-    response.write(DIV('Here is the data for sale number: ', STRONG(str(number))))  
+    response.write(DIV('Here is the data for sale number: ', STRONG(str(number))))
     response.write(BEAUTIFY(data))
     pass
 

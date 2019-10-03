@@ -33,7 +33,7 @@ def manage_users():
 
     formelements = []
     formelements.append(SPAN(T('Auth table:'),  SELECT(table_ids, _name = 'table_id', _class = 'autosubmit')))
-    formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
+    formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'hidden'))
     form = FORM(*formelements, _class = 'admin_ctrl_form')
 
     form.vars['table_id'] = table_id

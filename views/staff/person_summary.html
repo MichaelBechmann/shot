@@ -1,6 +1,6 @@
 {{extend 'frameset.html'}}
 
-<h3>Person summary</h3>
+<h1>Person summary</h1>
 <p>
 Diese Seite stellt alle Informationen und Aktionen zu einzelnen Personen bereit.
 </p>
@@ -8,18 +8,18 @@ Diese Seite stellt alle Informationen und Aktionen zu einzelnen Personen bereit.
 {{
 response.write(form)
 if name != None:
-    response.write(BR())
+
     response.write(BR())
     response.write(TABLE(TR(TD(name), TD(info)), _id = 'ps_info_table'))
-    response.write(BR())
+
     response.write(BR())
     response.write(DIV('The persons activity information:', data))
-    response.write(BR())
+
     response.write(BR())
     response.write(DIV('Available email actions:', mailform))
-    response.write(BR())
+
     response.write(BR())
     response.write(DIV('Log entries:', log))
-    
+
     pass
 }}

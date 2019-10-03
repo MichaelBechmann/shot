@@ -14,6 +14,7 @@ from gluon.tools import Crud
 from gluon.storage import Storage
 from formutils import *
 from shotmail import *
+
 import re
 
 T.force('de')
@@ -21,11 +22,10 @@ T.force('de')
 @auth.requires_membership('staff')
 def person_summary():
 
-    form = SQLFORM.factory(SQLField('person', label='Select a person', requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
+    form = SQLFORM.factory(SQLField('person', label='Person', widget = FoundationWidgetSelectAutosubmit, requires=IS_IN_DB(shotdb,'person.id', '%(name)s, %(forename)s (%(place)s)', orderby=shotdb.person.name)),
                            formstyle= generateFoundationForm,
-                           buttons = [SPAN(INPUT(_type = 'submit', _class = 'button', _value = 'display'), _class = 'js_hide')],
+                           buttons = [],# no submit button (autosubmit)
                            _class = 'admin_ctrl_form')
-    form.custom.widget.person['_class'] = 'autosubmit'
 
     # prepopulate form
     if request.args(0):
@@ -481,7 +481,7 @@ class SimpleEventForm():
 
         name_event  = 'selev'
 
-        self.form = FORM(SPAN(T('Event: '),   SELECT(le, _name = name_event, _class = 'autosubmit')), _class = 'admin_ctrl_form')
+        self.form = FORM(SPAN('Marktereignis: ',   SELECT(le, _name = name_event, _class = 'autosubmit')), _class = 'admin_ctrl_form')
 
         # extract selections from session object for use in the controller and pre-populate selectors
         # event filter selection
@@ -727,9 +727,9 @@ class Filter():
 
         formelements = []
         if self.displayeventfilter:
-            formelements.append(SPAN(T('Event:'),   SELECT(le, _name = name_event, _class = 'autosubmit')))
-        formelements.append(SPAN(T('View:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
-        formelements.append(SPAN(INPUT(_type = 'submit', _class = 'button', _value = T('display')), _class = 'js_hide'))
+            formelements.append(SPAN('Marktereignis:',   SELECT(le, _name = name_event, _class = 'autosubmit')))
+        formelements.append(SPAN(T('Ansicht:'),  SELECT(ls, _name = name_colset, _class = 'autosubmit')))
+        # This form has no submit button (autosubmit).
         self.form = FORM(*formelements, _class = 'admin_ctrl_form')
 
         # extract selections from session object for use in the controller and pre-populate selectors

@@ -139,5 +139,13 @@ $(document).ready(function(){
      });
 
 
+     /*
+      *  Auto-submit select forms
+      */
+     $('.autosubmit select, select.autosubmit').change(function() {
+        $(this).parents('form').submit();
+     });
+
+
 });
 

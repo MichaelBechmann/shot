@@ -41,7 +41,7 @@ def generateFoundationForm(form, fields):
     return grid
 
 
-def __foundation_widget_generic(field, value, HELPER, type = 'text'):
+def __foundation_widget_generic(field, value, HELPER, type = 'text', _class = None):
     identifier   = '%s_%s' % (field.tablename, field.name)
     label = LABEL(field.label + ':', _for = identifier, _class = 'text-left medium-middle')
 
@@ -56,12 +56,21 @@ def __foundation_widget_generic(field, value, HELPER, type = 'text'):
         formelement['_rows'] = 6
         if value:
             formelement.append(value)
+
+    elif HELPER == SELECT:
+        for (k, v) in field.requires.options():
+            formelement.append(OPTION(v, _value = k))
     else:
         formelement['_value'] = value
 
+
+    widget_class = 'grid-x grid-padding-x'
+    if _class:
+        widget_class = widget_class + ' ' + _class
+
     widget = DIV(DIV(label,       _class = 'medium-12 large-3 huge-2 cell'),
                  DIV(formelement, _class = 'medium-12 large-9 huge-10 cell'),
-                 _class = 'grid-x grid-padding-x')
+                 _class = widget_class)
 
     return widget
 
@@ -73,6 +82,9 @@ def FoundationWidgetPassWord(field, value):
 
 def FoundationWidgetText(field, value):
     return __foundation_widget_generic(field, value, TEXTAREA)
+
+def FoundationWidgetSelectAutosubmit(field, value):
+    return __foundation_widget_generic(field, value, SELECT, type = 'select', _class = 'autosubmit')
 
 def FoundationWidgetRadio(field, value, radio_options, default_value = None):
     if not value:
