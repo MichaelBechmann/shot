@@ -39,6 +39,7 @@
 'An die angegebene Adresse wurde eine E-Mail gesandt.Bitte folgen Sie den Instruktionen darin, um den Vorgang zu beenden.': 'An die angegebene Adresse wurde eine E-Mail gesandt.Bitte folgen Sie den Instruktionen darin, um den Vorgang zu beenden.',
 'Anfahrt': 'Anfahrt',
 'Anfahrt & Parken': 'Anfahrt & Parken',
+'Ansicht:': 'Ansicht:',
 'Apply changes': 'Apply changes',
 'Appropriation requests': 'Fördermittel beantragen',
 'Are you sure you want to delete this object?': 'Are you sure you want to delete this object?',

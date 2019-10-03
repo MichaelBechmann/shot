@@ -74,7 +74,7 @@ def person_summary():
             email_enable_note = SPAN('inactive', _class = 'ps_email_inactive')
 
         info_elems = [TR('Address:', '%s, %s, %s %s' %(p.record.place, p.record.zip_code, p.record.street, p.record.house_number)),
-                      TR('Phone:', p.record.telephone),
+                      TR('Phone:', A(p.record.telephone, _href='tel:' + p.record.telephone)),
                       TR('Email:', TD(SPAN('%s (' % (p.record.email)), email_verify_note, SPAN(', '), email_enable_note, SPAN(')')))
                       ]
         if Team(shotdb).IsMember(pid):
