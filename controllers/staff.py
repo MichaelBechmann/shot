@@ -601,6 +601,7 @@ def __update_person_onvalidation(form):
 
         # These messages must be forwarded to the onaccept function below. Any flash message set by this onvalidation function will be replaced with the crud standard message!
         form.updatemsg = msg
+        form.record_deleted = None # This attribute must be created (used in onaccept function). Form is no storage object?
 
 
 def __update_person_ondelete(form):
@@ -608,8 +609,6 @@ def __update_person_ondelete(form):
     pid = int(request.get_vars['id'])
     person_representation = '%s %s aus %s (ID %d)' % (form.vars.forename, form.vars.name, form.vars.place, pid)
     form.deletemsg = 'Die Daten von %s wurden gelöscht.' % person_representation
-    form.record_deleted = None # This attribute must be created (used in onaccept function). Form is no storage object?
-
     form.record_deleted = True
 
 def __update_person_onaccept(form):
@@ -624,7 +623,7 @@ def __update_person_onaccept(form):
 def crud():
 
     tablename = request.args(0)
-    action = request.args(1)
+    action    = request.args(1)
     event_id  = request.get_vars['eid']
     person_id = request.get_vars['pid']
     record_id = request.get_vars['id']
@@ -662,9 +661,14 @@ def crud():
         crud.settings.update_onvalidation = __update_person_onvalidation
         crud.settings.update_onaccept     = __update_person_onaccept
         crud.settings.update_ondelete     = __update_person_ondelete
-        shotdb.person.code.writable = False
-        shotdb.person.verified.writable = False
-        shotdb.person.data_use_agreed.writable = False
+        shotdb.person.code.writable            = False
+        shotdb.person.verified.writable        = False
+
+        shotdb.person.data_use_agreed.writable = False # Agreement must never be modified by admins!
+        shotdb.person.data_use_agreed.requires = None
+
+        shotdb.person.mail_enabled.requires    = None
+
         crud.messages.record_created = None
     else:
         # default flash messages

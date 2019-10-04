@@ -12,6 +12,10 @@ if name != None:
     response.write(BR())
     response.write(TABLE(TR(TD(name), TD(info)), _id = 'ps_info_table'))
 
+    if response.flash:
+        response.write(DIV(P(response.flash), _class="callout primary"))
+        pass
+
     response.write(BR())
     response.write(DIV('The persons activity information:', data))
 

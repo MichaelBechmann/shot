@@ -113,7 +113,7 @@ shotdb.define_table('person',
 
     # flag indicating if storage and use of personal data have been agreed
     # Note: The widget is set in the controller (slightly different widgets in different controllers!)
-    Field('data_use_agreed', 'boolean',  label = 'Einwilligung in die Datenverarbeitung:', requires = IS_NOT_EMPTY(error_message = 'Ohne Ihre Einwilligung können wir Ihre Daten nicht verarbeiten.')),
+    Field('data_use_agreed', 'boolean',  label = 'Einwilligung in die Datenverarbeitung', requires = IS_NOT_EMPTY(error_message = 'Ohne Ihre Einwilligung können wir Ihre Daten nicht verarbeiten.')),
 
     # automatically generated log data when the record is updated
     Field('log',            'text'),

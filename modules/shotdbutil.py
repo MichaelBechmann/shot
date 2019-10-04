@@ -204,20 +204,10 @@ class Ident():
             self._verify()
 
 
-    #===========================================================================
-    # def _getcode(self):
-    #     '''
-    #     This method generates a random identification code.
-    #     The code shall start with a letter, not a digit.
-    #     '''
-    #     char = string.ascii_lowercase + string.digits
-    #     self.code = random.choice(string.ascii_lowercase) + ''.join([random.choice(char) for i in range(12)])
-    #===========================================================================
-
     def getcode(self, s):
         '''
         This method generates a checksum from the passed string.
-        it is used to get reproducible codes from the email adresses.
+        it is used to get reproducible codes from the email addresses.
         '''
         len_code = config.verification.codelen
         seed = 0 # seed parameter (change when new codes shall be generated)
