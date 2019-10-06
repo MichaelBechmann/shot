@@ -12,6 +12,9 @@ if form.errors.msg != None:
     response.flash_custom_display = True # hide default wiki flash messages
     response.write(DIV(DIV(STRONG('Obacht, das Formular enthält Fehler!')), P(form.errors.msg), _class="callout alert"))
     pass
+elif b_contributions_overpopulation:
+    response.write(DIV(DIV(STRONG('Achtung!')), P('Eine von Ihnen ausgewählte Helferschicht oder Kuchenspende ist mittlerweile vollständig belegt. Wenn möglich wählen Sie bitte etwas anderes aus.'), _class="callout alert"))
+    pass
 response.write(form)
 }}
 

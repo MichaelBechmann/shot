@@ -30,6 +30,7 @@ def __validateform(form):
     This validation function checks whether or not at least one of the help shift checkbox fields has been checked.
     Notes on donations are regularized.
     '''
+
     sale = form.sale
     sale.analyzecheckboxes(form.vars)
     if not (sale.b_does_contribute or sale.b_wants_sale_number):
@@ -61,6 +62,13 @@ def form():
             sale = Sale(session.registration_person_id)
         else:
             raise ShotError('Session object does not contain a valid person id!')
+
+        # Display message in case of overpopulation of shifts or donations
+        if session.b_contributions_overpopulation:
+            b_contributions_overpopulation = True
+            session.b_contributions_overpopulation = False
+        else:
+            b_contributions_overpopulation = False
 
 
     if sale.shift_scope == 'team':
@@ -176,7 +184,7 @@ def form():
 
         response.flash_custom_display = True # hide default wiki flash messages
 
-    return dict(announcement = sale.announcement, form = form)
+    return dict(announcement = sale.announcement, form = form, b_contributions_overpopulation = b_contributions_overpopulation)
 
 
 def confirm():
@@ -186,6 +194,15 @@ def confirm():
     sale = Sale(session.registration_person_id)
 
     sale.analyzecheckboxes(session.sale_vars)
+
+    # Redirect back to form in case one or more selected contributions are not available anymore.
+    list_overpopulated_contributions = sale.getContributionsOverpopulation()
+    if list_overpopulated_contributions:
+        for cid in list_overpopulated_contributions:
+            # The form variables must be deleted. Otherwise the redirected page will initialize non-existing input fields which will then remain forever!
+            del session.sale_vars[cid]
+        session.b_contributions_overpopulation = True
+        redirect(URL('form'))
 
     # construct a list of all data to be confirmed
     dataelements = []
@@ -305,6 +322,19 @@ class Sale():
             # get name of the person
             self.person_name = person.forename + ' ' + person.name
 
+    def _getFormNameShift(self, row):
+        # format: configured marker name '§' database id
+        return config.formname.shift + '§' + str(row.id)
+
+    def _getFormNameDonation(self, row):
+        # format: configured marker name '§' database id
+        return config.formname.donation + '§' + str(row.id)
+
+    def _getFormNameNote(self, row):
+        # format: configured marker name '§' database id
+        return config.formname.note + '§' + str(row.id)
+
+
     def getshifts(self):
         '''
         This function retrieves all shifts belonging to the current event and adds some evaluated properties.
@@ -313,8 +343,7 @@ class Sale():
         for r in rows:
             r.timelabel = r.day + ', ' + r.time
             r.label     = r.day + ', ' + r.time + ', ' + r.activity
-            # add name of the form element, format: configured marker name '§' database id
-            r.name  = config.formname.shift + '§' + str(r.id)
+            r.name      = self._getFormNameShift(r)
 
         # Note: Here a reference is returned!
         return rows
@@ -325,16 +354,10 @@ class Sale():
         '''
         rows = self.contrib.get_donations()
         for r in rows:
-            r.label = r.item
-
-            # add name for the form element, format: configured marker name '§' database id
-            r.name  = config.formname.donation + '§' + str(r.id)
-
-            # add name for the form element, format: configured marker name '§' database id of donation
-            r.name_note = config.formname.note + '§' +  str(r.id)
-
-            # add a list of all notes which already exist for this donation
-            r.notes = self.contrib.get_notes_list_for_donation(r.id)
+            r.label     = r.item
+            r.name      = self._getFormNameDonation(r)
+            r.name_note = self._getFormNameNote(r)
+            r.notes     = self.contrib.get_notes_list_for_donation(r.id)
 
         # Note: Here a reference is returned!
         return rows
@@ -405,6 +428,22 @@ class Sale():
             r.note = self.donations_checked[r.id]
 
         return rows
+
+    def getContributionsOverpopulation(self):
+        '''
+        This method returns a list with all form names which correspond to over-populated contributions.
+        '''
+        l = []
+        for shift in self.getcheckedshifts():
+            if shift.actual_number >= shift.target_number:
+                l.append(self._getFormNameShift(shift))
+
+        for donation in self.getcheckeddonations():
+            if donation.actual_number >= donation.target_number:
+                l.append(self._getFormNameDonation(donation))
+
+        return l
+
 
     def setdbentries(self):
         '''
