@@ -47,6 +47,9 @@ def __validateform(form):
 
 
 def form():
+    # ini
+    b_contributions_overpopulation = False
+
     # check whether or not the sale information form shall be displayed
     if session.form_passive:
         # The form shall be displayed for configuration purposes only.
@@ -67,8 +70,6 @@ def form():
         if session.b_contributions_overpopulation:
             b_contributions_overpopulation = True
             session.b_contributions_overpopulation = False
-        else:
-            b_contributions_overpopulation = False
 
 
     if sale.shift_scope == 'team':

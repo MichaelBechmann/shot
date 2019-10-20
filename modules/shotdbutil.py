@@ -468,7 +468,7 @@ class Numbers():
 
     def number_of_available_not_reserved(self):
         '''
-        This method returns the number of available sale numbers which shall not be reserved for a fromer helper.
+        This method returns the number of available sale numbers which shall not be reserved for a former helper.
         '''
         n = len(self.free() - self.helper(self.previous_eid))
         return self._check_event_number_limit(n)
@@ -874,7 +874,7 @@ class Contributions():
         '''
         This method returns a rows object off all shifts for the selected event.
 
-        scope: This argument allows to restrict the result to a single scope. If left away the scope attibute is ignored.
+        scope: This argument allows to restrict the result to a single scope. If left away the scope attribute is ignored.
         '''
         if self.rows_shifts == None or scope != self.scope:
             self.scope = scope
@@ -1178,24 +1178,24 @@ class WaitList():
         else:
             b_contributions_available = False
 
-        # determine or prognost position on the wait list
+        # determine or predict position on the wait list
         pos = self.get_pos_current(pid)
         if pos == 0:
             pos = self.length() + 1
 
         numbers = Numbers(self.db, self.eid)
-        x  = numbers.number_of_available() - n_open_shifts - pos
+        x  = numbers.number_of_available() - n_open_contributions - pos
 
         if x > 15*numbers.limit/100: # > 15% of all numbers still free
             msg = 'Es sind noch genügend Kommissionsnummern frei. Sie werden sicher eine Nummer erhalten, sobald unsere Warteliste aufgelöst wird.'
         elif x >= 0:
             if b_contributions_available:
-                msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen. Ob Sie dann eine Nummer erhalten, hängt davon ab, wie viele Helfer wir noch gewinnen können. Um ganz sicher eine Nummer zu erhalten, tragen Sie sich für eine Helferschicht oder einen Kuchen ein.'
+                msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen. Ob Sie dann eine Nummer erhalten, hängt davon ab, wie viele Helfer und Kuchenspender wir noch gewinnen können. Um ganz sicher eine Nummer zu erhalten, tragen Sie sich für eine Helferschicht oder einen Kuchen ein.'
             else:
                 msg = 'Es sind noch einige Kommissionsnummern frei. Sie können sich gerne auf die Warteliste setzen.'
         elif x >= -20*numbers.limit/100:
             if b_contributions_available:
-                msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer verfügbar. Sie können sich aber gerne auf die Warteliste setzen. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine erhalten, ohne am Markt zu helfen.'
+                msg = 'Es sind derzeit Kommissionsnummern nur noch für Helfer und Kuchenspender verfügbar. Sie können sich aber gerne auf die Warteliste setzen. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine erhalten, ohne am Markt zu helfen oder Kuchen zu spenden.'
             else:
                 msg = 'Es sind derzeit keine Kommissionsnummern mehr verfügbar. Sie können sich aber gerne auf die Warteliste setzen. Sollten Nummern zurückgegeben werden, könnten Sie evtl. noch eine erhalten.'
         else:

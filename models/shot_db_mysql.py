@@ -11,7 +11,7 @@ from shotauth import ShotAuth
 from formutils import *
 
 # version number for static assets
-response.static_version = '1.1.14'
+response.static_version = '1.1.15'
 
 T.force('de')
 
